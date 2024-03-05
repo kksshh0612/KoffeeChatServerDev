@@ -1,0 +1,25 @@
+# 로컬 개발 환경에서의 설정
+spring:
+  config:
+    name: application-local
+    activate:
+      on-profile: local
+    location: classpath:/application-local.yml
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/koffeechat?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: ${mysql-pw}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true                                    # sout으로 보기에 편안한 sql 출력
+        dialect: org.hibernate.dialect.MySQL8Dialect        # mysql 방언
+    open-in-view: false
+
+filePath: C:\nestnetFile\
