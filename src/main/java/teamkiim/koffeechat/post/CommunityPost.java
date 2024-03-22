@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
+import teamkiim.koffeechat.comment.Comment;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.member;
+package teamkiim.koffeechat.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,9 +8,9 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class Member {
+public class User {
 
     @Id @GeneratedValue
-    @Column(name="member_id")
+    @Column(name="user_id")
     private Long id;  // 회원 id
 }

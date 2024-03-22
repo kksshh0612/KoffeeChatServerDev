@@ -2,7 +2,9 @@ package teamkiim.koffeechat.post;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import teamkiim.koffeechat.member.Member;
+import teamkiim.koffeechat.file.File;
+import teamkiim.koffeechat.user.User;
+import teamkiim.koffeechat.skillcategory.SkillCategory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,8 +24,8 @@ public abstract class Post {  //게시글
     private Long id;  //post_id
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;  // 게시글 작성자
+    @JoinColumn(name = "user_id")
+    private User user;  // 게시글 작성자
 
     private String title;  // 제목
     private String bodyContent;  // 내용
