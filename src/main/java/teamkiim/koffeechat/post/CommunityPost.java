@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.comment.Comment;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @DiscriminatorValue("Community")
 @Getter
+@NoArgsConstructor
 public class CommunityPost extends Post{
 
     //게시글 댓글 리스트

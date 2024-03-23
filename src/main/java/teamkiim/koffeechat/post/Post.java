@@ -2,20 +2,23 @@ package teamkiim.koffeechat.post;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import teamkiim.koffeechat.file.File;
-import teamkiim.koffeechat.user.User;
 import teamkiim.koffeechat.skillcategory.SkillCategory;
+import teamkiim.koffeechat.user.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "DTYPE")
-@Getter
+@Getter @Setter
+@NoArgsConstructor
 public abstract class Post {  //게시글
 
     @Id
