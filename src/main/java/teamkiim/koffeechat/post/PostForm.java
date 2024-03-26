@@ -2,12 +2,14 @@ package teamkiim.koffeechat.post;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter @Setter
-public class PostForm {
+/**
+ * 클라이언트에 보여지는 게시글 form
+ */
+@Getter
+public abstract class PostForm {
 
     private Long id;
     //user
@@ -22,5 +24,18 @@ public class PostForm {
 
     //skillCategoryList
     //fileList
+
+    /**
+     * 값 세팅 메소드
+     */
+    public void set(Long id, String title, String bodyContent, Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime, Long chatRoomId) {
+        this.id=id;
+        this.title=title;
+        this.bodyContent= bodyContent;
+        this.viewCount=viewCount;
+        this.likeCount=likeCount;
+        this.createdTime=createdTime;
+        this.modifiedTime=modifiedTime;
+    }
 
 }

@@ -8,10 +8,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
-public class PostRepository {
+public abstract class PostRepository {
 
-    private final EntityManager em;
+    protected final EntityManager em;
+
+    public PostRepository(EntityManager em) {
+        this.em = em;
+    }
 
     /**
      * 게시글 저장

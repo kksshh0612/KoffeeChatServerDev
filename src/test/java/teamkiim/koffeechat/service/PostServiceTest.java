@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.post.DevPost;
+import teamkiim.koffeechat.post.dev.DevPost;
 import teamkiim.koffeechat.post.PostRepository;
 import teamkiim.koffeechat.post.PostService;
 import teamkiim.koffeechat.user.User;
