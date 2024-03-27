@@ -2,10 +2,7 @@ package teamkiim.koffeechat.post;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.post.community.CommunityPost;
 
 @RestController
@@ -28,8 +25,8 @@ public abstract class PostController {
     /**
      * 게시글 삭제
      */
-    @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<String> deletePost(@RequestBody Long postId) {
+    @DeleteMapping("/posts/{postId}/delete")
+    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId) {
         if (postService.deletePost(postId)) {
             return ResponseEntity.ok("게시물이 삭제되었습니다.");
         } else {

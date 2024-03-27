@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.post.Post;
 import teamkiim.koffeechat.post.PostController;
-import teamkiim.koffeechat.post.PostForm;
 import teamkiim.koffeechat.post.PostService;
 
 import java.util.List;
