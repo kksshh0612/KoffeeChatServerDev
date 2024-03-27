@@ -2,6 +2,7 @@ package teamkiim.koffeechat.post;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -24,6 +25,9 @@ public abstract class PostForm {
 
     //skillCategoryList
     //fileList
+
+    public PostForm() {
+    }
 
     /**
      * 게시글 목록 출력 시 화면에 보여줄 값 세팅 메소드

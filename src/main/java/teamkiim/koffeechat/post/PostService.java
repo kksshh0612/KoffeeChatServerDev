@@ -3,6 +3,7 @@ package teamkiim.koffeechat.post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.post.dev.DevPost;
 
 import java.util.List;
 
@@ -45,15 +46,17 @@ public abstract class PostService {
      * 게시글 제목, 내용 수정
      */
     @Transactional
-    public void updatePost(Long postId, String title, String bodyContent) {}
+    public void updatePost(Long postId, String title, String bodyContent) {
+        Post findDev = postRepository.findOne(postId);
+        findDev.update(title, bodyContent);
+    }
 
     /**
      * 게시글 삭제
      */
     @Transactional
-    public void deletePost(Long postId) {
+    public boolean deletePost(Long postId) {
         postRepository.deleteById(postId);
+        return true;
     }
-
-
 }

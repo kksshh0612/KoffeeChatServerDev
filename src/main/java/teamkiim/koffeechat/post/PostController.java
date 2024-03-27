@@ -2,7 +2,7 @@ package teamkiim.koffeechat.post;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,24 +25,37 @@ public abstract class PostController {
         return ResponseEntity.ok(post);
     }
 
+    /**
+     * 게시글 삭제
+     */
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<String> deletePost(@RequestBody Long postId) {
+        if (postService.deletePost(postId)) {
+            return ResponseEntity.ok("게시물이 삭제되었습니다.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
 
 //    /**
 //     * 게시글 목록 조회
 //     */
 //    @GetMapping("/posts")
-//    public ResponseEntity<List<DevPostForm>> list() {
+//    public ResponseEntity<List<PostForm>> list() {
 //        List<Post> posts= postService.findPosts();
 //
 //        //Post 엔티티를 PostForm 형태로 정제
-//        List<DevPostForm> devPostForms = posts.stream()
+//        List<PostForm> postForms = posts.stream()
 //                .map(post -> {
-//                    DevPostForm devPostForm= new DevPostForm();
-//                    devPostForm.set(post.getId(), post.getTitle(),post.getBodyContent(),post.getViewCount(),post.getLikeCount(),post.getCreatedTime(), post.getModifiedTime());
-//                    return devPostForm;
+//                    PostForm postForm= new PostForm();
+//                    postForm.set(post.getId(), post.getTitle(),post.getBodyContent(),post.getViewCount(),post.getLikeCount(),post.getCreatedTime(), post.getModifiedTime());
+//                    return postForm;
 //                })
 //                .collect(Collectors.toList());
 //
-//        return ResponseEntity.ok(devPostForms);
+//        return ResponseEntity.ok(postForms);
 //    }
 
 }

@@ -1,6 +1,7 @@
 package teamkiim.koffeechat.post;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -49,8 +50,17 @@ public abstract class PostRepository {
      * 게시글 삭제  : entity가 null이면 IllegalArgumentException 반환
      */
     public void deleteById(Long postId) {
-        em.createQuery("delete from Post where id=:postId")
+        if (postId == null) {
+            throw new IllegalArgumentException("postId cannot be null");
+        }
+
+        int deletedCount = em.createQuery("delete from Post where id=:postId")
                 .setParameter("postId", postId)
                 .executeUpdate();
+
+
+        if (deletedCount == 0) {
+            throw new EntityNotFoundException(postId + " 게시글이 존재하지 않습니다.");
+        }
     }
 }
