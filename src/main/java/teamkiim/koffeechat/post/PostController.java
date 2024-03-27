@@ -7,28 +7,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.post.community.CommunityPost;
-import teamkiim.koffeechat.post.dev.DevPost;
-import teamkiim.koffeechat.post.dev.DevPostForm;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 public abstract class PostController {
 
     private final PostService postService;
-
-    /**
-     * 게시글 생성 : 개발 게시글
-     */
-//    @PostMapping("/dev-write")
-//    public ResponseEntity<Post> createPost(@RequestBody DevPost post) {
-//        postService.createPost(post);
-//
-//        //생성된 게시물 반환
-//        return ResponseEntity.ok(post);
-//    }
 
     /**
      * 게시글 생성 : 커뮤니티 게시글
@@ -40,6 +24,7 @@ public abstract class PostController {
         //생성된 게시물 반환
         return ResponseEntity.ok(post);
     }
+
 
 //    /**
 //     * 게시글 목록 조회

@@ -42,6 +42,12 @@ public abstract class PostService {
      */
 
     /**
+     * 게시글 제목, 내용 수정
+     */
+    @Transactional
+    public void updatePost(Long postId, String title, String bodyContent) {}
+
+    /**
      * 게시글 삭제
      */
     @Transactional

@@ -26,7 +26,7 @@ public abstract class PostForm {
     //fileList
 
     /**
-     * 값 세팅 메소드
+     * 게시글 목록 출력 시 화면에 보여줄 값 세팅 메소드
      */
     public void set(Long id, String title, String bodyContent, Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime, Long chatRoomId) {
         this.id=id;

@@ -44,4 +44,11 @@ public abstract class Post {  //게시글
     @OneToMany(mappedBy = "post")
     private List<File> fileList = new ArrayList<>();
 
+    /**
+     * 게시글 제목, 내용 수정 값 세팅
+     */
+    public void update(String title, String bodyContent) {
+        this.title= title;
+        this.bodyContent=bodyContent;
+    }
 }

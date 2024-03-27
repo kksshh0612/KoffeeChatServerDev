@@ -14,4 +14,12 @@ import teamkiim.koffeechat.post.Post;
 public class DevPost extends Post {
 
     private Long chatRoomId;  //해당 게시글 채팅방 id
+
+    /**
+     * 게시글 제목, 내용 수정
+     */
+    @Override
+    public void update(String title, String bodyContent) {
+        super.update(title, bodyContent);
+    }
 }
