@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * 게시글 생성 response
  */
 @Getter
-public class DevPostCreateResponseDto {
+public class DevPostViewResponseDto {
     private Long id;
     //user
     @NotBlank(message = "제목을 입력해주세요.")
@@ -30,11 +30,11 @@ public class DevPostCreateResponseDto {
     public void set(DevPost post) {
         this.id = post.getId();
         this.title = post.getTitle();
-        this.bodyContent=post.getBodyContent();
+        this.bodyContent = post.getBodyContent();
         this.viewCount = post.getViewCount();
-        this.likeCount=post.getLikeCount();
-        this.createdTime= post.getCreatedTime();
-        this.modifiedTime=post.getModifiedTime();
+        this.likeCount = post.getLikeCount();
+        this.createdTime = post.getCreatedTime();
+        this.modifiedTime = post.getModifiedTime();
     }
 
     /**

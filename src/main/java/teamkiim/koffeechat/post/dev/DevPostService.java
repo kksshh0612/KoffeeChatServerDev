@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.post.Post;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
-import teamkiim.koffeechat.response.DevPostCreateResponseDto;
+import teamkiim.koffeechat.response.DevPostViewResponseDto;
 
 import java.util.List;
 
@@ -28,8 +28,8 @@ public class DevPostService {
     /**
      * Entity를 DTO로 변환
      */
-    public DevPostCreateResponseDto createEntityToDto(DevPost post) {
-        DevPostCreateResponseDto dto = new DevPostCreateResponseDto();
+    public DevPostViewResponseDto createEntityToDto(DevPost post) {
+        DevPostViewResponseDto dto = new DevPostViewResponseDto();
         dto.set(post);
 
         return dto;
@@ -39,10 +39,10 @@ public class DevPostService {
      * 게시글 생성
      */
     @Transactional
-    public DevPostCreateResponseDto createDevPost(PostCreateRequestDto dto) {
+    public DevPostViewResponseDto createDevPost(PostCreateRequestDto dto) {
         DevPost devPost = createDtoToEntity(dto);
         devPostRepository.save(devPost);  //게시글 저장
-        DevPostCreateResponseDto devPostDto = createEntityToDto(devPost);
+        DevPostViewResponseDto devPostDto = createEntityToDto(devPost);
 
         return devPostDto;
     }
