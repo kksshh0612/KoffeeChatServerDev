@@ -1,33 +1,57 @@
 package teamkiim.koffeechat.post.dev;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.post.Post;
-import teamkiim.koffeechat.post.PostRepository;
-import teamkiim.koffeechat.post.PostService;
+import teamkiim.koffeechat.request.PostCreateRequestDto;
+import teamkiim.koffeechat.response.DevPostCreateResponseDto;
 
 import java.util.List;
 
-@Service("devPostService")
-@Transactional
-public class DevPostService extends PostService {
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class DevPostService {
 
     private final DevPostRepository devPostRepository;
 
-    public DevPostService(@Qualifier("devPostRepository") PostRepository postRepository, DevPostRepository devPostRepository) {
-        super(postRepository);
-        this.devPostRepository = devPostRepository;
+    /**
+     * DTO를 Entity로 변환
+     */
+    public DevPost createDtoToEntity(PostCreateRequestDto dto) {
+        DevPost devPost = new DevPost();
+        devPost.create(dto.getTitle(), dto.getBodyContent());
+        return devPost;
+    }
+
+    /**
+     * Entity를 DTO로 변환
+     */
+    public DevPostCreateResponseDto createEntityToDto(DevPost post) {
+        DevPostCreateResponseDto dto = new DevPostCreateResponseDto();
+        dto.set(post);
+
+        return dto;
     }
 
     /**
      * 게시글 생성
      */
     @Transactional
-    public Long createDevPost(DevPost post) {
-        devPostRepository.save(post);  //게시글 저장
+    public DevPostCreateResponseDto createDevPost(PostCreateRequestDto dto) {
+        DevPost devPost = createDtoToEntity(dto);
+        devPostRepository.save(devPost);  //게시글 저장
+        DevPostCreateResponseDto devPostDto = createEntityToDto(devPost);
 
-        return post.getId();
+        return devPostDto;
+    }
+
+    /**
+     * 게시글 한 개 조회
+     */
+    public Post findOne(Long postId) {
+        return devPostRepository.findOneDev(postId);
     }
 
     /**
@@ -37,4 +61,25 @@ public class DevPostService extends PostService {
         return devPostRepository.findAllDev();
     }
 
+    /**
+     * 제목으로 게시글 조회
+     */
+
+    /**
+     * 게시글 제목, 내용 수정
+     */
+    @Transactional
+    public void updatePost(Long postId, String title, String bodyContent) {
+        Post findDev = devPostRepository.findOneDev(postId);
+        findDev.update(title, bodyContent);
+    }
+
+    /**
+     * 게시글 삭제
+     */
+    @Transactional
+    public boolean deletePost(Long postId) {
+        devPostRepository.deleteById(postId);
+        return true;
+    }
 }

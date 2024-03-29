@@ -44,11 +44,28 @@ public abstract class Post {  //게시글
     @OneToMany(mappedBy = "post")
     private List<File> fileList = new ArrayList<>();
 
+
+    /**
+     * 게시글 생성 값 세팅
+     */
+    public void create(String title, String bodyContent) {
+//        this.user=user;
+        this.title=title;
+        this.bodyContent=bodyContent;
+        this.viewCount=0L;  //조회수 0
+        this.likeCount=0L;  //좋아요 수 0
+        this.createdTime = LocalDateTime.now();
+        this.modifiedTime=LocalDateTime.now();
+//        this.skillCategoryList
+//        this.fileList
+    }
+
     /**
      * 게시글 제목, 내용 수정 값 세팅
      */
     public void update(String title, String bodyContent) {
         this.title= title;
         this.bodyContent=bodyContent;
+        this.modifiedTime = LocalDateTime.now();
     }
 }
