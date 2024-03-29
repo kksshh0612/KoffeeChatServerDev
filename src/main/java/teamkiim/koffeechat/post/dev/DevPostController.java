@@ -2,10 +2,7 @@ package teamkiim.koffeechat.post.dev;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.DevPostViewResponseDto;
 
@@ -48,15 +45,16 @@ public class DevPostController {
         return ResponseEntity.ok(dtoList);
     }
 
-//    /**
-//     * 개발 게시글 제목, 내용 수정
-//     */
-//    @PostMapping("posts/{postId}/edit")
-//    public ResponseEntity<String> updatePost(@PathVariable("postId") Long postId, @RequestBody DevPostForm form) {
-//        devPostService.updatePost(postId, form.getTitle(), form.getBodyContent());
-//        return  ResponseEntity.ok("수정되었습니다.");
-//    }
-//
+    /**
+     * 개발 게시글 제목, 내용 수정
+     */
+    @PostMapping("posts/{postId}/edit")
+    public ResponseEntity<DevPostViewResponseDto> updatePost(@PathVariable("postId") Long postId, @RequestBody PostCreateRequestDto postDto) {
+        DevPostViewResponseDto dto= devPostService.updatePost(postId, postDto.getTitle(), postDto.getBodyContent());
+
+        return  ResponseEntity.ok(dto);
+    }
+
 //    /**
 //     * 게시글 삭제
 //     */

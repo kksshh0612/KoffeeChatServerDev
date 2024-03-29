@@ -66,12 +66,14 @@ public class DevPostService {
      */
 
     /**
-     * 게시글 제목, 내용 수정
+     * 게시글 제목, 내용, 수정 시간 수정
      */
     @Transactional
-    public void updatePost(Long postId, String title, String bodyContent) {
-        Post findDev = devPostRepository.findOneDev(postId);
+    public DevPostViewResponseDto updatePost(Long postId, String title, String bodyContent) {
+        DevPost findDev = devPostRepository.findOneDev(postId);
         findDev.update(title, bodyContent);
+        DevPostViewResponseDto dto = createEntityToDto(findDev);
+        return dto;
     }
 
     /**
