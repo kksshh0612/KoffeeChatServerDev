@@ -2,15 +2,12 @@ package teamkiim.koffeechat.response;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import teamkiim.koffeechat.post.dev.DevPost;
+import teamkiim.koffeechat.post.community.CommunityPost;
 
 import java.time.LocalDateTime;
 
-/**
- * 게시글 내용 조회 response
- */
 @Getter
-public class DevPostViewResponseDto {
+public class CommunityPostViewResponseDto {
     private Long id;
     //user
     @NotBlank(message = "제목을 입력해주세요.")
@@ -25,9 +22,9 @@ public class DevPostViewResponseDto {
     //skillCategoryList
     //fileList
 
-//    private Long chatRoomId;
+    //comments
 
-    public void set(DevPost post) {
+    public void set(CommunityPost post) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.bodyContent = post.getBodyContent();
@@ -36,17 +33,4 @@ public class DevPostViewResponseDto {
         this.createdTime = post.getCreatedTime();
         this.modifiedTime = post.getModifiedTime();
     }
-
-    /**
-     * 게시글 목록 출력 시 화면에 보여줄 값 세팅 메소드
-     */
-//    public void set(Long id, String title, String bodyContent, Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime, Long chatRoomId) {
-////        this.id=id;
-//        this.title=title;
-//        this.bodyContent= bodyContent;
-//        this.viewCount=viewCount;
-//        this.likeCount=likeCount;
-//        this.createdTime=createdTime;
-//        this.modifiedTime=modifiedTime;
-//    }
 }

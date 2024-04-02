@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.post.dev;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class DevPostController {
      * 개발 게시글 생성
      */
     @PostMapping("/dev-write")
-    public ResponseEntity<DevPostViewResponseDto> createPost(@RequestBody PostCreateRequestDto postDto) {
+    public ResponseEntity<DevPostViewResponseDto> createPost(@Valid @RequestBody PostCreateRequestDto postDto) {
         DevPostViewResponseDto devPostDto = devPostService.createDevPost(postDto);
 
         //생성된 게시물 반환
@@ -55,16 +56,16 @@ public class DevPostController {
         return  ResponseEntity.ok(dto);
     }
 
-//    /**
-//     * 게시글 삭제
-//     */
-//    @DeleteMapping("/posts/{postId}/delete")
-//    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId) {
-//        if (devPostService.deletePost(postId)) {
-//            return ResponseEntity.ok("게시물이 삭제되었습니다.");
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
+    /**
+     * 게시글 삭제
+     */
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId) {
+        if (devPostService.deletePost(postId)) {
+            return ResponseEntity.ok("게시물이 삭제되었습니다.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
