@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import teamkiim.koffeechat.post.Post;
+import teamkiim.koffeechat.request.PostCreateRequestDto;
+import teamkiim.koffeechat.skillcategory.SkillCategory;
+
+import java.util.List;
 
 @Entity
 @DiscriminatorValue("Dev")
@@ -19,7 +23,7 @@ public class DevPost extends Post {
      * 게시글 제목, 내용 수정
      */
     @Override
-    public void update(String title, String bodyContent) {
-        super.update(title, bodyContent);
+    public void update(PostCreateRequestDto postDto, List<SkillCategory> categoryList) {
+        super.update(postDto, categoryList);
     }
 }

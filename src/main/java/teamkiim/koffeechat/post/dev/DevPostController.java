@@ -6,10 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.DevPostViewResponseDto;
-import teamkiim.koffeechat.skillcategory.SkillCategory;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,30 +31,31 @@ public class DevPostController {
      */
     @GetMapping("/dev-posts")
     public ResponseEntity<List<DevPostViewResponseDto>> list() {
-        List<DevPost> posts = devPostService.findDevPosts();  //게시글 목록 불러오기
+        List<DevPostViewResponseDto> posts = devPostService.findDevPosts();  //게시글 목록 불러오기
+//
+//        //Post entity to dto
+//        List<DevPostViewResponseDto> dtoList = posts.stream()
+//                .map(post -> {
+//                    List<SkillCategory> categories= post.getSkillCategoryList();
+//                    List<String> categoryNames= categories.stream()
+//                            .map(SkillCategory::getName)
+//                            .collect(Collectors.toList());
+//                    DevPostViewResponseDto dto = new DevPostViewResponseDto();
+//                    dto.set(post, categoryNames);
+//                    return dto;
+//                })
+//                .collect(Collectors.toList());
 
-        //Post entity to dto
-        List<DevPostViewResponseDto> dtoList = posts.stream()
-                .map(post -> {
-                    List<SkillCategory> categories= post.getSkillCategoryList();
-                    List<String> categoryNames= categories.stream()
-                            .map(SkillCategory::getName)
-                            .collect(Collectors.toList());
-                    DevPostViewResponseDto dto = new DevPostViewResponseDto();
-                    dto.set(post, categoryNames);
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(dtoList);
+        return ResponseEntity.ok(posts);
     }
 
     /**
-     * 개발 게시글 제목, 내용 수정
+     * 개발 게시글 제목, 내용, 카테고리 수정
+     * 수정 시간도 업데이트됨
      */
     @PostMapping("posts/{postId}/edit")
     public ResponseEntity<DevPostViewResponseDto> updatePost(@PathVariable("postId") Long postId, @RequestBody PostCreateRequestDto postDto) {
-        DevPostViewResponseDto dto= devPostService.updatePost(postId, postDto.getTitle(), postDto.getBodyContent());
+        DevPostViewResponseDto dto= devPostService.updatePost(postId, postDto);
 
         return  ResponseEntity.ok(dto);
     }

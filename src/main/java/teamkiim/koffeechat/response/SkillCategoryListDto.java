@@ -14,6 +14,4 @@ public class SkillCategoryListDto {
     private String name;
 
     private List<SkillCategory> child;  //하위 카테고리
-
-
 }

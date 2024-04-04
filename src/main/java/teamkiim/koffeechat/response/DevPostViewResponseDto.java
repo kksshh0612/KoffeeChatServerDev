@@ -24,7 +24,6 @@ public class DevPostViewResponseDto {
     private LocalDateTime modifiedTime;
     private List<String> skillCategories;  // 해시태그
 
-    //skillCategoryList
     //fileList
 
 //    private Long chatRoomId;
@@ -38,7 +37,6 @@ public class DevPostViewResponseDto {
         this.createdTime = post.getCreatedTime();
         this.modifiedTime = post.getModifiedTime();
         this.skillCategories= skillCategories;
-
     }
 
     /**

@@ -51,7 +51,6 @@ public class DevPostService {
     @Transactional
     public DevPostViewResponseDto createDevPost(PostCreateRequestDto dto) {
         DevPost devPost = createDtoToEntity(dto);
-        System.out.println(devPost.getSkillCategoryList());
         devPostRepository.save(devPost);  //게시글 저장
         DevPostViewResponseDto devPostDto = createEntityToDto(devPost);
 
@@ -68,8 +67,16 @@ public class DevPostService {
     /**
      * 게시글 리스트 조회
      */
-    public List<DevPost> findDevPosts() {
-        return devPostRepository.findAllDev();
+    public List<DevPostViewResponseDto> findDevPosts() {
+        List<DevPost> posts= devPostRepository.findAllDev();
+
+        List<DevPostViewResponseDto> dtoList = posts.stream()
+                .map(post->{
+                    DevPostViewResponseDto dto = createEntityToDto(post);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return dtoList;
     }
 
     /**
@@ -80,9 +87,10 @@ public class DevPostService {
      * 게시글 제목, 내용, 수정 시간 수정
      */
     @Transactional
-    public DevPostViewResponseDto updatePost(Long postId, String title, String bodyContent) {
+    public DevPostViewResponseDto updatePost(Long postId, PostCreateRequestDto postDto) {
         DevPost findDev = devPostRepository.findOneDev(postId);
-        findDev.update(title, bodyContent);
+        List<SkillCategory> categories = skillCategoryRepository.findCategories(postDto.getSkillCategories());
+        findDev.update(postDto, categories);
         DevPostViewResponseDto dto = createEntityToDto(findDev);
         return dto;
     }
