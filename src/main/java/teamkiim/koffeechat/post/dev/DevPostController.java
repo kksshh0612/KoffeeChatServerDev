@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.DevPostViewResponseDto;
+import teamkiim.koffeechat.skillcategory.SkillCategory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,8 +38,12 @@ public class DevPostController {
         //Post entity to dto
         List<DevPostViewResponseDto> dtoList = posts.stream()
                 .map(post -> {
+                    List<SkillCategory> categories= post.getSkillCategoryList();
+                    List<String> categoryNames= categories.stream()
+                            .map(SkillCategory::getName)
+                            .collect(Collectors.toList());
                     DevPostViewResponseDto dto = new DevPostViewResponseDto();
-                    dto.set(post);
+                    dto.set(post, categoryNames);
                     return dto;
                 })
                 .collect(Collectors.toList());

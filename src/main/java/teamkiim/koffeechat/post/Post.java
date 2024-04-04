@@ -37,8 +37,11 @@ public abstract class Post {  //게시글
     private LocalDateTime createdTime;  // 작성 시간
     private LocalDateTime modifiedTime;
 
-    @OneToMany
-    @JoinColumn(name="skill_category_id")
+    @ManyToMany
+    @JoinTable(name = "post_skill_category",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_category_id")
+    )
     private List<SkillCategory> skillCategoryList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
@@ -48,7 +51,7 @@ public abstract class Post {  //게시글
     /**
      * 게시글 생성 값 세팅
      */
-    public void create(String title, String bodyContent) {
+    public void create(String title, String bodyContent, List<SkillCategory> skillCategoryList) {
 //        this.user=user;
         this.title=title;
         this.bodyContent=bodyContent;
@@ -56,7 +59,8 @@ public abstract class Post {  //게시글
         this.likeCount=0L;  //좋아요 수 0
         this.createdTime = LocalDateTime.now();
         this.modifiedTime=LocalDateTime.now();
-//        this.skillCategoryList
+        this.skillCategoryList = skillCategoryList;  // 카테고리 해시태그
+
 //        this.fileList
     }
 
@@ -68,4 +72,5 @@ public abstract class Post {  //게시글
         this.bodyContent=bodyContent;
         this.modifiedTime = LocalDateTime.now();
     }
+
 }

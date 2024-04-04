@@ -6,8 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.post.Post;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.DevPostViewResponseDto;
+import teamkiim.koffeechat.skillcategory.SkillCategory;
+import teamkiim.koffeechat.skillcategory.SkillCategoryRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -15,13 +18,16 @@ import java.util.List;
 public class DevPostService {
 
     private final DevPostRepository devPostRepository;
+    private final SkillCategoryRepository skillCategoryRepository;
 
     /**
      * DTO를 Entity로 변환
      */
     public DevPost createDtoToEntity(PostCreateRequestDto dto) {
         DevPost devPost = new DevPost();
-        devPost.create(dto.getTitle(), dto.getBodyContent());
+        //카테고리 dto-> entity
+        List<SkillCategory> categories= skillCategoryRepository.findCategories(dto.getSkillCategories());
+        devPost.create(dto.getTitle(), dto.getBodyContent(), categories);  // 개발 post 데이터 setting
         return devPost;
     }
 
@@ -29,8 +35,12 @@ public class DevPostService {
      * Entity를 DTO로 변환
      */
     public DevPostViewResponseDto createEntityToDto(DevPost post) {
+        List<SkillCategory> categories= post.getSkillCategoryList();
+        List<String> categoryNames= categories.stream()
+                .map(SkillCategory::getName)
+                .collect(Collectors.toList());
         DevPostViewResponseDto dto = new DevPostViewResponseDto();
-        dto.set(post);
+        dto.set(post, categoryNames);
 
         return dto;
     }
@@ -41,6 +51,7 @@ public class DevPostService {
     @Transactional
     public DevPostViewResponseDto createDevPost(PostCreateRequestDto dto) {
         DevPost devPost = createDtoToEntity(dto);
+        System.out.println(devPost.getSkillCategoryList());
         devPostRepository.save(devPost);  //게시글 저장
         DevPostViewResponseDto devPostDto = createEntityToDto(devPost);
 

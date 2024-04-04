@@ -3,6 +3,9 @@ package teamkiim.koffeechat.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 게시글 생성 시 클라이언트에서 보내는 request
  */
@@ -18,7 +21,7 @@ public class PostCreateRequestDto {
 //    private LocalDateTime createdTime;  // 작성 시간
 //    private LocalDateTime modifiedTime;
 
-    //skillCategoryList
+    private List<String> skillCategories= new ArrayList<>();  // 해시태그
     //fileList
 
 //    private Long chatRoomId;

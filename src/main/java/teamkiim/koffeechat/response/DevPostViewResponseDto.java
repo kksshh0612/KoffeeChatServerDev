@@ -5,6 +5,7 @@ import lombok.Getter;
 import teamkiim.koffeechat.post.dev.DevPost;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 게시글 내용 조회 response
@@ -21,13 +22,14 @@ public class DevPostViewResponseDto {
     private Long likeCount;
     private LocalDateTime createdTime;  // 작성 시간
     private LocalDateTime modifiedTime;
+    private List<String> skillCategories;  // 해시태그
 
     //skillCategoryList
     //fileList
 
 //    private Long chatRoomId;
 
-    public void set(DevPost post) {
+    public void set(DevPost post, List<String> skillCategories) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.bodyContent = post.getBodyContent();
@@ -35,6 +37,8 @@ public class DevPostViewResponseDto {
         this.likeCount = post.getLikeCount();
         this.createdTime = post.getCreatedTime();
         this.modifiedTime = post.getModifiedTime();
+        this.skillCategories= skillCategories;
+
     }
 
     /**
