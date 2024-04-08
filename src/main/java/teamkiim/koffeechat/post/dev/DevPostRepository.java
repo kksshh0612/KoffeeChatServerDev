@@ -39,9 +39,18 @@ public class DevPostRepository {
     /**
      * 제목으로 게시글 조회
      */
-    public List<Post> findByTitle(String title) {
-        return em.createQuery("select p from Post p where p.title like concat('%', :title, '%')", Post.class)
+    public List<DevPost> findByTitle(String title) {
+        return em.createQuery("select p from Post p where p.title like concat('%', :title, '%')", DevPost.class)
                 .setParameter("title", title)
+                .getResultList();
+    }
+
+    /**
+     * 카테고리로 게시글 조회
+     */
+    public List<DevPost> findByCategories(List<String> categoryNames) {
+        return em.createQuery("select DISTINCT p from Post p join p.skillCategoryList c where c.name in :categoryNames", DevPost.class)
+                .setParameter("categoryNames", categoryNames)
                 .getResultList();
     }
 

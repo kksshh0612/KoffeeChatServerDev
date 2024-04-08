@@ -84,6 +84,21 @@ public class DevPostService {
      */
 
     /**
+     * 카테고리로 게시글 리스트 조회
+     */
+    public List<DevPostViewResponseDto> findDevPostsByCategories(List<String> categoryNames) {
+        List<DevPost> posts = devPostRepository.findByCategories(categoryNames);
+        List<DevPostViewResponseDto> dtoList = posts.stream()
+                .map(post->{
+                    DevPostViewResponseDto dto = createEntityToDto(post);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return dtoList;
+
+    }
+
+    /**
      * 게시글 제목, 내용, 수정 시간 수정
      */
     @Transactional

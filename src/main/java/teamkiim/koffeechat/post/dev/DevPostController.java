@@ -1,6 +1,7 @@
 package teamkiim.koffeechat.post.dev;
 
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class DevPostController {
     }
 
     /**
-     * 개발 게시글 목록 조회
+     * 전체 개발 게시글 목록 조회
      */
     @GetMapping("/dev-posts")
     public ResponseEntity<List<DevPostViewResponseDto>> list() {
@@ -57,9 +58,9 @@ public class DevPostController {
      */
     @PostMapping("posts/{postId}/edit")
     public ResponseEntity<DevPostViewResponseDto> updatePost(@PathVariable("postId") Long postId, @RequestBody PostCreateRequestDto postDto) {
-        DevPostViewResponseDto dto= devPostService.updatePost(postId, postDto);
+        DevPostViewResponseDto dto = devPostService.updatePost(postId, postDto);
 
-        return  ResponseEntity.ok(dto);
+        return ResponseEntity.ok(dto);
     }
 
     /**
@@ -74,4 +75,12 @@ public class DevPostController {
         }
     }
 
+    /**
+     * 카테고리별 게시글 목록 조회
+     */
+    @GetMapping("/posts/")
+    public ResponseEntity<List<DevPostViewResponseDto>> categoryDevList(@RequestParam("category-names") List<String> categoryNames) {
+        List<DevPostViewResponseDto> devList = devPostService.findDevPostsByCategories(categoryNames);
+        return ResponseEntity.ok(devList);
+    }
 }
