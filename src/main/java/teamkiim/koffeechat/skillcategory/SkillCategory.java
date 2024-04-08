@@ -2,7 +2,6 @@ package teamkiim.koffeechat.skillcategory;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,6 @@ import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
 public class SkillCategory {
 
     @Id
@@ -27,6 +25,6 @@ public class SkillCategory {
     private SkillCategory parent;  //상위 카테고리
 
     @OneToMany(mappedBy = "parent")
-    private List<SkillCategory> child = new ArrayList<>();  //하위 카테고리
+    private List<SkillCategory> children = new ArrayList<>();  //하위 카테고리
 }
 

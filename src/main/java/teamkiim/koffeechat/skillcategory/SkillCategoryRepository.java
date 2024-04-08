@@ -13,7 +13,7 @@ public class SkillCategoryRepository{
     private final EntityManager em;
 
     /**
-     * 이름으로 카테고리 조회
+     * 카테고리 이름 리스트로 카테고리 조회
      */
     public List<SkillCategory> findCategories(List<String> names) {
         return em.createQuery(

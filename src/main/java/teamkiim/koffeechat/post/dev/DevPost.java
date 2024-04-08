@@ -20,7 +20,7 @@ public class DevPost extends Post {
     private Long chatRoomId;  //해당 게시글 채팅방 id
 
     /**
-     * 게시글 제목, 내용 수정
+     * 게시글 제목, 내용, 카테고리 수정
      */
     @Override
     public void update(PostCreateRequestDto postDto, List<SkillCategory> categoryList) {

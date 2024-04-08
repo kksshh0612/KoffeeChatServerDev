@@ -57,7 +57,6 @@ public class DevPostRepository {
                 .setParameter("postId", postId)
                 .executeUpdate();
 
-
         if (deletedCount == 0) {
             throw new EntityNotFoundException(postId + " 게시글이 존재하지 않습니다.");
         }

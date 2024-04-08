@@ -15,11 +15,13 @@ public class DevPostController {
 
     private final DevPostService devPostService;
 
+
     /**
      * 개발 게시글 생성
      */
     @PostMapping("/dev-write")
     public ResponseEntity<DevPostViewResponseDto> createPost(@Valid @RequestBody PostCreateRequestDto postDto) {
+
         DevPostViewResponseDto devPostDto = devPostService.createDevPost(postDto);
 
         //생성된 게시물 반환
