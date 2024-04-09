@@ -118,4 +118,5 @@ public class DevPostService {
         devPostRepository.deleteById(postId);
         return true;
     }
+
 }

@@ -1,7 +1,6 @@
 package teamkiim.koffeechat.post.dev;
 
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -83,4 +82,5 @@ public class DevPostController {
         List<DevPostViewResponseDto> devList = devPostService.findDevPostsByCategories(categoryNames);
         return ResponseEntity.ok(devList);
     }
+
 }

@@ -7,7 +7,7 @@ import lombok.Setter;
 import teamkiim.koffeechat.file.File;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.skillcategory.SkillCategory;
-import teamkiim.koffeechat.user.User;
+import teamkiim.koffeechat.member.Member;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,8 +28,8 @@ public abstract class Post {  //게시글
     private Long id;  //post_id
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;  // 게시글 작성자
+    @JoinColumn(name = "member_id")
+    private Member member;  // 게시글 작성자
 
     private String title;  // 제목
     private String bodyContent;  // 내용
@@ -53,7 +53,7 @@ public abstract class Post {  //게시글
      * 게시글 생성 값 세팅
      */
     public void create(String title, String bodyContent, List<SkillCategory> skillCategoryList) {
-//        this.user=user;
+//        this.member=member;
         this.title=title;
         this.bodyContent=bodyContent;
         this.viewCount=0L;  //조회수 0

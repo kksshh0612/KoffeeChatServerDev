@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 public class DevPostViewResponseDto {
     private Long id;
-    //user
+    //member
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
     @NotBlank(message = "내용을 입력해주세요.")

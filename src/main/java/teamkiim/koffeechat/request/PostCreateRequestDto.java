@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Getter
 public class PostCreateRequestDto {
-    //user
+    //member
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
     @NotBlank(message = "내용을 입력해주세요.")

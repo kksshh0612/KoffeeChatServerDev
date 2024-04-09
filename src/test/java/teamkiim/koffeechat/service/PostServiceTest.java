@@ -1,8 +1,6 @@
 package teamkiim.koffeechat.service;
 
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.post.dev.DevPost;
 import teamkiim.koffeechat.post.dev.DevPostRepository;
 import teamkiim.koffeechat.post.dev.DevPostService;
-import teamkiim.koffeechat.user.User;
+import teamkiim.koffeechat.member.Member;
 
 import java.time.LocalDateTime;
 
@@ -41,10 +39,10 @@ public class PostServiceTest {
 //    }
 
     private DevPost createDevPost() {
-        User user= new User();
-        em.persist(user);
+        Member member = new Member();
+        em.persist(member);
         DevPost devPost= new DevPost();
-        devPost.setUser(user);
+        devPost.setMember(member);
         devPost.setTitle("post crud에 대해 알아보자.");
         devPost.setBodyContent("잘 만들고있는건지 모르겠네요");
         devPost.setViewCount(10L);

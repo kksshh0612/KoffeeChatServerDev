@@ -26,4 +26,5 @@ public class DevPost extends Post {
     public void update(PostCreateRequestDto postDto, List<SkillCategory> categoryList) {
         super.update(postDto, categoryList);
     }
+
 }

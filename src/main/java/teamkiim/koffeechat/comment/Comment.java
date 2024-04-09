@@ -2,7 +2,7 @@ package teamkiim.koffeechat.comment;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import teamkiim.koffeechat.user.User;
+import teamkiim.koffeechat.member.Member;
 import teamkiim.koffeechat.post.Post;
 
 import static jakarta.persistence.FetchType.*;
@@ -20,6 +20,6 @@ public class Comment {
     private Post post;  // 해당 댓글이 달려있는 게시글(CommunityPost)
 
     @ManyToOne(fetch= LAZY)
-    @JoinColumn(name="user_id")
-    private User user;  // 댓글 작성자
+    @JoinColumn(name="member_id")
+    private Member member;  // 댓글 작성자
 }
