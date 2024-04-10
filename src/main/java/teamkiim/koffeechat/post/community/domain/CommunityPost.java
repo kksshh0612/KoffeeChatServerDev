@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.post.community;
+package teamkiim.koffeechat.post.community.domain;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

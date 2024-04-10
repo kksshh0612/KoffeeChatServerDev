@@ -2,7 +2,7 @@ package teamkiim.koffeechat.comment;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import teamkiim.koffeechat.member.Member;
+import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.post.Post;
 
 import static jakarta.persistence.FetchType.*;

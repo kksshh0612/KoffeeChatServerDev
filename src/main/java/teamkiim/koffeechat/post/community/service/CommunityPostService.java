@@ -1,8 +1,10 @@
-package teamkiim.koffeechat.post.community;
+package teamkiim.koffeechat.post.community.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.post.community.domain.CommunityPost;
+import teamkiim.koffeechat.post.community.domain.repository.CommunityPostRepository;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.CommunityPostViewResponseDto;
 import teamkiim.koffeechat.skillcategory.SkillCategory;

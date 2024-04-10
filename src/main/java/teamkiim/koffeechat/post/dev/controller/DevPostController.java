@@ -1,10 +1,13 @@
-package teamkiim.koffeechat.post.dev;
+package teamkiim.koffeechat.post.dev.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.postlike.PostLikeService;
+import teamkiim.koffeechat.global.Auth;
+import teamkiim.koffeechat.post.dev.service.DevPostService;
+import teamkiim.koffeechat.postlike.service.PostLikeService;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.DevPostViewResponseDto;
 
@@ -21,8 +24,12 @@ public class DevPostController {
     /**
      * 개발 게시글 생성
      */
+    @Auth
     @PostMapping("/dev-write")
-    public ResponseEntity<DevPostViewResponseDto> createPost(@Valid @RequestBody PostCreateRequestDto postDto) {
+    public ResponseEntity<DevPostViewResponseDto> createPost(
+            @Valid @RequestBody PostCreateRequestDto postDto, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         DevPostViewResponseDto devPostDto = devPostService.createDevPost(postDto);
 

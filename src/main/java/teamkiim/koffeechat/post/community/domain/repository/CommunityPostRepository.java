@@ -1,8 +1,9 @@
-package teamkiim.koffeechat.post.community;
+package teamkiim.koffeechat.post.community.domain.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import teamkiim.koffeechat.post.community.domain.CommunityPost;
 
 import java.util.List;
 

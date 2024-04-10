@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.file.File;
-import teamkiim.koffeechat.member.Member;
+import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.skillcategory.SkillCategory;
 

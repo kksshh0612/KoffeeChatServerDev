@@ -2,7 +2,7 @@ package teamkiim.koffeechat.response;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import teamkiim.koffeechat.post.dev.DevPost;
+import teamkiim.koffeechat.post.dev.domain.DevPost;
 
 import java.time.LocalDateTime;
 import java.util.List;

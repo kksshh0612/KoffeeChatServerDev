@@ -1,9 +1,9 @@
-package teamkiim.koffeechat.postlike;
+package teamkiim.koffeechat.postlike.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.member.Member;
+import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.post.Post;
 
 /**
