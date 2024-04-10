@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.postlike.PostLikeService;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.DevPostViewResponseDto;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public class DevPostController {
 
     private final DevPostService devPostService;
+    private final PostLikeService postLikeService;  //게시글 좋아요 기능
 
 
     /**
@@ -55,7 +57,7 @@ public class DevPostController {
      * 개발 게시글 제목, 내용, 카테고리 수정
      * 수정 시간도 업데이트됨
      */
-    @PostMapping("posts/{postId}/edit")
+    @PostMapping("/posts/{postId}/edit")
     public ResponseEntity<DevPostViewResponseDto> updatePost(@PathVariable("postId") Long postId, @RequestBody PostCreateRequestDto postDto) {
         DevPostViewResponseDto dto = devPostService.updatePost(postId, postDto);
 
@@ -83,4 +85,12 @@ public class DevPostController {
         return ResponseEntity.ok(devList);
     }
 
+    /**
+     * 게시글 좋아요 토글
+     */
+    @PostMapping("/posts/{postId}/like")
+    public ResponseEntity<Void> toggleLike(@PathVariable("postId") Long postId, @RequestParam("member-id") Long memberId) {
+        postLikeService.toggleLike(memberId, postId);
+        return ResponseEntity.ok().build();
+    }
 }

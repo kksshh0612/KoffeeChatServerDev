@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * 개발 게시글 관련 리포지토리
+ */
 @Repository
 @RequiredArgsConstructor
 public class DevPostRepository {

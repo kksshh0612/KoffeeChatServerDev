@@ -3,11 +3,10 @@ package teamkiim.koffeechat.post;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import teamkiim.koffeechat.file.File;
+import teamkiim.koffeechat.member.Member;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.skillcategory.SkillCategory;
-import teamkiim.koffeechat.member.Member;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "DTYPE")
-@Getter @Setter
+@Getter
 @NoArgsConstructor
 public abstract class Post {  //게시글
 
@@ -73,6 +72,17 @@ public abstract class Post {  //게시글
         this.bodyContent=postDto.getBodyContent();
         this.skillCategoryList=categoryList;
         this.modifiedTime = LocalDateTime.now();
+    }
+
+    /**
+     * 좋아요 토글 기능 : likeCount update
+     * removeLike(), addLike()
+     */
+    public void addLike() {
+        this.likeCount++;
+    }
+    public void removeLike() {
+        this.likeCount--;
     }
 
 }

@@ -12,6 +12,9 @@ import teamkiim.koffeechat.skillcategory.SkillCategoryRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 개발 게시글 관련 서비스
+ */
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
