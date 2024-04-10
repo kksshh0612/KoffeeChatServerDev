@@ -51,8 +51,8 @@ public abstract class Post {  //게시글
     /**
      * 게시글 생성 값 세팅
      */
-    public void create(String title, String bodyContent, List<SkillCategory> skillCategoryList) {
-//        this.member=member;
+    public void create(Member member, String title, String bodyContent, List<SkillCategory> skillCategoryList) {
+        this.member=member;
         this.title=title;
         this.bodyContent=bodyContent;
         this.viewCount=0L;  //조회수 0

@@ -28,10 +28,10 @@ public class DevPostController {
     @PostMapping("/dev-write")
     public ResponseEntity<DevPostViewResponse> createPost(
             @Valid @RequestBody PostCreateRequest postDto, HttpServletRequest request) {
-
+        //작성자 id
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        DevPostViewResponse devPostDto = devPostService.createDevPost(postDto);
+        //게시글 생성
+        DevPostViewResponse devPostDto = devPostService.createDevPost(postDto, memberId);
 
         //생성된 게시물 반환
         return ResponseEntity.ok(devPostDto);
