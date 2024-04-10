@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.post.community;
+package teamkiim.koffeechat.post.community.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import teamkiim.koffeechat.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.request.PostCreateRequestDto;
 import teamkiim.koffeechat.response.CommunityPostViewResponseDto;
 

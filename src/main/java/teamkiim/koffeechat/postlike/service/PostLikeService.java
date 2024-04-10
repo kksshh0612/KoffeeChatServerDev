@@ -1,13 +1,14 @@
-package teamkiim.koffeechat.postlike;
+package teamkiim.koffeechat.postlike.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.member.Member;
-import teamkiim.koffeechat.member.MemberRepository;
+import teamkiim.koffeechat.member.domain.Member;
+import teamkiim.koffeechat.member.domain.repository.MemberRepository;
 import teamkiim.koffeechat.post.Post;
 import teamkiim.koffeechat.post.PostRepository;
+import teamkiim.koffeechat.postlike.domain.PostLike;
+import teamkiim.koffeechat.postlike.domain.repository.PostLikeRepository;
 
 import java.util.Optional;
 
@@ -28,14 +29,15 @@ public class PostLikeService {
     public void toggleLike(Long memberId, Long postId) {
         Optional<PostLike> existingLike = postLikeRepository.findByMemberIdAndPostId(memberId, postId);
         Post findPost = postRepository.findOne(postId);  //게시글 조회
-        if (existingLike.isPresent()) {  //회원이 게시글에 대해 좋아요를 취소한 경우
+
+        if (existingLike.isPresent()) {  // PostLike 가 이미 존재하는 경우 -> 좋아요 취소 처리
             postLikeRepository.delete(existingLike.get());  //postLike 엔티티 삭제
             //게시글 likecount--
             findPost.removeLike();
-        }else{  //회원이 게시글에 대해 좋아요 한 경우
+        }else{                          // PostLike가 존재하지 않는 경우 -> 좋아요 처리
             PostLike postLike= new PostLike();
-            Member findMember = memberRepository.findById(memberId);  //좋아요 누른 회원 조회
-            postLike.create(findMember, findPost);
+            Optional<Member> findMember = memberRepository.findById(memberId);  //좋아요 누른 회원 조회
+            postLike.create(findMember.get(), findPost);
             postLikeRepository.save(postLike); //새로운 좋아요 생성
             //likecount 변경
             findPost.addLike();

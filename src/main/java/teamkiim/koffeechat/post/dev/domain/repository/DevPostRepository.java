@@ -1,9 +1,10 @@
-package teamkiim.koffeechat.post.dev;
+package teamkiim.koffeechat.post.dev.domain.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import teamkiim.koffeechat.post.dev.domain.DevPost;
 
 import java.util.List;
 

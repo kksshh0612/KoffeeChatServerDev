@@ -6,10 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.post.dev.DevPost;
-import teamkiim.koffeechat.post.dev.DevPostRepository;
-import teamkiim.koffeechat.post.dev.DevPostService;
-import teamkiim.koffeechat.member.Member;
+import teamkiim.koffeechat.post.dev.domain.DevPost;
+import teamkiim.koffeechat.post.dev.domain.repository.DevPostRepository;
+import teamkiim.koffeechat.post.dev.service.DevPostService;
 
 import java.time.LocalDateTime;
 
