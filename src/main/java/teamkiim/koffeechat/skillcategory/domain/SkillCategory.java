@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.skillcategory;
+package teamkiim.koffeechat.skillcategory.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;

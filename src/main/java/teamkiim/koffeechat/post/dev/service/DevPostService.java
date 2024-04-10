@@ -6,10 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.post.Post;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
 import teamkiim.koffeechat.post.dev.domain.repository.DevPostRepository;
-import teamkiim.koffeechat.request.PostCreateRequestDto;
-import teamkiim.koffeechat.response.DevPostViewResponseDto;
-import teamkiim.koffeechat.skillcategory.SkillCategory;
-import teamkiim.koffeechat.skillcategory.SkillCategoryRepository;
+import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.post.dev.dto.response.DevPostViewResponse;
+import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
+import teamkiim.koffeechat.skillcategory.domain.repository.SkillCategoryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ public class DevPostService {
     /**
      * DTO를 Entity로 변환
      */
-    public DevPost createDtoToEntity(PostCreateRequestDto dto) {
+    public DevPost createDtoToEntity(PostCreateRequest dto) {
         DevPost devPost = new DevPost();
         //카테고리 dto-> entity
         List<SkillCategory> categories= skillCategoryRepository.findCategories(dto.getSkillCategories());
@@ -39,12 +39,12 @@ public class DevPostService {
     /**
      * Entity를 DTO로 변환
      */
-    public DevPostViewResponseDto createEntityToDto(DevPost post) {
+    public DevPostViewResponse createEntityToDto(DevPost post) {
         List<SkillCategory> categories= post.getSkillCategoryList();
         List<String> categoryNames= categories.stream()
                 .map(SkillCategory::getName)
                 .collect(Collectors.toList());
-        DevPostViewResponseDto dto = new DevPostViewResponseDto();
+        DevPostViewResponse dto = new DevPostViewResponse();
         dto.set(post, categoryNames);
 
         return dto;
@@ -54,10 +54,10 @@ public class DevPostService {
      * 게시글 생성
      */
     @Transactional
-    public DevPostViewResponseDto createDevPost(PostCreateRequestDto dto) {
+    public DevPostViewResponse createDevPost(PostCreateRequest dto) {
         DevPost devPost = createDtoToEntity(dto);
         devPostRepository.save(devPost);  //게시글 저장
-        DevPostViewResponseDto devPostDto = createEntityToDto(devPost);
+        DevPostViewResponse devPostDto = createEntityToDto(devPost);
 
         return devPostDto;
     }
@@ -72,12 +72,12 @@ public class DevPostService {
     /**
      * 게시글 리스트 조회
      */
-    public List<DevPostViewResponseDto> findDevPosts() {
+    public List<DevPostViewResponse> findDevPosts() {
         List<DevPost> posts= devPostRepository.findAllDev();
 
-        List<DevPostViewResponseDto> dtoList = posts.stream()
+        List<DevPostViewResponse> dtoList = posts.stream()
                 .map(post->{
-                    DevPostViewResponseDto dto = createEntityToDto(post);
+                    DevPostViewResponse dto = createEntityToDto(post);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -91,11 +91,11 @@ public class DevPostService {
     /**
      * 카테고리로 게시글 리스트 조회
      */
-    public List<DevPostViewResponseDto> findDevPostsByCategories(List<String> categoryNames) {
+    public List<DevPostViewResponse> findDevPostsByCategories(List<String> categoryNames) {
         List<DevPost> posts = devPostRepository.findByCategories(categoryNames);
-        List<DevPostViewResponseDto> dtoList = posts.stream()
+        List<DevPostViewResponse> dtoList = posts.stream()
                 .map(post->{
-                    DevPostViewResponseDto dto = createEntityToDto(post);
+                    DevPostViewResponse dto = createEntityToDto(post);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -107,11 +107,11 @@ public class DevPostService {
      * 게시글 제목, 내용, 수정 시간 수정
      */
     @Transactional
-    public DevPostViewResponseDto updatePost(Long postId, PostCreateRequestDto postDto) {
+    public DevPostViewResponse updatePost(Long postId, PostCreateRequest postDto) {
         DevPost findDev = devPostRepository.findOneDev(postId);
         List<SkillCategory> categories = skillCategoryRepository.findCategories(postDto.getSkillCategories());
         findDev.update(postDto, categories);
-        DevPostViewResponseDto dto = createEntityToDto(findDev);
+        DevPostViewResponse dto = createEntityToDto(findDev);
         return dto;
     }
 

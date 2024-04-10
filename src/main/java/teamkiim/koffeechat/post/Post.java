@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.file.File;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.request.PostCreateRequestDto;
-import teamkiim.koffeechat.skillcategory.SkillCategory;
+import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public abstract class Post {  //게시글
     /**
      * 게시글 제목, 내용 수정 값 세팅
      */
-    public void update(PostCreateRequestDto postDto, List<SkillCategory> categoryList) {
+    public void update(PostCreateRequest postDto, List<SkillCategory> categoryList) {
         this.title= postDto.getTitle();
         this.bodyContent=postDto.getBodyContent();
         this.skillCategoryList=categoryList;

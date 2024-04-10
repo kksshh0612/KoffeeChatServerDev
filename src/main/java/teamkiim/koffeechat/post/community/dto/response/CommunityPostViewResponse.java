@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.response;
+package teamkiim.koffeechat.post.community.dto.response;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-public class CommunityPostViewResponseDto {
+public class CommunityPostViewResponse {
     private Long id;
     //member
     @NotBlank(message = "제목을 입력해주세요.")

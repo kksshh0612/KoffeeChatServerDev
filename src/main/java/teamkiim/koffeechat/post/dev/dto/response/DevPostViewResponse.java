@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.response;
+package teamkiim.koffeechat.post.dev.dto.response;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.util.List;
  * 게시글 내용 조회 response
  */
 @Getter
-public class DevPostViewResponseDto {
+public class DevPostViewResponse {
     private Long id;
     //member
     @NotBlank(message = "제목을 입력해주세요.")

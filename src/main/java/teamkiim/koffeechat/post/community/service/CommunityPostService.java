@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.post.community.domain.repository.CommunityPostRepository;
-import teamkiim.koffeechat.request.PostCreateRequestDto;
-import teamkiim.koffeechat.response.CommunityPostViewResponseDto;
-import teamkiim.koffeechat.skillcategory.SkillCategory;
-import teamkiim.koffeechat.skillcategory.SkillCategoryRepository;
+import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.post.community.dto.response.CommunityPostViewResponse;
+import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
+import teamkiim.koffeechat.skillcategory.domain.repository.SkillCategoryRepository;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class CommunityPostService {
     /**
      * DTO를 Entity로 변환
      */
-    public CommunityPost createDtoToEntity(PostCreateRequestDto dto) {
+    public CommunityPost createDtoToEntity(PostCreateRequest dto) {
         CommunityPost communityPost = new CommunityPost();
         List<SkillCategory> categories= skillCategoryRepository.findCategories(dto.getSkillCategories());  //카테고리 dto-> entity
         communityPost.create(dto.getTitle(), dto.getBodyContent(), categories);
@@ -33,8 +33,8 @@ public class CommunityPostService {
     /**
      * Entity를 DTO로 변환
      */
-    public CommunityPostViewResponseDto createEntityToDto(CommunityPost post) {
-        CommunityPostViewResponseDto dto = new CommunityPostViewResponseDto();
+    public CommunityPostViewResponse createEntityToDto(CommunityPost post) {
+        CommunityPostViewResponse dto = new CommunityPostViewResponse();
         dto.set(post);
 
         return dto;
@@ -44,10 +44,10 @@ public class CommunityPostService {
      * 게시글 생성
      */
     @Transactional
-    public CommunityPostViewResponseDto createCommunityPost(PostCreateRequestDto dto) {
+    public CommunityPostViewResponse createCommunityPost(PostCreateRequest dto) {
         CommunityPost communityPost = createDtoToEntity(dto);
         communityPostRepository.save(communityPost);  //게시글 저장
-        CommunityPostViewResponseDto communityPostDto = createEntityToDto(communityPost);
+        CommunityPostViewResponse communityPostDto = createEntityToDto(communityPost);
 
         return communityPostDto;
     }

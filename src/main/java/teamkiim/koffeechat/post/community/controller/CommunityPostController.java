@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.post.community.service.CommunityPostService;
-import teamkiim.koffeechat.request.PostCreateRequestDto;
-import teamkiim.koffeechat.response.CommunityPostViewResponseDto;
+import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.post.community.dto.response.CommunityPostViewResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +20,8 @@ public class CommunityPostController {
      * 커뮤니티 게시글 생성
      */
     @PostMapping("/com-write")
-    public ResponseEntity<CommunityPostViewResponseDto> createPost(@Valid @RequestBody PostCreateRequestDto postDto) {
-        CommunityPostViewResponseDto comPostDto = communityPostService.createCommunityPost(postDto);
+    public ResponseEntity<CommunityPostViewResponse> createPost(@Valid @RequestBody PostCreateRequest postDto) {
+        CommunityPostViewResponse comPostDto = communityPostService.createCommunityPost(postDto);
 
         //생성된 게시물 반환
         return ResponseEntity.ok(comPostDto);

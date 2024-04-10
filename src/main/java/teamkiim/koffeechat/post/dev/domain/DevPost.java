@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import teamkiim.koffeechat.post.Post;
-import teamkiim.koffeechat.request.PostCreateRequestDto;
-import teamkiim.koffeechat.skillcategory.SkillCategory;
+import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class DevPost extends Post {
      * 게시글 제목, 내용, 카테고리 수정
      */
     @Override
-    public void update(PostCreateRequestDto postDto, List<SkillCategory> categoryList) {
+    public void update(PostCreateRequest postDto, List<SkillCategory> categoryList) {
         super.update(postDto, categoryList);
     }
 

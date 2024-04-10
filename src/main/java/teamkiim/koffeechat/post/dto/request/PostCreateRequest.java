@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.request;
+package teamkiim.koffeechat.post.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.List;
  * 게시글 생성 시 클라이언트에서 보내는 request
  */
 @Getter
-public class PostCreateRequestDto {
+public class PostCreateRequest {
     //member
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
