@@ -1,10 +1,13 @@
-package teamkiim.koffeechat.post;
+package teamkiim.koffeechat.post.community;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.comment.Comment;
+import teamkiim.koffeechat.post.Post;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +15,8 @@ import java.util.List;
 @Entity
 @DiscriminatorValue("Community")
 @Getter
-public class CommunityPost extends Post{
+@NoArgsConstructor
+public class CommunityPost extends Post {
 
     //게시글 댓글 리스트
     @OneToMany
