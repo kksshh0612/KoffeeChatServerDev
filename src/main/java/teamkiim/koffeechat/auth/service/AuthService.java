@@ -3,6 +3,7 @@ package teamkiim.koffeechat.auth.service;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.auth.dto.request.LoginRequest;
@@ -11,7 +12,6 @@ import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
-import teamkiim.koffeechat.global.passwordEncrypt.PasswordEncryptor;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.domain.MemberRole;
 import teamkiim.koffeechat.member.domain.repository.MemberRepository;
@@ -26,7 +26,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
-    private final PasswordEncryptor passwordEncryptor;
+    private final PasswordEncoder passwordEncoder;
 
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
@@ -50,7 +50,7 @@ public class AuthService {
                 .socialLoginId(null)
                 .build();
 
-//        member.encodePassword(passwordEncryptor);
+        member.encodePassword(passwordEncoder);
 
         memberRepository.save(member);
 
@@ -65,14 +65,16 @@ public class AuthService {
         Member member = memberRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if(member.getPassword().equals(loginRequest.getPassword())){
-            cookieProvider.setCookie(accessTokenName,
-                    jwtTokenProvider.createAccessToken(member.getRole().toString(), member.getId()),
-                    false, response);
-            cookieProvider.setCookie(refreshTokenName,
-                    jwtTokenProvider.createRefreshToken(member.getRole().toString(), member.getId()),
-                    false, response);
+        if(!member.matchPassword(passwordEncoder, loginRequest.getPassword())){
+            throw new CustomException(ErrorCode.EMAIL_PASSWORD_NOT_MATCH);
         }
+
+        cookieProvider.setCookie(accessTokenName,
+                jwtTokenProvider.createAccessToken(member.getRole().toString(), member.getId()),
+                false, response);
+        cookieProvider.setCookie(refreshTokenName,
+                jwtTokenProvider.createRefreshToken(member.getRole().toString(), member.getId()),
+                false, response);
 
         return ResponseEntity.ok("로그인이 완료되었습니다.");
     }

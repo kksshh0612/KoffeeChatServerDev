@@ -5,16 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.global.passwordEncrypt.PasswordEncryptor;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
+@Slf4j
 public class Member {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,12 +31,22 @@ public class Member {
     private String socialLoginId;
 
     //== 비지니스 로직 ==//
-    /*
-    비밀번호 암호화
-     */
-    public void encodePassword(PasswordEncryptor passwordEncryptor){
 
-        this.password = passwordEncryptor.sha512WithSaltEncode(this.password, passwordEncryptor.getSalt());
+    /**
+     * 비밀번호 암호화
+     */
+    public void encodePassword(PasswordEncoder passwordEncoder){
+
+        this.password = passwordEncoder.encode(this.password);
+    }
+
+    /**
+     * 비밀번호 일치 확인
+     */
+    public boolean matchPassword(PasswordEncoder passwordEncoder, String password){
+
+        if(passwordEncoder.matches(password, this.password)) return true;
+        else return false;
     }
 
 }
