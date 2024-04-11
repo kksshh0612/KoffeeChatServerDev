@@ -3,13 +3,15 @@ package teamkiim.koffeechat.post.dev.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import teamkiim.koffeechat.exception.UnauthorizedAccessException;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.domain.repository.MemberRepository;
 import teamkiim.koffeechat.post.Post;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
 import teamkiim.koffeechat.post.dev.domain.repository.DevPostRepository;
-import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
 import teamkiim.koffeechat.post.dev.dto.response.DevPostViewResponse;
+import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
 import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
 import teamkiim.koffeechat.skillcategory.domain.repository.SkillCategoryRepository;
 
@@ -112,21 +114,12 @@ public class DevPostService {
      * 게시글 제목, 내용, 수정 시간 수정
      */
     @Transactional
-    public DevPostViewResponse updatePost(Long postId, PostCreateRequest postDto) {
-        DevPost findDev = devPostRepository.findOneDev(postId);
+    public DevPostViewResponse updatePost(Long postId, PostCreateRequest postDto, Long memberId) {
+        DevPost findDev = devPostRepository.findOneDev(postId);  // post 찾기
         List<SkillCategory> categories = skillCategoryRepository.findCategories(postDto.getSkillCategories());
         findDev.update(postDto, categories);
         DevPostViewResponse dto = createEntityToDto(findDev);
         return dto;
-    }
-
-    /**
-     * 게시글 삭제
-     */
-    @Transactional
-    public boolean deletePost(Long postId) {
-        devPostRepository.deleteById(postId);
-        return true;
     }
 
 }

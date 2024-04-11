@@ -2,6 +2,7 @@ package teamkiim.koffeechat.post.dev.dto.response;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.List;
 @Getter
 public class DevPostViewResponse {
     private Long id;
-    //member
+    private String memberNickname;
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
     @NotBlank(message = "내용을 입력해주세요.")
@@ -21,7 +22,7 @@ public class DevPostViewResponse {
     private Long viewCount;
     private Long likeCount;
     private LocalDateTime createdTime;  // 작성 시간
-    private LocalDateTime modifiedTime;
+    private LocalDateTime modifiedTime;  // 수정 시간
     private List<String> skillCategories;  // 해시태그
 
     //fileList
@@ -30,13 +31,14 @@ public class DevPostViewResponse {
 
     public void set(DevPost post, List<String> skillCategories) {
         this.id = post.getId();
+        this.memberNickname = post.getMember().getNickname();
         this.title = post.getTitle();
         this.bodyContent = post.getBodyContent();
         this.viewCount = post.getViewCount();
         this.likeCount = post.getLikeCount();
         this.createdTime = post.getCreatedTime();
         this.modifiedTime = post.getModifiedTime();
-        this.skillCategories= skillCategories;
+        this.skillCategories = skillCategories;
     }
 
     /**
