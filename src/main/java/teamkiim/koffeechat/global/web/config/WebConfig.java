@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
@@ -18,7 +19,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -26,10 +26,16 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://**")
+                .allowCredentials(true)
+                .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE");
+    }
+
+    @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
-        registry.addInterceptor(new AuthInterceptor(cookieProvider, jwtTokenProvider, objectMapper))
-                .order(1)
-                .addPathPatterns("/**");        //모든 경로에 적용으로 하고, 어노테이션으로
+        registry.addInterceptor(new AuthInterceptor(cookieProvider, jwtTokenProvider));
     }
 }

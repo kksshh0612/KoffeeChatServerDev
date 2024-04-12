@@ -10,4 +10,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Auth {
+
+    enum MemberRole {USER, ADMIN};
+
+    MemberRole[] role();
 }
