@@ -2,6 +2,8 @@ package teamkiim.koffeechat.auth.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
+import teamkiim.koffeechat.global.redis.util.RedisUtil;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.domain.MemberRole;
 import teamkiim.koffeechat.member.domain.repository.MemberRepository;
@@ -27,9 +30,13 @@ public class AuthService {
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RedisUtil redisUtil;
 
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
+
+    @Value("${jwt.refresh.exp}")
+    private long refreshTokenExpTime;
 
     /**
      * 회원가입
@@ -69,12 +76,15 @@ public class AuthService {
             throw new CustomException(ErrorCode.EMAIL_PASSWORD_NOT_MATCH);
         }
 
-        cookieProvider.setCookie(accessTokenName,
-                jwtTokenProvider.createAccessToken(member.getRole().toString(), member.getId()),
-                false, response);
-        cookieProvider.setCookie(refreshTokenName,
-                jwtTokenProvider.createRefreshToken(member.getRole().toString(), member.getId()),
-                false, response);
+        String accessToken = jwtTokenProvider.createAccessToken(member.getRole().toString(), member.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getRole().toString(), member.getId());
+
+        // 레디스 세팅
+        redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
+
+        // 쿠키 세팅
+        cookieProvider.setCookie(accessTokenName, accessToken, false, response);
+        cookieProvider.setCookie(refreshTokenName, refreshToken, false, response);
 
         return ResponseEntity.ok("로그인이 완료되었습니다.");
     }

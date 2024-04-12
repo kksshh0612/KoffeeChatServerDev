@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import teamkiim.koffeechat.global.Auth;
@@ -12,12 +14,13 @@ import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 
+@Slf4j
+@Component
 @RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -39,6 +42,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
             if(jwtTokenProvider.validateRefreshToken(refreshToken)){
                 validAccessToken = jwtTokenProvider.createAccessTokenFromRefreshToken(refreshToken);
+                cookieProvider.setCookie("Authorization", validAccessToken, false, response);
             }
             else{
                 throw new CustomException(ErrorCode.UNAUTHORIZED);
