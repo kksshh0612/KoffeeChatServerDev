@@ -1,10 +1,13 @@
 package teamkiim.koffeechat.post.dev.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import teamkiim.koffeechat.exception.UnauthorizedAccessException;
+import teamkiim.koffeechat.global.exception.CustomException;
+import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.domain.repository.MemberRepository;
 import teamkiim.koffeechat.post.Post;
@@ -116,6 +119,9 @@ public class DevPostService {
     @Transactional
     public DevPostViewResponse updatePost(Long postId, PostCreateRequest postDto, Long memberId) {
         DevPost findDev = devPostRepository.findOneDev(postId);  // post 찾기
+        if (findDev.getMember().getId() != memberId) {
+            throw new CustomException(ErrorCode.UPDATE_FORBIDDEN);
+        }
         List<SkillCategory> categories = skillCategoryRepository.findCategories(postDto.getSkillCategories());
         findDev.update(postDto, categories);
         DevPostViewResponse dto = createEntityToDto(findDev);

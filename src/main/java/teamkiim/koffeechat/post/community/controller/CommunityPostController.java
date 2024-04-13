@@ -1,5 +1,8 @@
 package teamkiim.koffeechat.post.community.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,10 @@ public class CommunityPostController {
      */
     @Auth
     @PostMapping("/com-write")
+    @Operation(summary = "비개발 게시글 생성", description = "사용자가 비개발 게시글 생성을 요청한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 생성 성공")
+    })
     public ResponseEntity<CommunityPostViewResponse> createPost(
             @Valid @RequestBody PostCreateRequest postDto, HttpServletRequest request) {
         //작성자 id
