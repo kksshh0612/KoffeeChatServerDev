@@ -14,6 +14,15 @@ spring:
       max-file-size: 5MB          # 요청 파일 하나의 사이즈
       max-request-size: 200MB     # 요청 전체의 사이즈
 
+  mail:
+    host: smtp.naver.com          # 네이버 SMTP 호스트 주소
+    port: 465                     # 네이버 SMTP 포트
+    username: ${email-address}
+    password: ${email-pw}
+    properties:
+      mail.smtp.auth: true        # SMTP 서버와의 인증
+      mail.smtp.ssl.enable: true  # SSL 보안연결(필수)
+
   security:
     oauth2:
       client:
