@@ -21,6 +21,9 @@ public class CookieProvider {
     @Value("${jwt.refresh.exp}")
     private long refreshTokenExpTime;
 
+    private static final String accessTokenName = "Authorization";
+    private static final String refreshTokenName = "refresh-token";
+
     /*
     response에 쿠키를 만들어 Add
      */
@@ -28,10 +31,10 @@ public class CookieProvider {
 
         long expTime = 0;
 
-        if(!isLogout && name.equals("Authorization")){
+        if(!isLogout && name.equals(accessTokenName)){
             expTime = accessTokenExpTime / 1000;
         }
-        else if(!isLogout && name.equals("refresh-token")){
+        else if(!isLogout && name.equals(refreshTokenName)){
             expTime = refreshTokenExpTime / 1000;
         }
 
@@ -58,7 +61,7 @@ public class CookieProvider {
 
         if (cookies != null && cookies.length > 0){
             for(Cookie cookie : cookies){
-                if(cookie.getName().equals("Authorization")){
+                if(cookie.getName().equals(accessTokenName)){
                     accessToken = cookie.getValue();
                     break;
                 }
@@ -83,7 +86,7 @@ public class CookieProvider {
 
         if (cookies != null && cookies.length > 0){
             for(Cookie cookie : cookies){
-                if(cookie.getName().equals("refresh-token")){
+                if(cookie.getName().equals(refreshTokenName)){
                     refreshToken = cookie.getValue();
                     break;
                 }
