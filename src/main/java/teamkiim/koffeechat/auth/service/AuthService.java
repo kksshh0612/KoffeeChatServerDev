@@ -3,7 +3,6 @@ package teamkiim.koffeechat.auth.service;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.domain.MemberRole;
-import teamkiim.koffeechat.member.domain.repository.MemberRepository;
+import teamkiim.koffeechat.member.repository.MemberRepository;
 
 import java.util.Optional;
 
@@ -40,6 +39,8 @@ public class AuthService {
 
     /**
      * 회원가입
+     * @param signUpRequest 회원가입 요청 dto
+     * @return ok
      */
     @Transactional
     public ResponseEntity<?> signUp(SignUpRequest signUpRequest){
@@ -48,12 +49,7 @@ public class AuthService {
 
         if(existMember.isPresent()) throw new CustomException(ErrorCode.EMAIL_ALREADY_EXIST);
 
-        Member member = Member.builder()
-                .email(signUpRequest.getEmail())
-                .password(signUpRequest.getPassword())
-                .nickname(signUpRequest.getNickname())
-                .role(MemberRole.USER)
-                .build();
+        Member member = signUpRequest.toEntity();
 
         member.encodePassword(passwordEncoder);
 
@@ -64,6 +60,9 @@ public class AuthService {
 
     /**
      * 로그인
+     * @param loginRequest 로그인 요청 dto
+     * @param response HttpServletResponse
+     * @return ok
      */
     public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response){
 
