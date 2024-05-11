@@ -7,8 +7,7 @@ import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.domain.repository.MemberRepository;
 import teamkiim.koffeechat.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.post.community.domain.repository.CommunityPostRepository;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostViewResponse;
-import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.post.dto.request.CreatePostRequest;
 import teamkiim.koffeechat.post.community.dto.response.CommunityPostViewResponse;
 import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
 import teamkiim.koffeechat.skillcategory.domain.repository.SkillCategoryRepository;
@@ -29,7 +28,7 @@ public class CommunityPostService {
     /**
      * DTO를 Entity로 변환
      */
-    public CommunityPost createDtoToEntity(PostCreateRequest dto, Long memberId) {
+    public CommunityPost createDtoToEntity(CreatePostRequest dto, Long memberId) {
         Optional<Member> findMember = memberRepository.findById(memberId);  //게시글 작성자
         CommunityPost communityPost = new CommunityPost();
         List<SkillCategory> categories= skillCategoryRepository.findCategories(dto.getSkillCategories());  //카테고리 dto-> entity
@@ -55,7 +54,7 @@ public class CommunityPostService {
      * 비개발 게시글 생성
      */
     @Transactional
-    public CommunityPostViewResponse createCommunityPost(PostCreateRequest dto, Long memberId) {
+    public CommunityPostViewResponse createCommunityPost(CreatePostRequest dto, Long memberId) {
         CommunityPost communityPost = createDtoToEntity(dto, memberId);
         communityPostRepository.save(communityPost);  //게시글 저장
         CommunityPostViewResponse communityPostDto = createEntityToDto(communityPost);

@@ -1,35 +1,30 @@
 package teamkiim.koffeechat.post.dev.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import teamkiim.koffeechat.member.domain.Member;
+import lombok.Data;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
+import teamkiim.koffeechat.skillcategory.dto.SkillCategoryDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 게시글 내용 조회 response
  */
-@Getter
+@Data
 public class DevPostViewResponse {
     private Long id;
-    private String memberNickname;
-    @NotBlank(message = "제목을 입력해주세요.")
-    private String title;
-    @NotBlank(message = "내용을 입력해주세요.")
-    private String bodyContent;
-    private Long viewCount;
-    private Long likeCount;
+    private String memberNickname;  // 회원 닉네임
+    private String title;  //제목
+    private String bodyContent;  //내용
+    private Long viewCount;  //조회수
+    private Long likeCount;  //좋아요 수
     private LocalDateTime createdTime;  // 작성 시간
     private LocalDateTime modifiedTime;  // 수정 시간
-    private List<String> skillCategories;  // 해시태그
+    private List<SkillCategoryDto> skillCategories;  // 해시태그
 
-    //fileList
 
-//    private Long chatRoomId;
-
-    public void set(DevPost post, List<String> skillCategories) {
+    public DevPostViewResponse(DevPost post) {
         this.id = post.getId();
         this.memberNickname = post.getMember().getNickname();
         this.title = post.getTitle();
@@ -38,19 +33,9 @@ public class DevPostViewResponse {
         this.likeCount = post.getLikeCount();
         this.createdTime = post.getCreatedTime();
         this.modifiedTime = post.getModifiedTime();
-        this.skillCategories = skillCategories;
+        this.skillCategories = post.getSkillCategoryList().stream()
+                .map(skillCategory -> new SkillCategoryDto(skillCategory))
+                .collect(Collectors.toList());
     }
 
-    /**
-     * 게시글 목록 출력 시 화면에 보여줄 값 세팅 메소드
-     */
-//    public void set(Long id, String title, String bodyContent, Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime, Long chatRoomId) {
-////        this.id=id;
-//        this.title=title;
-//        this.bodyContent= bodyContent;
-//        this.viewCount=viewCount;
-//        this.likeCount=likeCount;
-//        this.createdTime=createdTime;
-//        this.modifiedTime=modifiedTime;
-//    }
 }

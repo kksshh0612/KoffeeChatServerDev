@@ -1,6 +1,6 @@
 package teamkiim.koffeechat.skillcategory.dto.response;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * skill category dto
  */
-@Getter
+@Data
 @RequiredArgsConstructor
 public class SkillCategoryResponse {
     private final Long id;

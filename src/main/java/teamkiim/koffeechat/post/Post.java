@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.file.File;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.post.dto.request.UpdatePostRequest;
 import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
 
 import java.time.LocalDateTime;
@@ -47,7 +47,6 @@ public abstract class Post {  //게시글
     @OneToMany(mappedBy = "post")
     private List<File> fileList = new ArrayList<>();
 
-
     /**
      * 게시글 생성 값 세팅
      */
@@ -65,9 +64,9 @@ public abstract class Post {  //게시글
     }
 
     /**
-     * 게시글 제목, 내용 수정 값 세팅
+     * 게시글 제목, 내용, 카테고리 수정 값 세팅
      */
-    public void update(PostCreateRequest postDto, List<SkillCategory> categoryList) {
+    public void update(UpdatePostRequest postDto, List<SkillCategory> categoryList) {
         this.title= postDto.getTitle();
         this.bodyContent=postDto.getBodyContent();
         this.skillCategoryList=categoryList;

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.post.community.dto.response.CommunityPostViewResponse;
 import teamkiim.koffeechat.post.community.service.CommunityPostService;
-import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.post.dto.request.CreatePostRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class CommunityPostController {
             @ApiResponse(responseCode = "200", description = "게시글 생성 성공")
     })
     public ResponseEntity<CommunityPostViewResponse> createPost(
-            @Valid @RequestBody PostCreateRequest postDto, HttpServletRequest request) {
+            @Valid @RequestBody CreatePostRequest postDto, HttpServletRequest request) {
         //작성자 id
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

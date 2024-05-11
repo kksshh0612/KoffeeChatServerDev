@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +17,8 @@ import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.post.dev.dto.response.DevPostViewResponse;
 import teamkiim.koffeechat.post.dev.service.DevPostService;
-import teamkiim.koffeechat.post.dto.request.PostCreateRequest;
+import teamkiim.koffeechat.post.dto.request.CreatePostRequest;
+import teamkiim.koffeechat.post.dto.request.UpdatePostRequest;
 
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class DevPostController {
     private final DevPostService devPostService;
 
     /**
-     * 개발 게시글 생성
+     * 개발 게시글 생성 : 생성된 개발 게시글을 보여주는 페이지 return
      */
     @Auth
     @PostMapping("/dev-write")
@@ -47,20 +50,23 @@ public class DevPostController {
             ))
     })
     public ResponseEntity<DevPostViewResponse> createPost(
-            @Valid @RequestBody PostCreateRequest postDto, HttpServletRequest request) {
+            @RequestBody @Valid CreatePostRequest postRequest, HttpServletRequest memberRequest) {
 
-        Object memberIdObject = request.getAttribute("authenticatedMemberPK");
+        Object memberIdObject = memberRequest.getAttribute("authenticatedMemberPK");
         //로그인 되어있지 않은 상태 -> 로그인 요청 에러
         if (memberIdObject == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
-        if (postDto.getTitle().isEmpty()) throw new CustomException(ErrorCode.POST_REQUEST_WITHOUT_TITLE);
-        if(postDto.getBodyContent().isEmpty()) throw new CustomException(ErrorCode.POST_REQUEST_WITHOUT_CONTENT);
+
+        //게시글 작성 시 제목, 내용을 쓰지 않은 경우
+        if (postRequest.getTitle().isEmpty()) throw new CustomException(ErrorCode.POST_REQUEST_WITHOUT_TITLE);
+        if(postRequest.getBodyContent().isEmpty()) throw new CustomException(ErrorCode.POST_REQUEST_WITHOUT_CONTENT);
+
         //작성자 id
         Long memberId = Long.valueOf(String.valueOf(memberIdObject));
         //게시글 생성
-        DevPostViewResponse devPostDto = devPostService.createDevPost(postDto, memberId);
+        DevPostViewResponse createPostResponse = devPostService.createDevPost(postRequest, memberId);
 
         //생성된 게시물 반환
-        return ResponseEntity.ok(devPostDto);
+        return ResponseEntity.ok(createPostResponse);
     }
 
     /**
@@ -71,18 +77,25 @@ public class DevPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 목록 조회 성공")
     })
-    public ResponseEntity<List<DevPostViewResponse>> list() {
+    public ResponseEntity<DevPostViewResponseResult> list() {
         List<DevPostViewResponse> posts = devPostService.findDevPosts();  //게시글 목록 불러오기
 
-        return ResponseEntity.ok(posts);
+        return ResponseEntity.ok(new DevPostViewResponseResult(posts));
+    }
+
+    //게시글 리스트 object data type으로 반환
+    @Data
+    @AllArgsConstructor
+    static class DevPostViewResponseResult<T>{
+        private T data;
     }
 
     /**
-     * 개발 게시글 제목, 내용, 카테고리 수정
+     * 개발 게시글 제목, 내용, 카테고리 수정 가능
      * 수정 시간도 업데이트됨
      */
     @Auth
-    @PostMapping("/posts/{postId}/edit")
+    @PutMapping("/posts/{postId}/edit")
     @Operation(summary = "게시글 수정", description = "사용자가 개발 게시글 수정을 요청한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 수정 성공"),
@@ -92,12 +105,13 @@ public class DevPostController {
             ))
     })
     public ResponseEntity<DevPostViewResponse> updatePost(
-            @PathVariable("postId") Long postId, @RequestBody PostCreateRequest postDto, HttpServletRequest request) {
+            @PathVariable("postId") Long postId,
+            @RequestBody @Valid UpdatePostRequest postRequest, HttpServletRequest memberRequest) {
         //작성자 id
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-        DevPostViewResponse dto = devPostService.updatePost(postId, postDto, memberId);
+        Long memberId = Long.valueOf(String.valueOf(memberRequest.getAttribute("authenticatedMemberPK")));
+        DevPostViewResponse updatePostResponse = devPostService.updatePost(postId, postRequest, memberId);
 
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(updatePostResponse);
     }
 
     /**
@@ -108,9 +122,16 @@ public class DevPostController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "지정 카테고리 게시글 목록 조회 성공")
     })
-    public ResponseEntity<List<DevPostViewResponse>> categoryDevList(@RequestParam("category-names") List<String> categoryNames) {
+    public ResponseEntity<DevPostViewResponseResultWithCategory> categoryDevList(@RequestParam("category-names") List<String> categoryNames) {
         List<DevPostViewResponse> devList = devPostService.findDevPostsByCategories(categoryNames);
-        return ResponseEntity.ok(devList);
+        return ResponseEntity.ok(new DevPostViewResponseResultWithCategory(devList));
+    }
+
+    //게시글 리스트 object data type으로 반환
+    @Data
+    @AllArgsConstructor
+    static class DevPostViewResponseResultWithCategory<T>{
+        private T data;
     }
 
 }

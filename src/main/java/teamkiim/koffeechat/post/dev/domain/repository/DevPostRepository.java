@@ -4,6 +4,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import teamkiim.koffeechat.global.exception.CustomException;
+import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.post.Post;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
 
@@ -29,7 +31,9 @@ public class DevPostRepository {
      * 개발 게시글 한 개 조회
      */
     public DevPost findOneDev(Long id) {
-        return em.find(DevPost.class, id);
+        DevPost devPost= em.find(DevPost.class, id);
+        if(devPost==null) throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        return devPost;
     }
 
     /**
