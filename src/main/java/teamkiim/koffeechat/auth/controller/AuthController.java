@@ -59,7 +59,7 @@ public class AuthController {
         return authService.login(loginRequest, response);
     }
 
-    @Auth
+    @Auth(role = {Auth.MemberRole.USER, Auth.MemberRole.ADMIN})
     @GetMapping("/test")
     public ResponseEntity<?> test(HttpServletRequest request){
 
