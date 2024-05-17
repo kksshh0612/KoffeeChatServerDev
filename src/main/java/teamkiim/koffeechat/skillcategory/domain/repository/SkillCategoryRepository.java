@@ -1,8 +1,9 @@
-package teamkiim.koffeechat.skillcategory;
+package teamkiim.koffeechat.skillcategory.domain.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
 
 import java.util.List;
 
