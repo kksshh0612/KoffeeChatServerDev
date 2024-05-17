@@ -17,6 +17,11 @@ spring:
       host: localhost
       port: 6379
 
+    mongodb:
+      host: localhost
+      port: 27017
+      database: koffeechat
+
   jpa:
     hibernate:
       ddl-auto: update

@@ -24,7 +24,7 @@ public class DevPostController {
     /**
      * 개발 게시글 생성
      */
-    @Auth
+    @Auth(role = {Auth.MemberRole.USER, Auth.MemberRole.ADMIN})
     @PostMapping("/dev-write")
     public ResponseEntity<DevPostViewResponseDto> createPost(
             @Valid @RequestBody PostCreateRequestDto postDto, HttpServletRequest request) {

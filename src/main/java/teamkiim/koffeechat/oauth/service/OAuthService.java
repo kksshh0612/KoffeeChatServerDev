@@ -196,8 +196,6 @@ public class OAuthService {
                 .password(null)
                 .nickname(memberInfoSaveRequest.getNickname())
                 .role(MemberRole.USER)
-                .imageUrl(null)
-                .socialLoginId(null)
                 .build();
 
         memberRepository.save(member);

@@ -53,8 +53,6 @@ public class AuthService {
                 .password(signUpRequest.getPassword())
                 .nickname(signUpRequest.getNickname())
                 .role(MemberRole.USER)
-                .imageUrl(null)
-                .socialLoginId(null)
                 .build();
 
         member.encodePassword(passwordEncoder);

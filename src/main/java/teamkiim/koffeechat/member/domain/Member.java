@@ -26,9 +26,6 @@ public class Member {
     private String email;
     private String password;
     private String nickname;
-    private String imageUrl;
-
-    private String socialLoginId;
 
     //== 비지니스 로직 ==//
 
