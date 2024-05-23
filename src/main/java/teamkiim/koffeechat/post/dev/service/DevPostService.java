@@ -1,23 +1,27 @@
 package teamkiim.koffeechat.post.dev.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.file.service.FileService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.member.domain.repository.MemberRepository;
-import teamkiim.koffeechat.post.Post;
+import teamkiim.koffeechat.member.repository.MemberRepository;
+import teamkiim.koffeechat.post.dev.controller.dto.InitPostRequest;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
-import teamkiim.koffeechat.post.dev.domain.repository.DevPostRepository;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostViewResponse;
-import teamkiim.koffeechat.post.dto.request.CreatePostRequest;
-import teamkiim.koffeechat.post.dto.request.UpdatePostRequest;
-import teamkiim.koffeechat.skillcategory.domain.SkillCategory;
-import teamkiim.koffeechat.skillcategory.domain.repository.SkillCategoryRepository;
+import teamkiim.koffeechat.post.dev.dto.request.ModifyDevPostServiceRequest;
+import teamkiim.koffeechat.post.dev.dto.request.SaveDevPostServiceRequest;
+import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
+import teamkiim.koffeechat.post.dev.dto.response.DevPostResponse;
+import teamkiim.koffeechat.post.dev.dto.response.ImageFileInfoDto;
+import teamkiim.koffeechat.post.dev.repository.DevPostRepository;
+import teamkiim.koffeechat.post.domain.Post;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -30,73 +34,108 @@ public class DevPostService {
 
     private final DevPostRepository devPostRepository;
     private final MemberRepository memberRepository;
-    private final SkillCategoryRepository skillCategoryRepository;
+    private final FileService fileService;
 
     /**
-     * 개발 게시글 생성
+     * 게시글 최초 임시 저장
+     * @param title 제목
+     * @param memberId 작성자 PK
+     * @return Long 게시글 PK
      */
     @Transactional
-    public DevPostViewResponse createDevPost(CreatePostRequest postRequestDto, Long memberId) {
-        Optional<Member> findMember = memberRepository.findById(memberId);  //게시글 작성자 조회
-        List<SkillCategory> categories= skillCategoryRepository.findCategories(postRequestDto.getSkillCategories());  //카테고리 가져오기
-        DevPost devPost = new DevPost();
-        devPost.create(findMember.get(), postRequestDto.getTitle(), postRequestDto.getBodyContent(), categories);
+    public ResponseEntity<?> saveInitDevPost(String title, Long memberId){
 
-        devPostRepository.save(devPost);  //게시글 저장
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return new DevPostViewResponse(devPost);
+        DevPost devPost = DevPost.builder()
+                .member(member)
+                .title(title)
+                .build();
+
+        DevPost saveDevPost = devPostRepository.save(devPost);
+
+        return ResponseEntity.ok(saveDevPost.getId());
     }
 
     /**
-     * 게시글 한 개 조회
-     */
-    public Post findOne(Long postId) {
-        return devPostRepository.findOneDev(postId);
-    }
-
-    /**
-     * 게시글 리스트 조회
-     */
-    public List<DevPostViewResponse> findDevPosts() {
-        List<DevPost> posts= devPostRepository.findAllDev();
-        List<DevPostViewResponse> collect = posts.stream()
-                .map(post-> new DevPostViewResponse(post))
-                .collect(Collectors.toList());
-
-        return collect;
-    }
-
-
-    /**
-     * 제목으로 게시글 조회
-     */
-
-    /**
-     * 카테고리로 게시글 리스트 조회
-     */
-    public List<DevPostViewResponse> findDevPostsByCategories(List<String> categoryNames) {
-        List<DevPost> posts = devPostRepository.findByCategories(categoryNames);
-        List<DevPostViewResponse> collect = posts.stream()
-                .map(post-> new DevPostViewResponse(post))
-                .collect(Collectors.toList());
-        return collect;
-
-    }
-
-    /**
-     * 게시글 제목, 내용, 수정 시간 수정
+     * 게시글 저장
+     * @param saveDevPostServiceRequest 게시글 저장 dto
+     * @return DevPostResponse
      */
     @Transactional
-    public DevPostViewResponse updatePost(Long postId, UpdatePostRequest postDto, Long memberId) {
+    public ResponseEntity<?> saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest){
 
-        DevPost findDev = devPostRepository.findOneDev(postId);  // 게시글이 존재하는 지 확인
-        //게시글 수정 권한이 없는 사용자가 게시글 수정을 요청하는 경우
-        if (findDev.getMember().getId() != memberId) throw new CustomException(ErrorCode.UPDATE_FORBIDDEN);
+        DevPost devPost = devPostRepository.findById(saveDevPostServiceRequest.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        List<SkillCategory> categories = skillCategoryRepository.findCategories(postDto.getSkillCategories());
-        findDev.update(postDto, categories);
+        devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
+                saveDevPostServiceRequest.getCurrDateTime(), saveDevPostServiceRequest.combineSkillCategory());
 
-        return new DevPostViewResponse(findDev);
+        fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
+
+        List<ImageFileInfoDto> imageFileInfoDtoList = devPost.getFileList().stream()
+                .map(ImageFileInfoDto::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(DevPostResponse.of(devPost, imageFileInfoDtoList));
     }
+
+    /**
+     * 게시글 목록 조회
+     * @param page 페이지 번호 ( ex) 0, 1,,,, )
+     * @param size 페이지 당 조회할 데이터 수
+     * @return List<DevPostListResponse>
+     */
+    public ResponseEntity<?> findDevPostList(int page, int size){
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+
+        List<DevPost> devPostList = devPostRepository.findAll(pageRequest).getContent();
+
+        List<DevPostListResponse> devPostListResponseList = devPostList.stream()
+                .map(DevPostListResponse::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(devPostListResponseList);
+    }
+
+    /**
+     * 게시글 상세 조회
+     * @param postId 게시글 PK
+     * @return DevPostResponse
+     */
+    @Transactional
+    public ResponseEntity<?> findPost(Long postId){
+
+        DevPost devPost = devPostRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        List<ImageFileInfoDto> imageFileInfoDtoList = devPost.getFileList().stream()
+                .map(ImageFileInfoDto::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(DevPostResponse.of(devPost, imageFileInfoDtoList));
+    }
+
+    /**
+     * 게시글 수정
+     * @param modifyDevPostServiceRequest 게시글 수정 dto
+     * @return DevPostResponse
+     */
+    @Transactional
+    public ResponseEntity<?> modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest){
+
+        DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
+                modifyDevPostServiceRequest.getCurrDateTime(), modifyDevPostServiceRequest.combineSkillCategory());
+
+        List<ImageFileInfoDto> imageFileInfoDtoList = devPost.getFileList().stream()
+                .map(ImageFileInfoDto::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(DevPostResponse.of(devPost, imageFileInfoDtoList));
+    }
+
+
+
 
 }
