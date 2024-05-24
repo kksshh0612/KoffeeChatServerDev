@@ -13,6 +13,9 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.post.domain.Post;
 import teamkiim.koffeechat.post.repository.PostRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class FileService {
     /**
      * 이미지 파일 단건 저장
      * @param multipartFile 실제 파일
-     * @param postId 게시물 PK
+     * @param postId 연관 게시물 PK
      * @return ImagePathResponse
      */
     @Transactional
@@ -38,7 +41,11 @@ public class FileService {
 
         fileStorageControlService.saveFile(file, multipartFile);
 
-        return ResponseEntity.ok(new ImagePathResponse(file.getPath(), file.getName()));
+        File saveFile = fileRepository.save(file);
+
+        post.addFile(saveFile);                         // 양방향 연관관계 주입
+
+        return ResponseEntity.ok(new ImagePathResponse(saveFile.getId(), saveFile.getPath(), saveFile.getName()));
     }
 
     /**
@@ -57,5 +64,25 @@ public class FileService {
         fileRepository.delete(file);
 
         return ResponseEntity.ok("이미지 파일 삭제 완료");
+    }
+
+    /**
+     * 이미지 파일 다건 삭제 (post에 연관된 File 중 id값이 fileIdList에 없는 File 삭제)
+     * @param fileIdList 삭제하지 않을 이미지 파일 id 리스트
+     * @param post 연관 게시물
+     * @return
+     */
+    @Transactional
+    public void deleteImageFiles(List<Long> fileIdList, Post post){
+
+        List<File> existFileList = fileRepository.findAllByPost(post);
+
+        List<File> deleteFileList = existFileList.stream()
+                        .filter(file -> !fileIdList.contains(file.getId()))
+                                .collect(Collectors.toList());
+
+        fileStorageControlService.deleteFiles(deleteFileList);
+
+        fileRepository.deleteAll(deleteFileList);
     }
 }

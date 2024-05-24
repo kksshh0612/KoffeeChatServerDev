@@ -23,8 +23,8 @@ public class File {
     @JoinColumn(name="post_id")
     private Post post;                                  // 연관 게시물
 
-    private String path;                        // 파일 저장 경로
-    private String name;                        // 파일 저장명
+    private String path;                                // 파일 저장 경로
+    private String name;                                // 파일 저장명
 
     @Builder
     public File(Post post) {
