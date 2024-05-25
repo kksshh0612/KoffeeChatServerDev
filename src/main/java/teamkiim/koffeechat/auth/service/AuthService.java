@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.auth.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,15 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.auth.dto.request.LoginRequest;
-import teamkiim.koffeechat.auth.dto.request.SignUpRequest;
+import teamkiim.koffeechat.auth.dto.request.LoginServiceRequest;
+import teamkiim.koffeechat.auth.dto.request.SignUpServiceRequest;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.member.domain.MemberRole;
 import teamkiim.koffeechat.member.repository.MemberRepository;
 
 import java.util.Optional;
@@ -39,17 +39,17 @@ public class AuthService {
 
     /**
      * 회원가입
-     * @param signUpRequest 회원가입 요청 dto
+     * @param signUpServiceRequest 회원가입 요청 dto
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> signUp(SignUpRequest signUpRequest){
+    public ResponseEntity<?> signUp(SignUpServiceRequest signUpServiceRequest){
 
-        Optional<Member> existMember = memberRepository.findByEmail(signUpRequest.getEmail());
+        Optional<Member> existMember = memberRepository.findByEmail(signUpServiceRequest.getEmail());
 
         if(existMember.isPresent()) throw new CustomException(ErrorCode.EMAIL_ALREADY_EXIST);
 
-        Member member = signUpRequest.toEntity();
+        Member member = signUpServiceRequest.toEntity();
 
         member.encodePassword(passwordEncoder);
 
@@ -60,21 +60,21 @@ public class AuthService {
 
     /**
      * 로그인
-     * @param loginRequest 로그인 요청 dto
+     * @param loginServiceRequest 로그인 요청 dto
      * @param response HttpServletResponse
      * @return ok
      */
-    public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response){
+    public ResponseEntity<?> login(LoginServiceRequest loginServiceRequest, HttpServletResponse response){
 
-        Member member = memberRepository.findByEmail(loginRequest.getEmail())
+        Member member = memberRepository.findByEmail(loginServiceRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if(!member.matchPassword(passwordEncoder, loginRequest.getPassword())){
+        if(!member.matchPassword(passwordEncoder, loginServiceRequest.getPassword())){
             throw new CustomException(ErrorCode.EMAIL_PASSWORD_NOT_MATCH);
         }
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getRole().toString(), member.getId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getRole().toString(), member.getId());
+        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
 
         // 레디스 세팅
         redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
@@ -85,4 +85,10 @@ public class AuthService {
 
         return ResponseEntity.ok("로그인이 완료되었습니다.");
     }
+
+//    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response){
+//
+//        String accessToken = jwtTokenProvider.getTokenClaims()
+//        jwtTokenProvider.invalidateAccessToken();
+//    }
 }

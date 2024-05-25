@@ -1,11 +1,15 @@
 package teamkiim.koffeechat.email.dto.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public class AuthCodeCheckRequest {
+@Builder
+public class AuthCodeCheckServiceRequest {
 
     private String email;
     private String code;

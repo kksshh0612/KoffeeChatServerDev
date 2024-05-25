@@ -1,6 +1,5 @@
 package teamkiim.koffeechat.global.web.interceptor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        log.info("여기: " + request.getRequestURI());
+        log.info("AuthInterceptor / preHandle 진입 요청 URI: " + request.getRequestURI());
 
         if(!(handler instanceof HandlerMethod)) return true;
 
@@ -38,7 +37,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         Auth auth = handlerMethod.getMethodAnnotation(Auth.class);
 
-        // @Auth가 없는 경우 인증 해당 인터셉터에서 인증 수행하지 않음.
+        // @Auth가 없는 경우 인증 해당 인터셉터에서 인가 작업을 수행하지 않음.
         if(auth == null) return true;
 
         String accessToken = cookieProvider.getAccessToken(request);

@@ -1,11 +1,15 @@
 package teamkiim.koffeechat.oauth.dto.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public class KakaoAuthRequest {
+@Builder
+public class KakaoAuthServiceRequest {
 
     private String clientId;
     private String redirectUri;

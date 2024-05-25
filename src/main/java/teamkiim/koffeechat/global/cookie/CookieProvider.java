@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 /**
  * 쿠키를 설정하는 클래스
  */
-
 @Component
 @Slf4j
 public class CookieProvider {
@@ -24,8 +23,12 @@ public class CookieProvider {
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
 
-    /*
-    response에 쿠키를 만들어 Add
+    /**
+     * 쿠키를 생성해서 response에 set
+     * @param name 토큰 이름 (Authorization or refresh-token)
+     * @param value JWT 토큰 문자열
+     * @param isLogout 로그아웃 로직인지 여부
+     * @param response HttpServletResponse
      */
     public void setCookie(String name, String value, boolean isLogout, HttpServletResponse response){
 
@@ -50,8 +53,10 @@ public class CookieProvider {
         response.addHeader("Set-Cookie", cookie.toString());
     }
 
-    /*
-    HTTP 요청의 쿠키에서 refresh 토큰 파싱
+    /**
+     * HTTP 요청의 쿠키에서 Access Token 파싱
+     * @param request HttpServletRequest
+     * @return Access Token
      */
     public String getAccessToken(HttpServletRequest request){
 
@@ -75,8 +80,10 @@ public class CookieProvider {
         return accessToken;
     }
 
-    /*
-    HTTP 요청의 쿠키에서 refresh 토큰 파싱
+    /**
+     * HTTP 요청의 쿠키에서 Refresh Token 파싱
+     * @param request HttpServletRequest
+     * @return Refresh Token
      */
     public String getRefreshToken(HttpServletRequest request){
 

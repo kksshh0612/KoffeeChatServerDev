@@ -2,15 +2,14 @@ package teamkiim.koffeechat.oauth.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
@@ -19,9 +18,10 @@ import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.domain.MemberRole;
-import teamkiim.koffeechat.member.domain.repository.MemberRepository;
-import teamkiim.koffeechat.oauth.dto.request.KakaoAuthRequest;
-import teamkiim.koffeechat.oauth.dto.request.SocialMemberInfoSaveRequest;
+import teamkiim.koffeechat.member.repository.MemberRepository;
+import teamkiim.koffeechat.oauth.dto.request.GoogleAuthServiceRequest;
+import teamkiim.koffeechat.oauth.dto.request.KakaoAuthServiceRequest;
+import teamkiim.koffeechat.oauth.dto.request.SaveSocialLoginMemberInfoServiceRequest;
 import teamkiim.koffeechat.oauth.dto.response.SocialMemberInfoResponse;
 
 import java.util.Map;
@@ -45,7 +45,9 @@ public class OAuthService {
     private long refreshTokenExpTime;
 
     /**
-     * 엑세스 토큰으로 네이버 회원 정보 조회
+     * Access Token으로 네이버 회원 정보 조회
+     * @param accessToken 네이버 인증 서버에서 발급해준 Access Token
+     * @return SocialMemberInfoResponse
      */
     public ResponseEntity<?> getMemberInfoFromNaver(String accessToken){
 
@@ -57,22 +59,15 @@ public class OAuthService {
 
         HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
 
-        ResponseEntity<JSONObject> response = restTemplate.exchange(requestURL, HttpMethod.GET, entity, JSONObject.class);
+        ResponseEntity<String> response = restTemplate.exchange(requestURL, HttpMethod.GET, entity, String.class);
 
-        String email = null, nickname = null;
-
-        try{
-            email = response.getBody().get("email").toString();
-            nickname = response.getBody().get("nickname").toString();
-        } catch (JSONException e){
-            throw new CustomException(ErrorCode.JSON_ERROR);
-        }
-
-        return ResponseEntity.ok(new SocialMemberInfoResponse(email, nickname));
+        return response;
     }
 
     /**
-     * 엑세스 토큰으로 카카오 회원 정보 조회
+     * Access Token으로 카카오 회원 정보 조회
+     * @param accessToken 카카오 인증 서버에서 발급해준 Access Token
+     * @return SocialMemberInfoResponse
      */
     public ResponseEntity<?> getMemberInfoFromKakao(String accessToken){
 
@@ -85,24 +80,15 @@ public class OAuthService {
 
         HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
 
-        ResponseEntity<JSONObject> response = restTemplate.exchange(requestURL, HttpMethod.GET, entity, JSONObject.class);
+        ResponseEntity<String> response = restTemplate.exchange(requestURL, HttpMethod.GET, entity, String.class);
 
-        String email = null, nickname = null;
-
-        try{
-            Map<String, Object> kakaoAccount = (Map<String, Object>) response.getBody().get("kakao_account");
-            email = kakaoAccount.get("email").toString();
-            Map<String, Object> memberProfile = (Map<String, Object>) kakaoAccount.get("profile");
-            nickname = memberProfile.get("nickname").toString();
-        } catch (JSONException e){
-            throw new CustomException(ErrorCode.JSON_ERROR);
-        }
-
-        return ResponseEntity.ok(new SocialMemberInfoResponse(email, nickname));
+        return response;
     }
 
     /**
-     * 엑세스 토큰으로 구글 회원 정보 조회
+     * Access Token으로 구글 회원 정보 조회
+     * @param accessToken 구글 인증 서버에서 발급해준 Access Token
+     * @return SocialMemberInfoResponse
      */
     public ResponseEntity<?> getMemberInfoFromGoogle(String accessToken){
 
@@ -114,26 +100,47 @@ public class OAuthService {
 
         HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
 
-        ResponseEntity<JSONObject> response = restTemplate.exchange(requestURL, HttpMethod.GET, entity, JSONObject.class);
+        ResponseEntity<String> response = restTemplate.exchange(requestURL, HttpMethod.GET, entity, String.class);
 
-        String email = null, nickname = null;
-
-        try{
-            email = response.getBody().get("email").toString();
-            nickname = response.getBody().get("name").toString();
-        } catch (JSONException e){
-            throw new CustomException(ErrorCode.JSON_ERROR);
-        }
-
-        return ResponseEntity.ok(new SocialMemberInfoResponse(email, nickname));
+        return response;
     }
 
     /**
-     * 카카오 인증 코드로 엑세스 토큰 발급
+     * 카카오 인증 코드로 Access / Refresh 토큰 발급
+     * @param kakaoAuthServiceRequest 토큰을 발급받기 위해 카카오 인증 서버로 보내야 할 정보들이 담긴 dto
+     * @return 구글 인증 서버로 부터 받은 Access, Refresh Token 정보
      */
-    public ResponseEntity<?> getKakaoAccessToken(KakaoAuthRequest kakaoAuthRequest){
+    public ResponseEntity<?> getKakaoJWT(KakaoAuthServiceRequest kakaoAuthServiceRequest){
 
         String requestUrl = "https://kauth.kakao.com/oauth/token";
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        httpHeaders.set("charset", "utf-8");
+
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+
+        requestBody.add("grant_type", "authorization_code");
+        requestBody.add("client_id", kakaoAuthServiceRequest.getClientId());
+        requestBody.add("redirect_uri", kakaoAuthServiceRequest.getRedirectUri());
+        requestBody.add("code", kakaoAuthServiceRequest.getCode());
+        requestBody.add("client_secret", kakaoAuthServiceRequest.getClientSecret());
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestBody, httpHeaders);
+
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.POST, entity, String.class);
+
+        return response;
+    }
+
+    /**
+     * 구글 인증 코드로 Access / Refresh 토큰 발급
+     * @param googleAuthServiceRequest 토큰을 발급받기 위해 구글 인증 서버로 보내야 할 정보들이 담긴 dto
+     * @return 구글 인증 서버로 부터 받은 Access, Refresh Token 정보
+     */
+    public ResponseEntity<?> getGoogleJWT(GoogleAuthServiceRequest googleAuthServiceRequest){
+
+        String requestUrl = "https://oauth2.googleapis.com/token";
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -141,45 +148,51 @@ public class OAuthService {
 
         try{
             requestBody.put("grant_type", "authorization_code");
-            requestBody.put("client_id", kakaoAuthRequest.getClientId());
-            requestBody.put("redirect_uri", kakaoAuthRequest.getRedirectUri());
-            requestBody.put("code", kakaoAuthRequest.getCode());
-            requestBody.put("client_secret", kakaoAuthRequest.getClientSecret());
+            requestBody.put("client_id", googleAuthServiceRequest.getClientId());
+            requestBody.put("redirect_uri", googleAuthServiceRequest.getRedirectUri());
+            requestBody.put("code", googleAuthServiceRequest.getCode());
+            requestBody.put("client_secret", googleAuthServiceRequest.getClientSecret());
         } catch (JSONException e){
             throw new CustomException(ErrorCode.JSON_ERROR);
         }
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), httpHeaders);
 
-        ResponseEntity<JSONObject> response = restTemplate.exchange(requestUrl, HttpMethod.POST, entity, JSONObject.class);
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.POST, entity, String.class);
 
         return response;
     }
 
     /**
      * 소셜 로그인 회원 정보로 회원가입/로그인
+     * @param memberInfoServiceRequest 소셜 로그인 회원의 email, nickname 정보
+     * @param response HttpServletResponse
+     * @return ok
      */
     @Transactional
-    public ResponseEntity<?> loginOrSignUpSocialMember(SocialMemberInfoSaveRequest memberInfoSaveRequest, HttpServletResponse response){
+    public ResponseEntity<?> loginOrSignUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoServiceRequest, HttpServletResponse response){
 
         // 만약 가입된 이메일이 있다면 로그인 처리
-        Optional<Member> member = memberRepository.findByEmail(memberInfoSaveRequest.getEmail());
+        Optional<Member> member = memberRepository.findByEmail(memberInfoServiceRequest.getEmail());
 
         if(member.isPresent()){         // 로그인
             loginSocialMember(member.get(), response);
         }
         else{                           // 회원가입
-            Member joinMember = signUpSocialMember(memberInfoSaveRequest);
+            Member joinMember = signUpSocialMember(memberInfoServiceRequest);
             loginSocialMember(joinMember, response);
         }
 
         return ResponseEntity.ok("로그인/회원가입 성공");
     }
 
+    /*
+    소셜 로그인 회원의 로그인
+     */
     private void loginSocialMember(Member member,HttpServletResponse response){
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getRole().toString(), member.getId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getRole().toString(), member.getId());
+        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
 
         // 레디스 세팅
         redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
@@ -189,13 +202,16 @@ public class OAuthService {
         cookieProvider.setCookie(refreshTokenName, refreshToken, false, response);
     }
 
-    private Member signUpSocialMember(SocialMemberInfoSaveRequest memberInfoSaveRequest){
+    /*
+    소셜 로그인 회원의 회원가입
+     */
+    private Member signUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoSaveRequest){
 
         Member member = Member.builder()
                 .email(memberInfoSaveRequest.getEmail())
                 .password(null)
                 .nickname(memberInfoSaveRequest.getNickname())
-                .role(MemberRole.USER)
+                .memberRole(MemberRole.TEMP)
                 .build();
 
         memberRepository.save(member);
