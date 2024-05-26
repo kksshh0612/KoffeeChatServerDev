@@ -3,7 +3,6 @@ package teamkiim.koffeechat.comment.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,9 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.comment.controller.dto.CommentRequest;
 import teamkiim.koffeechat.comment.controller.dto.ModifyCommentRequest;
-import teamkiim.koffeechat.comment.domain.Comment;
 import teamkiim.koffeechat.comment.service.CommentService;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostResponse;
+import teamkiim.koffeechat.global.Auth;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +29,8 @@ public class CommentController {
     /**
      * 댓글 작성
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @PostMapping("/{postId}/comments")
     @Operation(summary = "댓글 저장", description = "사용자가 게시물에 댓글을 작성한다.")
     @ApiResponses({
@@ -57,6 +57,8 @@ public class CommentController {
     /**
      * 댓글 수정
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @PostMapping("/modify")
     @Operation(summary = "댓글 수정", description = "사용자가 자신이 작성한 댓글을 수정한다.")
     @ApiResponses({
@@ -78,6 +80,8 @@ public class CommentController {
     /**
      * 댓글 삭제
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @DeleteMapping("/delete/{commentId}")
     @Operation(summary = "댓글 삭제", description = "사용자가 자신이 작성한 댓글을 삭제한다.")
     @ApiResponses({
