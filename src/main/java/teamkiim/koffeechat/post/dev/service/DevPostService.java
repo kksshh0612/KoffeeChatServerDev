@@ -11,7 +11,6 @@ import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.repository.MemberRepository;
-import teamkiim.koffeechat.post.dev.controller.dto.InitPostRequest;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
 import teamkiim.koffeechat.post.dev.dto.request.ModifyDevPostServiceRequest;
 import teamkiim.koffeechat.post.dev.dto.request.SaveDevPostServiceRequest;
@@ -19,7 +18,6 @@ import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.post.dev.dto.response.ImageFileInfoDto;
 import teamkiim.koffeechat.post.dev.repository.DevPostRepository;
-import teamkiim.koffeechat.post.domain.Post;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,19 +36,17 @@ public class DevPostService {
 
     /**
      * 게시글 최초 임시 저장
-     * @param title 제목
      * @param memberId 작성자 PK
      * @return Long 게시글 PK
      */
     @Transactional
-    public ResponseEntity<?> saveInitDevPost(String title, Long memberId){
+    public ResponseEntity<?> saveInitDevPost(Long memberId){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = DevPost.builder()
                 .member(member)
-                .title(title)
                 .build();
 
         DevPost saveDevPost = devPostRepository.save(devPost);
@@ -70,7 +66,7 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getCurrDateTime(), saveDevPostServiceRequest.combineSkillCategory());
+                saveDevPostServiceRequest.getCurrDateTime(), saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 

@@ -4,6 +4,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,10 +12,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SkillCategory {
 
     @Enumerated(EnumType.STRING)
     private ParentSkillCategory parentSkillCategory;
     @Enumerated(EnumType.STRING)
     private ChildSkillCategory childSkillCategory;
+
 }

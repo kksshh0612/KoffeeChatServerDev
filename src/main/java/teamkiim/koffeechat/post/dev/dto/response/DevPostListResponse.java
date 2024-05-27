@@ -16,6 +16,7 @@ public class DevPostListResponse {
 
     private Long id;                                // PK
     private String title;                           // 제목
+    private String bodyContent;                     // 본문
     private Long viewCount;                         // 조회수
     private Long likeCount;                         // 좋아요 수
     private LocalDateTime createdTime;              // 작성 시간
@@ -29,6 +30,7 @@ public class DevPostListResponse {
         DevPostListResponse response = DevPostListResponse.builder()
                 .id(devPost.getId())
                 .title(devPost.getTitle())
+                .bodyContent(devPost.getBodyContent())
                 .viewCount(devPost.getViewCount())
                 .likeCount(devPost.getLikeCount())
                 .createdTime(devPost.getCreatedTime())

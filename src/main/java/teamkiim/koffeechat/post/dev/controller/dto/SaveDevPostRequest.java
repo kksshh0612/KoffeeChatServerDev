@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.post.dev.domain.ParentSkillCategory;
+import teamkiim.koffeechat.post.dev.domain.SkillCategory;
 import teamkiim.koffeechat.post.dev.dto.request.SaveDevPostServiceRequest;
 
 import java.time.LocalDateTime;
@@ -21,8 +22,7 @@ public class SaveDevPostRequest {
     private String title;
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
-    private List<ParentSkillCategory> parentSkillCategoryList;
-    private List<ChildSkillCategory> childSkillCategoryList;
+    private List<SkillCategory> skillCategoryList;
     private List<Long> fileIdList;
 
     public SaveDevPostServiceRequest toServiceRequest(LocalDateTime currDateTime){
@@ -30,8 +30,7 @@ public class SaveDevPostRequest {
                 .id(this.id)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
-                .parentSkillCategoryList(this.parentSkillCategoryList)
-                .childSkillCategoryList(this.childSkillCategoryList)
+                .skillCategoryList(this.skillCategoryList)
                 .fileIdList(this.fileIdList)
                 .currDateTime(currDateTime)
                 .build();

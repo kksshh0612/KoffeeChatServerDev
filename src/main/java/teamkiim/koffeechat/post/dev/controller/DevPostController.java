@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.global.Auth;
-import teamkiim.koffeechat.post.dev.controller.dto.InitPostRequest;
 import teamkiim.koffeechat.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
@@ -33,6 +32,8 @@ public class DevPostController {
     /**
      * 개발 게시글 최초 임시 저장
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @PostMapping("/init")
     @Operation(summary = "게시글 최초 임시 저장", description = "사용자가 개발 게시판에 글을 작성할 때, 최초 임시 저장한다.")
     @ApiResponses({
@@ -47,17 +48,18 @@ public class DevPostController {
                             value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
             ))
     })
-    public ResponseEntity<?> initPost(@Valid @RequestBody InitPostRequest initPostRequest, HttpServletRequest request){
+    public ResponseEntity<?> initPost(HttpServletRequest request){
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.saveInitDevPost(initPostRequest.getTitle(), memberId);
+        return devPostService.saveInitDevPost(memberId);
     }
 
     /**
      * 개발 게시글 작성
      */
-    @Auth(role = {Auth.MemberRole.USER, Auth.MemberRole.ADMIN})
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @PostMapping("/post")
     @Operation(summary = "게시글 저장", description = "사용자가 개발 게시판에 게시글을 저장한다.")
     @ApiResponses({
@@ -86,7 +88,7 @@ public class DevPostController {
     @GetMapping("/list")
     @Operation(summary = "게시글 목록 조회", description = "사용자가 개발 게시글 목록을 조회한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "개발 게시글 리스트를 반환한다.",
+            @ApiResponse(responseCode = "200", description = "개발 게시글 리스트를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
                     content = @Content(schema = @Schema(implementation = DevPostListResponse.class))),
     })
     public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size){
@@ -115,6 +117,8 @@ public class DevPostController {
     /**
      * 개발 게시글 수정
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @PatchMapping("/modify")
     @Operation(summary = "게시글 수정", description = "사용자가 개발 게시글을 수정한다.")
     @ApiResponses({

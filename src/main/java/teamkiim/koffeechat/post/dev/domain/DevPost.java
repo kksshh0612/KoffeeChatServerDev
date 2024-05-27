@@ -31,7 +31,7 @@ public class DevPost extends Post {
                    LocalDateTime createdTime, LocalDateTime modifiedTime, List<SkillCategory> skillCategoryList) {
 
         super(member, PostCategory.DEV, title, bodyContent, viewCount, likeCount, createdTime, modifiedTime);
-        this.skillCategoryList = List.copyOf(skillCategoryList);
+        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
     //== 비지니스 로직==//
@@ -46,7 +46,7 @@ public class DevPost extends Post {
     public void completeDevPost(String title, String bodyContent, LocalDateTime createdTime, List<SkillCategory> skillCategoryList){
 
         complete(PostCategory.DEV, title, bodyContent, createdTime);
-        this.skillCategoryList = List.copyOf(skillCategoryList);
+        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
     /**
@@ -60,7 +60,7 @@ public class DevPost extends Post {
 
         modify(title, bodyContent, modifiedTime);
         this.skillCategoryList.clear();
-        this.skillCategoryList = List.copyOf(skillCategoryList);
+        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
 }

@@ -30,22 +30,21 @@ public class SaveDevPostServiceRequest {
     private Long id;
     private String title;
     private String bodyContent;
-    private List<ParentSkillCategory> parentSkillCategoryList;
-    private List<ChildSkillCategory> childSkillCategoryList;
+    private List<SkillCategory> skillCategoryList;
     private List<Long> fileIdList;
     private LocalDateTime currDateTime;
 
-    public List<SkillCategory> combineSkillCategory(){
-
-        List<SkillCategory> skillCategoryList = new ArrayList<>();
-
-        if (parentSkillCategoryList != null && childSkillCategoryList != null) {
-            skillCategoryList = IntStream.range(0, Math.min(parentSkillCategoryList.size(), childSkillCategoryList.size()))
-                    .mapToObj(i -> new SkillCategory(parentSkillCategoryList.get(i), childSkillCategoryList.get(i)))
-                    .collect(Collectors.toList());
-        }
-
-        return skillCategoryList;
-    }
+//    public List<SkillCategory> combineSkillCategory(){
+//
+//        List<SkillCategory> skillCategoryList = new ArrayList<>();
+//
+//        if (parentSkillCategoryList != null && childSkillCategoryList != null) {
+//            skillCategoryList = IntStream.range(0, Math.min(parentSkillCategoryList.size(), childSkillCategoryList.size()))
+//                    .mapToObj(i -> new SkillCategory(parentSkillCategoryList.get(i), childSkillCategoryList.get(i)))
+//                    .collect(Collectors.toList());
+//        }
+//
+//        return skillCategoryList;
+//    }
 }
 
