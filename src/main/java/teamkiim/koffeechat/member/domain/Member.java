@@ -31,7 +31,7 @@ public class Member {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
-    private MemberRole role;
+    private MemberRole memberRole;
 
 //    private List<Long> chatRoomIdList = new ArrayList<>();
 
@@ -39,34 +39,16 @@ public class Member {
     private List<SkillCategory> interestSkillCategoryList = new ArrayList<>();
 
     @Builder
-    private Member(String email, String password, String nickname, MemberRole role, List<SkillCategory> interestSkillCategoryList) {
-        this.role = role;
+    private Member(String email, String password, String nickname, MemberRole memberRole, List<SkillCategory> interestSkillCategoryList) {
+
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.memberRole = memberRole;
         this.interestSkillCategoryList = interestSkillCategoryList;
     }
 
     //== 비지니스 로직 ==//
-
-    /**
-     * Member 생성 매서드
-     * @param role 권한
-     * @param email 이메일
-     * @param password 비밀번호
-     * @param nickname 닉네임
-     * @param interestSkillCategoryList 관심 기술 리스트
-     * @return
-     */
-    public Member create(String email, String password, String nickname, MemberRole role, List<SkillCategory> interestSkillCategoryList){
-        return Member.builder()
-                .email(email)
-                .password(password)
-                .nickname(nickname)
-                .role(role)
-                .interestSkillCategoryList(interestSkillCategoryList)
-                .build();
-    }
 
     /**
      * 비밀번호 암호화
@@ -83,6 +65,17 @@ public class Member {
 
         if(passwordEncoder.matches(password, this.password)) return true;
         else return false;
+    }
+
+    /**
+     * 관심 기술 등록
+     */
+    public void enrollSkillCategory(List<SkillCategory> skillCategoryList){
+
+        this.interestSkillCategoryList.clear();
+        if(skillCategoryList != null){
+            this.interestSkillCategoryList.addAll(skillCategoryList);
+        }
     }
 
 }
