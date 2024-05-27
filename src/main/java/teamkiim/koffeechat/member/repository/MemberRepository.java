@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.member.domain.repository;
+package teamkiim.koffeechat.member.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import teamkiim.koffeechat.member.domain.Member;

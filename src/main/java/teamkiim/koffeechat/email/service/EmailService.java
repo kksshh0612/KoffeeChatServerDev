@@ -5,18 +5,16 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.email.domain.EmailAuth;
 import teamkiim.koffeechat.email.domain.repository.EmailAuthRepository;
-import teamkiim.koffeechat.email.dto.request.AuthCodeCheckRequest;
+import teamkiim.koffeechat.email.controller.dto.AuthCodeCheckRequest;
+import teamkiim.koffeechat.email.dto.request.AuthCodeCheckServiceRequest;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,6 +29,8 @@ public class EmailService {
 
     /**
      * 회원가입 시 인증 코드 이메일 전송
+     * @param email 전송할 이메일
+     * @return ok
      */
     @Transactional
     public ResponseEntity<?> sendEmailAuthCode(String email){
@@ -69,11 +69,13 @@ public class EmailService {
 
     /**
      * 회원가입 시 이메일 인증
+     * @param authCodeCheckServiceRequest 이메일 인증 dto
+     * @return ok
      */
     @Transactional
-    public ResponseEntity<?> checkEmailAuthCode(AuthCodeCheckRequest authCodeCheckRequest){
+    public ResponseEntity<?> checkEmailAuthCode(AuthCodeCheckServiceRequest authCodeCheckServiceRequest){
 
-        EmailAuth emailAuth = emailAuthRepository.findByEmailAndCode(authCodeCheckRequest.getEmail(), authCodeCheckRequest.getCode())
+        EmailAuth emailAuth = emailAuthRepository.findByEmailAndCode(authCodeCheckServiceRequest.getEmail(), authCodeCheckServiceRequest.getCode())
                 .orElseThrow(() -> new CustomException(ErrorCode.AUTH_CODE_NOT_MATCH));
 
         emailAuthRepository.delete(emailAuth);

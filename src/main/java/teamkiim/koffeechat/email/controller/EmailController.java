@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.email.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -8,11 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import teamkiim.koffeechat.email.dto.request.AuthCodeCheckRequest;
+import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.email.controller.dto.AuthCodeCheckRequest;
 import teamkiim.koffeechat.email.dto.request.EmailAuthRequest;
 import teamkiim.koffeechat.email.service.EmailService;
 
@@ -24,7 +22,11 @@ public class EmailController {
 
     private final EmailService emailService;
 
+    /**
+     * 회원가입 시 이메일 인증 메세지 전송
+     */
     @PostMapping("/send-auth-code")
+    @Operation(summary = "회원가입 시 이메일 인증 메세지 전송", description = "회원가입 시 인증 이메일을 전송한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "이메일 전송 완료"),
             @ApiResponse(responseCode = "500", content = @Content(mediaType = "application/json",
@@ -37,7 +39,11 @@ public class EmailController {
         return emailService.sendEmailAuthCode(emailAuthRequest.getEmail());
     }
 
+    /**
+     * 이메일 인증 진행
+     */
     @PostMapping("/check-auth-code")
+    @Operation(summary = "회원가입 시 이메일로 전송한 코드 확인", description = "회원가입 시 이메일로 전송한 코드를 확인한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "이메일 전송 완료"),
             @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
@@ -47,6 +53,6 @@ public class EmailController {
     })
     public ResponseEntity<?> checkAuthCode(@Valid @RequestBody AuthCodeCheckRequest authCodeCheckRequest){
 
-        return emailService.checkEmailAuthCode(authCodeCheckRequest);
+        return emailService.checkEmailAuthCode(authCodeCheckRequest.toServiceRequest());
     }
 }

@@ -39,17 +39,21 @@ public class JwtTokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
     private Key key;
 
-    /*
-   빈이 생성되고 의존관계 주입까지 완료된 후, Key 변수에 값 할당
-    */
+    /**
+     * 빈이 생성되고 의존관계 주입까지 완료된 후, Key 변수에 값 할당
+     */
     @Override
     public void afterPropertiesSet() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);     //생성자 주입으로 받은 secret 값을 Base64에 디코딩하여 key 변수에 할당
         this.key = Keys.hmacShaKeyFor(keyBytes);              //hmac 알고리즘을 이용하여 Key 인스턴스 생성
     }
 
-    /*
-    로그인한 사용자의 정보로 access 토큰 발급
+
+    /**
+     * 로그인한 사용자의 정보로 Access Token 발급
+     * @param role 회원 권한
+     * @param memberId 회원 PK
+     * @return JWT (Access Token)
      */
     public String createAccessToken(String role,  Long memberId){
 
@@ -63,8 +67,11 @@ public class JwtTokenProvider implements InitializingBean {
                 .compact();
     }
 
-    /*
-    로그인한 사용자의 정보로 refresh 토큰 발급
+    /**
+     * 로그인한 사용자의 정보로 Refresh Token 발급
+     * @param role 회원 권한
+     * @param memberId 회원 PK
+     * @return JWT (Refresh Token)
      */
     public String createRefreshToken(String role,  Long memberId){
 
@@ -78,8 +85,10 @@ public class JwtTokenProvider implements InitializingBean {
                 .compact();
     }
 
-    /*
-    토큰에서 claim 정보 추출
+    /**
+     * JWT에서 claim 정보 추출
+     * @param token 토큰 (Access or Refresh)
+     * @return Claims
      */
     public Claims getTokenClaims(String token){
 
@@ -92,17 +101,22 @@ public class JwtTokenProvider implements InitializingBean {
         return claims;
     }
 
-    /*
-    Claim에서 PK 추출
+    /**
+     * Claim에서 PK 추출
+     * @param claims
+     * @return 사용자의 PK
      */
     public Long getMemberPK(Claims claims){
 
         return Long.parseLong(claims.getSubject());
     }
 
-    /*
-   유효한 access 토큰인지 확인 return이 null : 다시 로그인 / access토큰 : 다음 프로세스로 이동
-    */
+    /**
+     * Access Token 유효성 검증
+     * @param accessToken Access Token
+     * @param request HttpServletRequest
+     * @return 유효한 경우 -> Access Token / 유효하지 않은 경우 -> null
+     */
     public String validateAccessToken(String accessToken, HttpServletRequest request) {
 
         try {
@@ -135,8 +149,10 @@ public class JwtTokenProvider implements InitializingBean {
         }
     }
 
-    /*
-    유효한 refresh 토큰인지 확인
+    /**
+     * Refresh Token 유효성 검증
+     * @param requestRefreshToken Refresh Token
+     * @return 유효한 경우 -> true / 유효하지 않은 경우 -> false
      */
     public boolean validateRefreshToken(String requestRefreshToken){
 
@@ -156,8 +172,10 @@ public class JwtTokenProvider implements InitializingBean {
         return false;
     }
 
-    /*
-    refresh 토큰으로 새로운 access 토큰 발급
+    /**
+     * Refresh Token으로 새로운 Access Token 발급
+     * @param refreshToken Refresh Token
+     * @return Access Token
      */
     public String createAccessTokenFromRefreshToken(String refreshToken){
 
@@ -169,8 +187,9 @@ public class JwtTokenProvider implements InitializingBean {
         return createAccessToken(memberRole, id);
     }
 
-    /*
-    access 토큰 폐기 (redis에 블랙리스트로 등록)
+    /**
+     * Access Token 레디스에 블랙리스트 등록 (무효화)
+     * @param accessToken Access Token
      */
     public void invalidateAccessToken(String accessToken){
 
@@ -186,8 +205,9 @@ public class JwtTokenProvider implements InitializingBean {
         redisUtil.setData(accessToken, "logout", remainTime);
     }
 
-    /*
-    refresh 토큰 폐기 (redis에서 삭제)
+    /**
+     * Refresh Token 레디스에서 삭제 (무효화)
+     * @param refreshToken Refresh Token
      */
     public void invalidateRefreshToken(String refreshToken){
 

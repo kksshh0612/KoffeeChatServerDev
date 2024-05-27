@@ -9,13 +9,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.auth.dto.request.LoginRequest;
-import teamkiim.koffeechat.auth.dto.request.SignUpRequest;
+import teamkiim.koffeechat.auth.controller.dto.LoginRequest;
+import teamkiim.koffeechat.auth.controller.dto.SignUpRequest;
 import teamkiim.koffeechat.auth.service.AuthService;
 import teamkiim.koffeechat.global.Auth;
 
@@ -27,6 +25,9 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "사용자가 회원가입 요청을 한다.")
     @ApiResponses({
@@ -38,9 +39,12 @@ public class AuthController {
     })
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest signUpRequest){
 
-        return authService.signUp(signUpRequest);
+        return authService.signUp(signUpRequest.toServiceRequest());
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "사용자가 로그인 요청을 한다.")
     @ApiResponses({
@@ -56,15 +60,11 @@ public class AuthController {
     })
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response){
 
-        return authService.login(loginRequest, response);
+        return authService.login(loginRequest.toServiceRequest(), response);
     }
 
-    @Auth(role = {Auth.MemberRole.USER, Auth.MemberRole.ADMIN})
-    @GetMapping("/test")
-    public ResponseEntity<?> test(HttpServletRequest request){
+    /**
+     * 로그아웃
+     */
 
-        Long pk = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return ResponseEntity.ok(pk);
-    }
 }

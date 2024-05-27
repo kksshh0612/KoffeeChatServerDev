@@ -1,14 +1,12 @@
 package teamkiim.koffeechat.postlike.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.post.Post;
+import teamkiim.koffeechat.post.domain.Post;
 
-/**
- * 게시글 좋아요
- */
 @Entity
 @Getter
 @NoArgsConstructor
@@ -17,22 +15,19 @@ public class PostLike {
     @Id
     @GeneratedValue
     @Column(name = "post_like_id")
-    private Long id;  //post_like_id
+    private Long id;
 
-    //회원은 게시글마다 좋아요를 표현할 수 있다.
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member member;                          // 좋아요 누른 회원
 
     @ManyToOne
     @JoinColumn(name = "post_id")
-    private Post post;
+    private Post post;                              // 연관 게시물
 
-    /**
-     * 좋아요 생성 값 세팅
-     */
-    public void create(Member member, Post post) {
-        this.member=member;
-        this.post=post;
+    @Builder
+    public PostLike(Member member, Post post) {
+        this.member = member;
+        this.post = post;
     }
 }
