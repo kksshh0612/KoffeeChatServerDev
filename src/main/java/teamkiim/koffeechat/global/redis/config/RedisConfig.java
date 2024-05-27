@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,7 +18,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  */
 @Getter
 @Configuration
-@AllArgsConstructor
+@RequiredArgsConstructor
 @EnableRedisRepositories
 public class RedisConfig {
 
@@ -27,18 +28,19 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-    /*
-    레디스 연결
+    /**
+     * 레디스 연결
      */
     @Bean
     public RedisConnectionFactory redisConnectionFactory(){
         return new LettuceConnectionFactory(host, port);
     }
 
-    /*
-    redis template을 이용해 데이터 접근한다. RedisTemplate로 레디스 서버에 명령을 수행한다.
+    /**
+     * RedisTemplate을 이용해 레디스 서버에 명령 전송
      */
     @Bean
+    @Primary
     public RedisTemplate<String, String> redisTemplate() {
 
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();        // redisTemplate를 받아와서 set, get, delete를 사용
