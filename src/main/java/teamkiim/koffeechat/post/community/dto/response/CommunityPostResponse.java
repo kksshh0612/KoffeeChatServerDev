@@ -25,9 +25,12 @@ public class CommunityPostResponse {
     private Long likeCount;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
-    private List<ImageFileInfoDto> imageFileInfoDtoList = new ArrayList<>();
+    private List<ImageFileInfoDto> imageFileInfoDtoList;
+    private List<CommentInfoDto> commentInfoDtoList;
 
-    public static CommunityPostResponse of(Post communityPost, List<ImageFileInfoDto> imageFileInfoDtoList){
+    public static CommunityPostResponse of(Post communityPost,
+                                           List<ImageFileInfoDto> imageFileInfoDtoList,
+                                           List<CommentInfoDto> commentInfoDtoList){
 
         return CommunityPostResponse.builder()
                 .id(communityPost.getId())
@@ -38,6 +41,7 @@ public class CommunityPostResponse {
                 .createdTime(communityPost.getCreatedTime())
                 .modifiedTime(communityPost.getModifiedTime())
                 .imageFileInfoDtoList(imageFileInfoDtoList)
+                .commentInfoDtoList(commentInfoDtoList)
                 .build();
     }
 }

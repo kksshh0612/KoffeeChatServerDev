@@ -22,6 +22,7 @@ import teamkiim.koffeechat.member.repository.MemberRepository;
 import teamkiim.koffeechat.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.post.community.dto.request.ModifyCommunityPostServiceRequest;
 import teamkiim.koffeechat.post.community.dto.request.SaveCommunityPostServiceRequest;
+import teamkiim.koffeechat.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.post.community.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.post.community.repository.CommunityPostRepository;
@@ -43,19 +44,17 @@ public class CommunityPostService {
 
     /**
      * 게시글 최초 임시 저장
-     * @param title 제목
      * @param memberId 작성자 PK
      * @return Long 게시글 PK
      */
     @Transactional
-    public ResponseEntity<?> saveInitCommunityPost(String title, Long memberId){
+    public ResponseEntity<?> saveInitCommunityPost(Long memberId){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         CommunityPost communityPost = CommunityPost.builder()
                 .member(member)
-                .title(title)
                 .build();
 
         CommunityPost saveCommunityPost = communityPostRepository.save(communityPost);
@@ -82,7 +81,10 @@ public class CommunityPostService {
         List<ImageFileInfoDto> imageFileInfoDtoList = communityPost.getFileList().stream()
                 .map(ImageFileInfoDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList));
+        List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
+                .map(CommentInfoDto::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList, commentInfoDtoList));
 
     }
 
@@ -117,9 +119,17 @@ public class CommunityPostService {
         List<ImageFileInfoDto> imageFileInfoDtoList = communityPost.getFileList().stream()
                 .map(ImageFileInfoDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList));
+        List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
+                .map(CommentInfoDto::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList, commentInfoDtoList));
     }
 
+    /**
+     * 게시글 수정
+     * @param modifyCommunityPostServiceRequest 게시글 수정 dto
+     * @return CommunityPostResponse
+     */
     public ResponseEntity<?> modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest){
 
         CommunityPost communityPost = communityPostRepository.findById(modifyCommunityPostServiceRequest.getId())
@@ -131,6 +141,9 @@ public class CommunityPostService {
         List<ImageFileInfoDto> imageFileInfoDtoList = communityPost.getFileList().stream()
                 .map(ImageFileInfoDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList));
+        List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
+                .map(CommentInfoDto::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList, commentInfoDtoList));
     }
 }
