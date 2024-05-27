@@ -35,6 +35,8 @@ public class FileStorageControlService {
 
         Path savePath = Paths.get(filePathBuilder.toString());
 
+        System.out.println("파일 경로 : " + savePath.toString());
+
         try {
             multipartFile.transferTo(savePath);
         } catch (IOException e){

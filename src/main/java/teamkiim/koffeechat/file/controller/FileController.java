@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.file.service.FileService;
+import teamkiim.koffeechat.global.Auth;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +24,8 @@ public class FileController {
     /**
      * 이미지 단건 저장
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @PostMapping("/image")
     @Operation(summary = "이미지 파일 단건 저장", description = "이미지 파일을 단건 저장한다.")
     @ApiResponses({
@@ -52,6 +55,8 @@ public class FileController {
     /**
      * 이미지 삭제
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @DeleteMapping("/image")
     @Operation(summary = "이미지 파일 삭제", description = "이미지 파일을 삭제한다.")
     @ApiResponses({
