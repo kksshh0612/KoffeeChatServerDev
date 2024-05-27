@@ -11,11 +11,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import teamkiim.koffeechat.auth.dto.request.SignUpRequest;
+import teamkiim.koffeechat.auth.dto.request.SignUpServiceRequest;
 import teamkiim.koffeechat.auth.service.AuthService;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.member.domain.repository.MemberRepository;
-import teamkiim.koffeechat.member.service.MemberService;
+import teamkiim.koffeechat.member.repository.MemberRepository;
 
 import java.util.Optional;
 
@@ -38,11 +37,11 @@ public class AuthServiceTest {
     void signUp(){
         //given
         final Member member = new Member();
-        final SignUpRequest signUpRequest = new SignUpRequest("test@naver.com", "testPw", "testNickname");
+        final SignUpServiceRequest signUpServiceRequest = new SignUpServiceRequest("test@naver.com", "testPw", "testNickname");
         BDDMockito.given(memberRepository.findByEmail(any(String.class))).willReturn(Optional.of(member));
 
         //when
-        ResponseEntity<?> response = authService.signUp(signUpRequest);
+        ResponseEntity<?> response = authService.signUp(signUpServiceRequest);
 
         //then
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

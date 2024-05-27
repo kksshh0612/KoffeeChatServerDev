@@ -1,7 +1,6 @@
 package teamkiim.koffeechat.post.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.comment.domain.Comment;
