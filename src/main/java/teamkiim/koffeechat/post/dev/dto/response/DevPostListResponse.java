@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.post.dev.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public class DevPostListResponse {
 
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
+
+    @JsonIgnore
+    private File imageInfo;
 
     public static DevPostListResponse of(DevPost devPost){
 
