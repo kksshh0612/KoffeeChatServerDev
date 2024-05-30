@@ -17,6 +17,8 @@ public class CommentInfoDto {
     private Long id;
     private String content;
     private String nickname;
+    private String profileImagePath;
+    private String profileImageName;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
 
@@ -25,6 +27,8 @@ public class CommentInfoDto {
                 .id(comment.getId())
                 .content(comment.getContent())
                 .nickname(comment.getMember().getNickname())
+                .profileImagePath(comment.getMember().getProfileImagePath())
+                .profileImageName(comment.getMember().getProfileImageName())
                 .createdTime(comment.getCreatedTime())
                 .modifiedTime(comment.getModifiedTime())
                 .build();
