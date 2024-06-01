@@ -29,8 +29,12 @@ import teamkiim.koffeechat.post.community.repository.CommunityPostRepository;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
 import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.post.dev.dto.response.ImageFileInfoDto;
+import teamkiim.koffeechat.postlike.domain.PostLike;
+import teamkiim.koffeechat.postlike.repository.PostLikeRepository;
+import teamkiim.koffeechat.postlike.service.PostLikeService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +45,7 @@ public class CommunityPostService {
     private final CommunityPostRepository communityPostRepository;
     private final MemberRepository memberRepository;
     private final FileService fileService;
+    private final PostLikeRepository postLikeRepository;
 
     /**
      * 게시글 최초 임시 저장
@@ -55,6 +60,7 @@ public class CommunityPostService {
 
         CommunityPost communityPost = CommunityPost.builder()
                 .member(member)
+                .isEditing(true)
                 .build();
 
         CommunityPost saveCommunityPost = communityPostRepository.save(communityPost);
@@ -63,12 +69,30 @@ public class CommunityPostService {
     }
 
     /**
+     * 커뮤니티 게시글 작성 취소
+     * @param postId 게시글 PK
+     * @return ok
+     */
+    @Transactional
+    public ResponseEntity<?> cancelWriteCommunityPost(Long postId){
+
+        CommunityPost devPost = communityPostRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        fileService.deleteImageFiles(devPost);
+
+        communityPostRepository.delete(devPost);
+
+        return ResponseEntity.ok("게시글 삭제 완료");
+    }
+
+    /**
      * 게시글 저장
      * @param saveCommunityPostServiceRequest 게시글 저장 dto
      * @return CommunityPostResponse
      */
     @Transactional
-    public ResponseEntity<?> saveCommunityPost(SaveCommunityPostServiceRequest saveCommunityPostServiceRequest){
+    public ResponseEntity<?> saveCommunityPost(SaveCommunityPostServiceRequest saveCommunityPostServiceRequest, Long memberId){
 
         CommunityPost communityPost = communityPostRepository.findById(saveCommunityPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -78,13 +102,10 @@ public class CommunityPostService {
 
         fileService.deleteImageFiles(saveCommunityPostServiceRequest.getFileIdList(), communityPost);
 
-        List<ImageFileInfoDto> imageFileInfoDtoList = communityPost.getFileList().stream()
-                .map(ImageFileInfoDto::of).collect(Collectors.toList());
-
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList, commentInfoDtoList));
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, false));
 
     }
 
@@ -98,7 +119,7 @@ public class CommunityPostService {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        List<CommunityPost> communityPostList = communityPostRepository.findAll(pageRequest).getContent();
+        List<CommunityPost> communityPostList = communityPostRepository.findAllCompletePost(pageRequest).getContent();
 
         List<CommunityPostListResponse> communityPostResponseList = communityPostList.stream()
                 .map(CommunityPostListResponse::of).collect(Collectors.toList());
@@ -111,18 +132,24 @@ public class CommunityPostService {
      * @param postId postId 게시글 PK
      * @return CommunityPostResponse
      */
-    public ResponseEntity<?> findPost(Long postId){
+    public ResponseEntity<?> findPost(Long postId, Long memberId){
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         CommunityPost communityPost = communityPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        List<ImageFileInfoDto> imageFileInfoDtoList = communityPost.getFileList().stream()
-                .map(ImageFileInfoDto::of).collect(Collectors.toList());
-
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList, commentInfoDtoList));
+        boolean isMemberLiked;
+        Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(communityPost, member);
+
+        if(postLike.isPresent()) isMemberLiked = true;
+        else isMemberLiked = false;
+
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, isMemberLiked));
     }
 
     /**
@@ -130,7 +157,10 @@ public class CommunityPostService {
      * @param modifyCommunityPostServiceRequest 게시글 수정 dto
      * @return CommunityPostResponse
      */
-    public ResponseEntity<?> modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest){
+    public ResponseEntity<?> modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest, Long memberId){
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         CommunityPost communityPost = communityPostRepository.findById(modifyCommunityPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -138,12 +168,15 @@ public class CommunityPostService {
         communityPost.modify(modifyCommunityPostServiceRequest.getTitle(),
                 modifyCommunityPostServiceRequest.getBodyContent(), modifyCommunityPostServiceRequest.getCurrDateTime());
 
-        List<ImageFileInfoDto> imageFileInfoDtoList = communityPost.getFileList().stream()
-                .map(ImageFileInfoDto::of).collect(Collectors.toList());
-
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, imageFileInfoDtoList, commentInfoDtoList));
+        boolean isMemberLiked;
+        Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(communityPost, member);
+
+        if(postLike.isPresent()) isMemberLiked = true;
+        else isMemberLiked = false;
+
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, isMemberLiked));
     }
 }

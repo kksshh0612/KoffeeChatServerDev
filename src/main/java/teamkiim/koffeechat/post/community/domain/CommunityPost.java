@@ -4,15 +4,11 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.cglib.core.Local;
-import teamkiim.koffeechat.comment.domain.Comment;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.post.domain.Post;
-import teamkiim.koffeechat.post.domain.PostCategory;
+import teamkiim.koffeechat.post.common.domain.Post;
+import teamkiim.koffeechat.post.common.domain.PostCategory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -20,10 +16,10 @@ import java.util.List;
 public class CommunityPost extends Post {
 
     @Builder
-    public CommunityPost(Member member, PostCategory postCategory, String title, String bodyContent,
-                         Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime) {
+    public CommunityPost(Member member, String title, String bodyContent,
+                         Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime, boolean isEditing) {
 
-        super(member, postCategory, title, bodyContent, viewCount, likeCount, createdTime, modifiedTime);
+        super(member, PostCategory.COMMUNITY, title, bodyContent, viewCount, likeCount, createdTime, modifiedTime, isEditing);
     }
 
     //== 비지니스 로직 ==//
