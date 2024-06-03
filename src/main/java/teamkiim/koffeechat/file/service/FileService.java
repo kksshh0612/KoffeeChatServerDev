@@ -10,8 +10,8 @@ import teamkiim.koffeechat.file.dto.response.ImagePathResponse;
 import teamkiim.koffeechat.file.repository.FileRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-import teamkiim.koffeechat.post.domain.Post;
-import teamkiim.koffeechat.post.repository.PostRepository;
+import teamkiim.koffeechat.post.common.domain.Post;
+import teamkiim.koffeechat.post.common.repository.PostRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +37,7 @@ public class FileService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        File file = new File(post);
+        File file = new File(post, multipartFile);
 
         fileStorageControlService.saveFile(file, multipartFile);
 
@@ -45,25 +45,21 @@ public class FileService {
 
         post.addFile(saveFile);                         // 양방향 연관관계 주입
 
-        return ResponseEntity.ok(new ImagePathResponse(saveFile.getId(), saveFile.getPath(), saveFile.getName()));
+        return ResponseEntity.ok(ImagePathResponse.of(saveFile));
     }
 
     /**
-     * 이미지 파일 삭제
-     * @param fileName 저장 파일명
-     * @return ok
+     * 게시물에 연관된 이미지 파일 모두 삭제 (게시글 작성 취소 시 호출)
+     * @param post 연관 게시물
      */
     @Transactional
-    public ResponseEntity<?> deleteImageFile(String fileName){
+    public void deleteImageFiles(Post post){
 
-        File file = fileRepository.findByName(fileName)
-                .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
+        List<File> fileList = fileRepository.findAllByPost(post);
 
-        fileStorageControlService.deleteFile(file);
+        fileStorageControlService.deleteFiles(fileList);
 
-        fileRepository.delete(file);
-
-        return ResponseEntity.ok("이미지 파일 삭제 완료");
+        fileRepository.deleteAll(fileList);
     }
 
     /**
