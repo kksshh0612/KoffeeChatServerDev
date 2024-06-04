@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.post.domain.Post;
+import teamkiim.koffeechat.post.common.domain.Post;
 
 @Entity
 @Getter
 @NoArgsConstructor
 public class PostLike {
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_like_id")
     private Long id;
 
@@ -29,5 +28,12 @@ public class PostLike {
     public PostLike(Member member, Post post) {
         this.member = member;
         this.post = post;
+    }
+
+    public static PostLike create(Member member, Post post){
+        return PostLike.builder()
+                .member(member)
+                .post(post)
+                .build();
     }
 }
