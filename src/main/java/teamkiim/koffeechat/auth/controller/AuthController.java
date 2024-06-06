@@ -66,5 +66,10 @@ public class AuthController {
     /**
      * 로그아웃
      */
+//    @GetMapping("/logout")
+//    public ResponseEntity<?> logout(HttpServletRequest request){
+//
+//    }
+
 
 }

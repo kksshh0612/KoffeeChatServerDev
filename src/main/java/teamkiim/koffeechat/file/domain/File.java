@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.post.domain.Post;
+import org.springframework.web.multipart.MultipartFile;
+import teamkiim.koffeechat.post.common.domain.Post;
 
 import java.util.UUID;
 
@@ -27,10 +28,13 @@ public class File {
     private String name;                                // 파일 저장명
 
     @Builder
-    public File(Post post) {
+    public File(Post post, MultipartFile multipartFile) {
+
+        StringBuilder nameBuilder = new StringBuilder().append(UUID.randomUUID()).append("_").append(multipartFile.getOriginalFilename());
+
         this.post = post;
         this.path = post.getPostCategory().toString();
-        this.name = UUID.randomUUID().toString();
+        this.name = nameBuilder.toString();
     }
 
     //== 연관관계 주입 매서드 ==//

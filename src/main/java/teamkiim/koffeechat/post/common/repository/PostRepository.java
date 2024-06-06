@@ -1,7 +1,7 @@
-package teamkiim.koffeechat.post.repository;
+package teamkiim.koffeechat.post.common.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import teamkiim.koffeechat.post.domain.Post;
+import teamkiim.koffeechat.post.common.domain.Post;
 
 import java.util.Optional;
 

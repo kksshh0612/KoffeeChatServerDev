@@ -3,12 +3,13 @@ package teamkiim.koffeechat.post.dev.domain;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.post.domain.Post;
-import teamkiim.koffeechat.post.domain.PostCategory;
+import teamkiim.koffeechat.post.common.domain.Post;
+import teamkiim.koffeechat.post.common.domain.PostCategory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,14 +24,14 @@ import java.util.List;
 @NoArgsConstructor
 public class DevPost extends Post {
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<SkillCategory> skillCategoryList = new ArrayList<>();
 
     @Builder
     public DevPost(Member member, String title, String bodyContent, Long viewCount, Long likeCount,
-                   LocalDateTime createdTime, LocalDateTime modifiedTime, List<SkillCategory> skillCategoryList) {
+                   LocalDateTime createdTime, LocalDateTime modifiedTime, boolean isEditing, List<SkillCategory> skillCategoryList) {
 
-        super(member, PostCategory.DEV, title, bodyContent, viewCount, likeCount, createdTime, modifiedTime);
+        super(member, PostCategory.DEV, title, bodyContent, viewCount, likeCount, createdTime, modifiedTime, isEditing);
         if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
@@ -46,7 +47,7 @@ public class DevPost extends Post {
     public void completeDevPost(String title, String bodyContent, LocalDateTime createdTime, List<SkillCategory> skillCategoryList){
 
         complete(PostCategory.DEV, title, bodyContent, createdTime);
-        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
+        if(skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
     }
 
     /**

@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.post.domain;
+package teamkiim.koffeechat.post.common.domain;
 
 import lombok.Getter;
 

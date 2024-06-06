@@ -58,6 +58,25 @@ public class CommunityPostController {
     }
 
     /**
+     * 개발 게시글 작성 취소
+     */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
+    @DeleteMapping("/cancel/{postId}")
+    @Operation(summary = "게시글 작성 취소", description = "사용자가 게시물을 작성하다가 취소하면 관련 도메인을 삭제한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = ""),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "postId에 해당하는 게시물이 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")}
+            ))
+    })
+    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId){
+
+        return communityPostService.cancelWriteCommunityPost(postId);
+    }
+
+    /**
      * 커뮤니티 게시글 작성
      */
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
@@ -77,11 +96,13 @@ public class CommunityPostController {
             ))
     })
     public ResponseEntity<?> savePost(
-            @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest) {
+            @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime currDateTime = LocalDateTime.now();
 
-        return communityPostService.saveCommunityPost(saveCommunityPostRequest.toServiceRequest(currDateTime));
+        return communityPostService.saveCommunityPost(saveCommunityPostRequest.toServiceRequest(currDateTime), memberId);
     }
 
     /**
@@ -101,6 +122,8 @@ public class CommunityPostController {
     /**
      * 커뮤니티 게시글 상세 조회
      */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @GetMapping("/{postId}")
     @Operation(summary = "게시글 상세 조회", description = "사용자가 커뮤니티 게시글 단건을 상세 조회한다.")
     @ApiResponses({
@@ -111,9 +134,11 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")}
             ))
     })
-    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId){
+    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request){
 
-        return communityPostService.findPost(postId);
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return communityPostService.findPost(postId, memberId);
     }
 
     /**
@@ -131,10 +156,13 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")}
             ))
     })
-    public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest){
+    public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
+                                        HttpServletRequest request){
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime currDateTime = LocalDateTime.now();
 
-        return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(currDateTime));
+        return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(currDateTime), memberId);
     }
 }

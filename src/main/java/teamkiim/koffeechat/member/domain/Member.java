@@ -33,19 +33,26 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole memberRole;
 
-//    private List<Long> chatRoomIdList = new ArrayList<>();
-
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     private List<SkillCategory> interestSkillCategoryList = new ArrayList<>();
 
+    @Transient
+    private final String profileImagePath = "PROFILE";
+
+    private String profileImageName;
+
     @Builder
-    private Member(String email, String password, String nickname, MemberRole memberRole, List<SkillCategory> interestSkillCategoryList) {
+    public Member(String email, String password, String nickname, MemberRole memberRole,
+                  List<SkillCategory> interestSkillCategoryList, String profileImageName) {
 
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.memberRole = memberRole;
-        this.interestSkillCategoryList = interestSkillCategoryList;
+        if(interestSkillCategoryList != null){
+            this.interestSkillCategoryList.addAll(interestSkillCategoryList);
+        }
+        this.profileImageName = profileImageName;
     }
 
     //== 비지니스 로직 ==//
@@ -78,4 +85,16 @@ public class Member {
         }
     }
 
+    public void enrollProfileImage(String profileImageName){
+        this.profileImageName = profileImageName;
+    }
+
+    /**
+     * 회원 정보 수정
+     */
+    public void modify(String nickname, MemberRole memberRole){
+
+        this.nickname = nickname;
+        this.memberRole = memberRole;
+    }
 }

@@ -212,6 +212,7 @@ public class OAuthService {
                 .password(null)
                 .nickname(memberInfoSaveRequest.getNickname())
                 .memberRole(MemberRole.TEMP)
+                .profileImageName("basic_profile_image.png")
                 .build();
 
         memberRepository.save(member);

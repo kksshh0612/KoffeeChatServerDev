@@ -12,8 +12,8 @@ import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.repository.MemberRepository;
-import teamkiim.koffeechat.post.domain.Post;
-import teamkiim.koffeechat.post.repository.PostRepository;
+import teamkiim.koffeechat.post.common.domain.Post;
+import teamkiim.koffeechat.post.common.repository.PostRepository;
 
 @Service
 @Transactional(readOnly = true)

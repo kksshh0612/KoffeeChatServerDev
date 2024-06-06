@@ -24,6 +24,7 @@ public class SignUpServiceRequest {
                 .password(this.password)
                 .nickname(this.nickname)
                 .memberRole(this.memberRole)
+                .profileImageName("basic_profile_image.png")
                 .build();
 
     }

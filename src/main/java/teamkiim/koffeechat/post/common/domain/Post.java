@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.post.domain;
+package teamkiim.koffeechat.post.common.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,14 +29,19 @@ public abstract class Post {
     private Member member;                                      // 작성자
 
     @Enumerated(EnumType.STRING)
-    PostCategory postCategory;
+    PostCategory postCategory;                                  // 관심 기술
 
     private String title;                                       // 제목
+
+    @Column(columnDefinition = "TEXT")
     private String bodyContent;                                 // 본문
+
     private Long viewCount;                                     // 조회수
     private Long likeCount;                                     // 좋아요 수
     private LocalDateTime createdTime;                          // 작성 시간
     private LocalDateTime modifiedTime;                         // 수정 시간
+
+    private boolean isEditing;                                  // 작성중인 글인지
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<File> fileList = new ArrayList<>();
@@ -45,7 +50,7 @@ public abstract class Post {
     private List<Comment> commentList = new ArrayList<>();
 
     protected Post(Member member, PostCategory postCategory, String title, String bodyContent,
-                   Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime) {
+                   Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime, boolean isEditing) {
 
         this.member = member;
         this.postCategory = postCategory;
@@ -55,6 +60,7 @@ public abstract class Post {
         this.likeCount = likeCount;
         this.createdTime = createdTime;
         this.modifiedTime = modifiedTime;
+        this.isEditing = isEditing;
     }
 
     //== 연관관계 편의 매서드 ==//
@@ -89,6 +95,7 @@ public abstract class Post {
         this.likeCount = 0L;
         this.createdTime = createdTime;
         this.modifiedTime = null;
+        isEditing = false;
     }
 
     /**

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.comment.domain.Comment;
 import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.post.domain.Post;
+import teamkiim.koffeechat.post.common.domain.Post;
 
 import java.time.LocalDateTime;
 
