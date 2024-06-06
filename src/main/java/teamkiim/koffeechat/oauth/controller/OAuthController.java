@@ -24,7 +24,7 @@ import teamkiim.koffeechat.oauth.service.OAuthService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/oauth")
-@Tag(name = "소셜로그인 관련 API")
+@Tag(name = "소셜 인증 API")
 public class OAuthController {
 
     private final OAuthService oAuthService;
