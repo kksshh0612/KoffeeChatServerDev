@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import teamkiim.koffeechat.global.Auth;
+import teamkiim.koffeechat.global.authentication.Authenticator;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -18,8 +19,7 @@ import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 @RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private final CookieProvider cookieProvider;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final Authenticator authenticator;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -40,32 +40,13 @@ public class AuthInterceptor implements HandlerInterceptor {
         // @Auth가 없는 경우 인증 해당 인터셉터에서 인가 작업을 수행하지 않음.
         if(auth == null) return true;
 
-        String accessToken = cookieProvider.getAccessToken(request);
-        String validAccessToken = null;
+        String validAccessToken = authenticator.authenticate(request, response);
 
-        if(accessToken == null){
-            String refreshToken = cookieProvider.getRefreshToken(request);
-
-            if(jwtTokenProvider.validateRefreshToken(refreshToken)){
-                validAccessToken = jwtTokenProvider.createAccessTokenFromRefreshToken(refreshToken);
-                cookieProvider.setCookie("Authorization", validAccessToken, false, response);
-            }
-            else{
-                throw new CustomException(ErrorCode.UNAUTHORIZED);
-            }
-        }
-        else{
-            validAccessToken = jwtTokenProvider.validateAccessToken(accessToken, request);
-
-            if(validAccessToken == null){
-                throw new CustomException(ErrorCode.UNAUTHORIZED);
-            }
-        }
-
-        Long memberId = jwtTokenProvider.getMemberPK(jwtTokenProvider.getTokenClaims(validAccessToken));
+        Long memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);
 
         request.setAttribute("authenticatedMemberPK", memberId);
 
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }
+
 }
