@@ -60,18 +60,9 @@ public class Member {
     /**
      * 비밀번호 암호화
      */
-    public void encodePassword(PasswordEncoder passwordEncoder){
+    public void encodePassword(String encodedPassword){
 
-        this.password = passwordEncoder.encode(this.password);
-    }
-
-    /**
-     * 비밀번호 일치 확인
-     */
-    public boolean matchPassword(PasswordEncoder passwordEncoder, String password){
-
-        if(passwordEncoder.matches(password, this.password)) return true;
-        else return false;
+        this.password = encodedPassword;
     }
 
     /**

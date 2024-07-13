@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.auth.dto.request.LoginServiceRequest;
 import teamkiim.koffeechat.auth.dto.request.SignUpServiceRequest;
+import teamkiim.koffeechat.global.authentication.Authenticator;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -26,16 +27,8 @@ import java.util.Optional;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-    private final CookieProvider cookieProvider;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final Authenticator authenticator;
     private final PasswordEncoder passwordEncoder;
-    private final RedisUtil redisUtil;
-
-    private static final String accessTokenName = "Authorization";
-    private static final String refreshTokenName = "refresh-token";
-
-    @Value("${jwt.refresh.exp}")
-    private long refreshTokenExpTime;
 
     /**
      * 회원가입
@@ -51,7 +44,7 @@ public class AuthService {
 
         Member member = signUpServiceRequest.toEntity();
 
-        member.encodePassword(passwordEncoder);
+        member.encodePassword(passwordEncoder.encode(member.getPassword()));
 
         memberRepository.save(member);
 
@@ -69,26 +62,20 @@ public class AuthService {
         Member member = memberRepository.findByEmail(loginServiceRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if(!member.matchPassword(passwordEncoder, loginServiceRequest.getPassword())){
+        if(!passwordEncoder.matches(loginServiceRequest.getPassword(), member.getPassword())){
             throw new CustomException(ErrorCode.EMAIL_PASSWORD_NOT_MATCH);
         }
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
-
-        // 레디스 세팅
-        redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
-
-        // 쿠키 세팅
-        cookieProvider.setCookie(accessTokenName, accessToken, false, response);
-        cookieProvider.setCookie(refreshTokenName, refreshToken, false, response);
+        authenticator.authenticate(response, member);
 
         return ResponseEntity.ok("로그인이 완료되었습니다.");
     }
 
-//    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response){
-//
-//        String accessToken = jwtTokenProvider.getTokenClaims()
-//        jwtTokenProvider.invalidateAccessToken();
-//    }
+
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response){
+
+        authenticator.invalidate(request, response);
+
+        return ResponseEntity.ok("로그아웃 되었습니다.");
+    }
 }
