@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.base.domain.CreatedDateBaseEntity;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.post.common.domain.Post;
 
@@ -12,7 +13,7 @@ import static jakarta.persistence.FetchType.*;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Bookmark {
+public class Bookmark extends CreatedDateBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="bookmark_id")

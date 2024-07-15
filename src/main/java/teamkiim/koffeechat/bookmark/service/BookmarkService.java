@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.bookmark.domain.Bookmark;
-import teamkiim.koffeechat.bookmark.repository.BookmarkPostRepository;
 import teamkiim.koffeechat.bookmark.repository.BookmarkRepository;
 import teamkiim.koffeechat.bookmark.service.dto.BookmarkPostListResponse;
 import teamkiim.koffeechat.global.exception.CustomException;
@@ -26,7 +25,6 @@ public class BookmarkService {
 
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final BookmarkPostRepository bookmarkPostRepository;
 
     public boolean isMemberBookmarked(Member member, Post post) {
         if (bookmarkRepository.findByPostAndMember(post, member).isPresent()) return true;
@@ -60,22 +58,20 @@ public class BookmarkService {
     }
 
     /**
-     * 북마크한 게시글 목록 조회
+     * 로그인한 회원이 북마크한 게시글 목록 조회
      *
      * @param page 페이지 번호 ( ex) 0, 1,,,, )
      * @param size 페이지 당 조회할 데이터 수
-     * @return List<CommunityPostListResponse>
+     * @return List<BookmarkPostListResponse>
      */
     public ResponseEntity<?> findBookmarkPostList(Long memberId, int page, int size) {
 
-        memberRepository.findById(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
 
-        List<Long> bookmarkPostIdList = bookmarkRepository.findByMemberId(memberId);
-
-        List<Post> bookmarkPostList = bookmarkPostRepository.findByIdIn(bookmarkPostIdList, pageRequest).getContent();
+        List<Post> bookmarkPostList = bookmarkRepository.findBookmarkedPostsByMemberId(member, pageRequest).getContent();
 
         List<BookmarkPostListResponse> bookmarkPostResponseList = bookmarkPostList.stream()
                 .map(BookmarkPostListResponse::of).collect(Collectors.toList());
