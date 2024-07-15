@@ -25,6 +25,7 @@ public class CommunityPostResponse {
     private boolean isMemberLiked;
     private Long viewCount;
     private Long likeCount;
+    private Long bookmarkCount;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
     private List<CommentInfoDto> commentInfoDtoList;
@@ -43,6 +44,7 @@ public class CommunityPostResponse {
                     .isMemberLiked(isMemberLiked)
                     .viewCount(communityPost.getViewCount())
                     .likeCount(communityPost.getLikeCount())
+                    .bookmarkCount(communityPost.getBookmarkCount())
                     .createdTime(communityPost.getCreatedTime())
                     .modifiedTime(communityPost.getModifiedTime())
                     .commentInfoDtoList(commentInfoDtoList)
@@ -60,6 +62,7 @@ public class CommunityPostResponse {
                     .isMemberLiked(isMemberLiked)
                     .viewCount(communityPost.getViewCount())
                     .likeCount(communityPost.getLikeCount())
+                    .bookmarkCount(communityPost.getBookmarkCount())
                     .createdTime(communityPost.getCreatedTime())
                     .modifiedTime(communityPost.getModifiedTime())
                     .commentInfoDtoList(commentInfoDtoList)

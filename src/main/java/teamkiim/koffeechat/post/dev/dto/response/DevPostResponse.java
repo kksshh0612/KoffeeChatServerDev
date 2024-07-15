@@ -27,6 +27,7 @@ public class DevPostResponse {
     private boolean isMemberLiked;
     private Long viewCount;
     private Long likeCount;
+    private Long bookmarkCount;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
     private List<SkillCategory> skillCategoryList;
@@ -45,6 +46,7 @@ public class DevPostResponse {
                     .isMemberLiked(isMemberLiked)
                     .viewCount(devPost.getViewCount())
                     .likeCount(devPost.getLikeCount())
+                    .bookmarkCount(devPost.getBookmarkCount())
                     .createdTime(devPost.getCreatedTime())
                     .modifiedTime(devPost.getModifiedTime())
                     .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))
@@ -62,6 +64,7 @@ public class DevPostResponse {
                     .isMemberLiked(isMemberLiked)
                     .viewCount(devPost.getViewCount())
                     .likeCount(devPost.getLikeCount())
+                    .bookmarkCount(devPost.getBookmarkCount())
                     .createdTime(devPost.getCreatedTime())
                     .modifiedTime(devPost.getModifiedTime())
                     .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))

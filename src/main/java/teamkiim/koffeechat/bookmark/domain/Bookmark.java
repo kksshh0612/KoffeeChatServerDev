@@ -1,0 +1,39 @@
+package teamkiim.koffeechat.bookmark.domain;
+
+import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.member.domain.Member;
+import teamkiim.koffeechat.post.common.domain.Post;
+
+@Entity
+@Getter
+@NoArgsConstructor
+public class Bookmark {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="bookmark_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="member_id")
+    private Member member;                                      //북마크한 회원
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="post_id")
+    private Post post;                                          //회원이 북마크한 게시물
+
+    @Builder
+    public Bookmark(Member member, Post post) {
+        this.member = member;
+        this.post = post;
+    }
+
+    public static Bookmark create(Member member, Post post) {
+        return Bookmark.builder()
+                .member(member)
+                .post(post)
+                .build();
+    }
+}

@@ -28,10 +28,10 @@ public class DevPost extends Post {
     private List<SkillCategory> skillCategoryList = new ArrayList<>();
 
     @Builder
-    public DevPost(Member member, String title, String bodyContent, Long viewCount, Long likeCount,
+    public DevPost(Member member, String title, String bodyContent, Long viewCount, Long likeCount, Long bookmarkCount,
                    LocalDateTime createdTime, LocalDateTime modifiedTime, boolean isEditing, List<SkillCategory> skillCategoryList) {
 
-        super(member, PostCategory.DEV, title, bodyContent, viewCount, likeCount, createdTime, modifiedTime, isEditing);
+        super(member, PostCategory.DEV, title, bodyContent, viewCount, likeCount, bookmarkCount, createdTime, modifiedTime, isEditing);
         if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 

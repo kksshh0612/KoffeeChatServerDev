@@ -19,6 +19,7 @@ public class DevPostListResponse {
     private String bodyContent;                     // 본문
     private Long viewCount;                         // 조회수
     private Long likeCount;                         // 좋아요 수
+    private Long bookmarkCount;                     // 북마크 수
     private LocalDateTime createdTime;              // 작성 시간
     private String nickname;                        // 작성자 닉네임
     private String profileImagePath;                // 작성자 프로필 이미지 path
@@ -38,6 +39,7 @@ public class DevPostListResponse {
                 .bodyContent(devPost.getBodyContent())
                 .viewCount(devPost.getViewCount())
                 .likeCount(devPost.getLikeCount())
+                .bookmarkCount(devPost.getBookmarkCount())
                 .createdTime(devPost.getCreatedTime())
                 .nickname(devPost.getMember().getNickname())
                 .profileImagePath(devPost.getMember().getProfileImagePath())

@@ -27,6 +27,7 @@ class DevPostTest {
                 .bodyContent(bodyContent)
                 .viewCount(0L)
                 .likeCount(0L)
+                .bookmarkCount(0L)
                 .createdTime(createdTime)
                 .modifiedTime(null)
                 .skillCategoryList(skillCategoryList)

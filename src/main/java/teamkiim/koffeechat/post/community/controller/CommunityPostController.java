@@ -50,7 +50,7 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
             ))
     })
-    public ResponseEntity<?> initPost(HttpServletRequest request){
+    public ResponseEntity<?> initPost(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -71,7 +71,7 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")}
             ))
     })
-    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId){
+    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
 
         return communityPostService.cancelWriteCommunityPost(postId);
     }
@@ -114,7 +114,7 @@ public class CommunityPostController {
             @ApiResponse(responseCode = "200", description = "커뮤니티 게시글 리스트를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
                     content = @Content(schema = @Schema(implementation = CommunityPostListResponse.class))),
     })
-    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size){
+    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size) {
 
         return communityPostService.findCommunityPostList(page, size);
     }
@@ -134,7 +134,7 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")}
             ))
     })
-    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request){
+    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -157,7 +157,7 @@ public class CommunityPostController {
             ))
     })
     public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
-                                        HttpServletRequest request){
+                                        HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -165,4 +165,10 @@ public class CommunityPostController {
 
         return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(currDateTime), memberId);
     }
+
+//    /**
+//     * 투표 생성
+//     */
+//    @PostMapping("/vote/{postId}")
+//    public ResponseEntity<?> vote()
 }
