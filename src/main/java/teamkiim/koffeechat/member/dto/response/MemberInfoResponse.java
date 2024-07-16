@@ -21,6 +21,8 @@ public class MemberInfoResponse {
     private String nickname;
     private MemberRole memberRole;
     List<SkillCategory> interestSkillCategoryList;
+    private Long followerCount;
+    private Long followingCount;
     private boolean isLoginMember;
     private String profileImagePath;
     private String profileImageName;
@@ -33,6 +35,8 @@ public class MemberInfoResponse {
                 .nickname(member.getNickname())
                 .memberRole(member.getMemberRole())
                 .interestSkillCategoryList(List.copyOf(member.getInterestSkillCategoryList()))
+                .followerCount(member.getFollowerCount())
+                .followingCount(member.getFollowingCount())
                 .isLoginMember(isLoginMember)
                 .profileImagePath(member.getProfileImagePath())
                 .profileImageName(member.getProfileImageName())

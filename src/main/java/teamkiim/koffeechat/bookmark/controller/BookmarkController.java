@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.bookmark.service.dto.BookmarkPostListResponse;
 import teamkiim.koffeechat.global.Auth;
-import teamkiim.koffeechat.post.community.dto.response.CommunityPostListResponse;
 
 @RestController
 @RequiredArgsConstructor

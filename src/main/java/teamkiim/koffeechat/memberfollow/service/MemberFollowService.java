@@ -1,6 +1,8 @@
 package teamkiim.koffeechat.memberfollow.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +12,11 @@ import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.repository.MemberRepository;
 import teamkiim.koffeechat.memberfollow.domain.MemberFollow;
 import teamkiim.koffeechat.memberfollow.repository.MemberFollowRepository;
+import teamkiim.koffeechat.memberfollow.service.dto.MemberFollowListResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,7 +33,8 @@ public class MemberFollowService {
 
     /**
      * 구독 -> 팔로우, 언팔로우
-     * @param memberId 구독 누른 회원 PK
+     *
+     * @param memberId          구독 누른 회원 PK
      * @param followingMemberId member가 구독한 회원 PK
      * @return Long -> followingMember의 follower 수
      */
@@ -42,7 +50,7 @@ public class MemberFollowService {
             unfollow(member, followingMember);
             member.removeFollowingCount();          //회원의 팔로잉 수 --
             followingMember.removeFollowerCount();  //회원이 구독 취소 한 회원의 팔로워 수 --
-        }else{
+        } else {
             follow(member, followingMember);        //구독
             member.addFollowingCount();             //회원의 팔로잉 수 ++
             followingMember.addFollowerCount();     //회원이 구독한 회원의 팔로워 수 ++
@@ -55,7 +63,7 @@ public class MemberFollowService {
      */
     @Transactional
     public void follow(Member member, Member following) {
-        MemberFollow follow= MemberFollow.createFollow(member, following);
+        MemberFollow follow = MemberFollow.createFollow(member, following);
         memberFollowRepository.save(follow);
     }
 
@@ -68,5 +76,39 @@ public class MemberFollowService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_FOLLOW_NOT_FOUND));
 
         memberFollowRepository.delete(memberFollow);
+    }
+
+    /**
+     * 특정 회원의 팔로워 리스트 조회
+     *
+     * @param memberId 조회할 대상 회원 PK
+     * @param loginMemberId 로그인 회원 PK
+     * @param page     페이지 번호
+     * @param size     페이지 당 조회할 데이터 수
+     * @return List<MemberFollowListResponse>
+     */
+    public ResponseEntity<?> followerList(Long memberId, Long loginMemberId, int page, int size) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+
+        List<Member> followerList = memberFollowRepository.findFollowersByFollowingId(member, pageRequest).getContent();
+        List<MemberFollowListResponse> memberFollowListResponseList=new ArrayList<>();
+
+        for (Member follower : followerList) {
+            boolean isFollowedByLoginMember=false;  //로그인한 사용자가 팔로우하는 회원인지
+            boolean isLoginMember=false;            //팔로워 목록에 로그인한 사용자가 있는 경우
+            if (loginMemberId != null) {
+                Member loginMember = memberRepository.findById(loginMemberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                isFollowedByLoginMember=memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
+                if(follower.equals(loginMember)) isLoginMember=true;
+            }
+            memberFollowListResponseList.add(MemberFollowListResponse.of(follower, isFollowedByLoginMember, isLoginMember));
+        }
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+
     }
 }
