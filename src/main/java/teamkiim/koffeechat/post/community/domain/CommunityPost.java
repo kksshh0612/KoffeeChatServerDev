@@ -16,9 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CommunityPost extends Post {
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Vote vote;
-
     @Builder
     public CommunityPost(Member member, String title, String bodyContent,
                          Long viewCount, Long likeCount, Long bookmarkCount, LocalDateTime createdTime, LocalDateTime modifiedTime, boolean isEditing) {
@@ -26,11 +23,6 @@ public class CommunityPost extends Post {
         super(member, PostCategory.COMMUNITY, title, bodyContent, viewCount, likeCount, bookmarkCount, createdTime, modifiedTime, isEditing);
     }
 
-    //== 연관관계 편의 매서드 ==//
-    public void addVote(Vote vote) {
-        this.vote=vote;
-        vote.injectPost(this);
-    }
 
     //== 비지니스 로직 ==//
 

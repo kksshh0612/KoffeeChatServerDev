@@ -25,6 +25,7 @@ import teamkiim.koffeechat.post.community.dto.request.SaveCommunityPostServiceRe
 import teamkiim.koffeechat.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.post.community.dto.response.CommunityPostResponse;
+import teamkiim.koffeechat.post.community.dto.response.VoteItemInfoDto;
 import teamkiim.koffeechat.post.community.repository.CommunityPostRepository;
 import teamkiim.koffeechat.post.dev.domain.DevPost;
 import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
@@ -105,7 +106,10 @@ public class CommunityPostService {
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, false));
+        List<VoteItemInfoDto> voteItemInfoDtoList= communityPost.getVote().getVoteItems().stream()
+                .map(VoteItemInfoDto::of).collect(Collectors.toList());
+
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, voteItemInfoDtoList, memberId, false ));
 
     }
 
@@ -143,13 +147,16 @@ public class CommunityPostService {
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
+        List<VoteItemInfoDto> voteItemInfoDtoList= communityPost.getVote().getVoteItems().stream()
+                .map(VoteItemInfoDto::of).collect(Collectors.toList());
+
         boolean isMemberLiked;
         Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(communityPost, member);
 
         if(postLike.isPresent()) isMemberLiked = true;
         else isMemberLiked = false;
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, isMemberLiked));
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, voteItemInfoDtoList, memberId, isMemberLiked));
     }
 
     /**
@@ -171,12 +178,15 @@ public class CommunityPostService {
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
+        List<VoteItemInfoDto> voteItemInfoDtoList= communityPost.getVote().getVoteItems().stream()
+                .map(VoteItemInfoDto::of).collect(Collectors.toList());
+
         boolean isMemberLiked;
         Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(communityPost, member);
 
         if(postLike.isPresent()) isMemberLiked = true;
         else isMemberLiked = false;
 
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, isMemberLiked));
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, voteItemInfoDtoList, memberId, isMemberLiked));
     }
 }

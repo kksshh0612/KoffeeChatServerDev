@@ -24,15 +24,18 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "해당 회원에 권한이 없습니다."),
     UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN,"게시글 수정 권한이 없습니다."),
     DELETE_FORBIDDEN(HttpStatus.FORBIDDEN,"게시글 삭제 권한이 없습니다."),
+    VOTE_FORBIDDEN(HttpStatus.FORBIDDEN, "투표 생성 권한이 없습니다."),
 
     // 404 NOT FOUND
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다."),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 파일입니다."),
-    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요가 존재하지 않습니다"),
-    BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "북마크가 존재하지 않습니다"),
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요가 존재하지 않습니다."),
+    BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "북마크가 존재하지 않습니다."),
     MEMBER_FOLLOW_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER FOLLOW가 존재하지 않습니다."),
+    VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "투표가 존재하지 않습니다."),
+    VOTE_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"투표 항목이 존재하지 않습니다."),
 
     // 409 CONFLICT
     EMAIL_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 회원가입된 이메일입니다."),

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.comment.domain.Comment;
 import teamkiim.koffeechat.file.domain.File;
 import teamkiim.koffeechat.member.domain.Member;
+import teamkiim.koffeechat.vote.domain.Vote;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,6 +51,9 @@ public abstract class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
+    @OneToOne(mappedBy = "post", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Vote vote;
+
     protected Post(Member member, PostCategory postCategory, String title, String bodyContent,
                    Long viewCount, Long likeCount, Long bookmarkCount, LocalDateTime createdTime, LocalDateTime modifiedTime, boolean isEditing) {
 
@@ -75,6 +79,11 @@ public abstract class Post {
     public void addComment(Comment comment){
         commentList.add(comment);
         comment.injectPost(this);
+    }
+
+    public void addVote(Vote vote) {
+        this.vote=vote;
+        vote.injectPost(this);
     }
 
     //========================//

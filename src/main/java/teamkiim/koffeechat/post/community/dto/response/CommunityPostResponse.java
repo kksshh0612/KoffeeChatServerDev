@@ -29,8 +29,9 @@ public class CommunityPostResponse {
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
     private List<CommentInfoDto> commentInfoDtoList;
+    private List<VoteItemInfoDto> voteItemInfoDtoList;
 
-    public static CommunityPostResponse of(Post communityPost, List<CommentInfoDto> commentInfoDtoList, Long loginMemberId, boolean isMemberLiked){
+    public static CommunityPostResponse of(Post communityPost, List<CommentInfoDto> commentInfoDtoList,List<VoteItemInfoDto> voteItemInfoDtoList, Long loginMemberId, boolean isMemberLiked){
 
         if(loginMemberId == communityPost.getMember().getId()){
             return CommunityPostResponse.builder()
@@ -48,6 +49,7 @@ public class CommunityPostResponse {
                     .createdTime(communityPost.getCreatedTime())
                     .modifiedTime(communityPost.getModifiedTime())
                     .commentInfoDtoList(commentInfoDtoList)
+                    .voteItemInfoDtoList(voteItemInfoDtoList)
                     .build();
         }
         else{
@@ -66,6 +68,7 @@ public class CommunityPostResponse {
                     .createdTime(communityPost.getCreatedTime())
                     .modifiedTime(communityPost.getModifiedTime())
                     .commentInfoDtoList(commentInfoDtoList)
+                    .voteItemInfoDtoList(voteItemInfoDtoList)
                     .build();
         }
     }

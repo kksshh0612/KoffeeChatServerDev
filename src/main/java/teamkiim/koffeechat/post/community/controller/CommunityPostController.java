@@ -58,7 +58,7 @@ public class CommunityPostController {
     }
 
     /**
-     * 개발 게시글 작성 취소
+     * 커뮤니티 게시글 작성 취소
      */
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
@@ -166,9 +166,4 @@ public class CommunityPostController {
         return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(currDateTime), memberId);
     }
 
-//    /**
-//     * 투표 생성
-//     */
-//    @PostMapping("/vote/{postId}")
-//    public ResponseEntity<?> vote()
 }
