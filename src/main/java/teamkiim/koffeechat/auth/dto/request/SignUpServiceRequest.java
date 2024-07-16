@@ -24,6 +24,8 @@ public class SignUpServiceRequest {
                 .password(this.password)
                 .nickname(this.nickname)
                 .memberRole(this.memberRole)
+                .followerCount(0L)
+                .followingCount(0L)
                 .profileImageName("basic_profile_image.png")
                 .build();
 
