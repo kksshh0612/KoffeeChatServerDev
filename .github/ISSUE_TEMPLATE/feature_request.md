@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: 기능 요청 이슈
-title: "[FEAT], [BE], [FE]"
+title: "[FEAT], [BE], [FE] 이슈_제목"
 labels: ''
 assignees: ''
 
