@@ -15,13 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.post.community.controller.dto.SaveCommunityPostRequest;
-import teamkiim.koffeechat.post.community.dto.response.CommunityPostListResponse;
-import teamkiim.koffeechat.post.community.dto.response.CommunityPostResponse;
+import teamkiim.koffeechat.post.community.service.dto.request.SaveVoteServiceRequest;
+import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostListResponse;
+import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.post.community.service.CommunityPostService;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostResponse;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -100,9 +97,15 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        LocalDateTime currDateTime = LocalDateTime.now();
+        //커뮤니티 게시물에 투표 기능이 포함된 경우/ 아닌 경우
+        SaveVoteServiceRequest saveVoteServiceRequest = saveCommunityPostRequest.getSaveVoteRequest() != null ?
+                saveCommunityPostRequest.toVoteServiceRequest() : null;
 
-        return communityPostService.saveCommunityPost(saveCommunityPostRequest.toServiceRequest(currDateTime), memberId);
+        if (saveVoteServiceRequest != null) {  //투표 기능이 포함된 경우
+            return communityPostService.saveCommunityPostWithVote(saveCommunityPostRequest.toPostServiceRequest(), saveVoteServiceRequest, memberId);
+        } else {
+            return communityPostService.saveCommunityPostWithoutVote(saveCommunityPostRequest.toPostServiceRequest(), memberId);
+        }
     }
 
     /**
@@ -161,9 +164,7 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        LocalDateTime currDateTime = LocalDateTime.now();
-
-        return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(currDateTime), memberId);
+        return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(), memberId);
     }
 
 }

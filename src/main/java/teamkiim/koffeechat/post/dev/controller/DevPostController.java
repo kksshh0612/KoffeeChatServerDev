@@ -103,9 +103,7 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        LocalDateTime currDateTime = LocalDateTime.now();
-
-        return devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(currDateTime), memberId);
+        return devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
     }
 
     /**
@@ -166,7 +164,7 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(LocalDateTime.now()), memberId);
+        return devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
     }
 
 }

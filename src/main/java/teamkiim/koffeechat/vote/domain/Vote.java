@@ -26,11 +26,14 @@ public class Vote extends CreatedDateBaseEntity {
     @JoinColumn(name="post_id")
     private Post post;                                     //연관 게시물
 
+    private String title;                                  //투표 제목
+
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteItem> voteItems = new ArrayList<>();            //투표 항목
 
-    public Vote(Post post) {
+    public Vote(Post post, String title) {
         this.post=post;
+        this.title=title;
     }
 
     //== 연관관계 주입 매서드 ==//

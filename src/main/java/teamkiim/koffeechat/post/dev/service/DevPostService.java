@@ -91,7 +91,7 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getCurrDateTime(), saveDevPostServiceRequest.getSkillCategoryList());
+                saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
@@ -161,7 +161,7 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
-                modifyDevPostServiceRequest.getCurrDateTime(), modifyDevPostServiceRequest.combineSkillCategory());
+                modifyDevPostServiceRequest.combineSkillCategory());
 
         boolean isMemberLiked;
         Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(devPost, member);

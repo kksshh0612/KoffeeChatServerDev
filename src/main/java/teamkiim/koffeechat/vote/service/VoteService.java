@@ -10,9 +10,8 @@ import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.repository.MemberRepository;
 import teamkiim.koffeechat.post.common.domain.Post;
 import teamkiim.koffeechat.post.common.repository.PostRepository;
-import teamkiim.koffeechat.post.community.dto.response.VoteItemInfoDto;
+import teamkiim.koffeechat.post.community.service.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.vote.controller.dto.request.SaveVoteRecordRequest;
-import teamkiim.koffeechat.vote.controller.dto.request.SaveVoteRequest;
 import teamkiim.koffeechat.vote.domain.Vote;
 import teamkiim.koffeechat.vote.domain.VoteItem;
 import teamkiim.koffeechat.vote.domain.VoteRecord;
@@ -41,28 +40,24 @@ public class VoteService {
         return voteRecordRepository.findByVoteIdAndMemberId(voteId, memberId).isPresent();
     }
 
+
     /**
      * 투표 저장
      *
-     * @param saveVoteRequest 투표 저장 dto
-     * @param memberId        투표 생성자 PK
-     * @return ok
+     * @param saveVoteServiceRequest 투표 저장 dto
+     * @return Vote
      */
     @Transactional
-    public ResponseEntity<?> saveVote(SaveVoteRequest saveVoteRequest, Long memberId) {
+    public Vote saveVote(SaveVoteServiceRequest saveVoteServiceRequest, Long postId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        Long postId = saveVoteRequest.getId();
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (!post.isEditing()) {  // 작성 중이 아니라면 투표를 생성할 수 없다.
+        if (post.isEditing()) {  // 작성 중이 아니라면 투표를 생성할 수 없다.
             throw new CustomException(ErrorCode.VOTE_FORBIDDEN);
         }
 
-        Vote vote = saveVoteRequest.toEntity(post);  //투표 생성
+        Vote vote = saveVoteServiceRequest.toEntity(post, saveVoteServiceRequest.getTitle());  //투표 생성
         Vote saveVote = voteRepository.save(vote);
 
         for (VoteItem voteItem : vote.getVoteItems()) {
@@ -71,7 +66,7 @@ public class VoteService {
 
         post.addVote(saveVote);                      //양방향 연관관계 주입
 
-        return ResponseEntity.ok("투표 생성 완료");
+        return vote;
     }
 
     /**
@@ -95,7 +90,7 @@ public class VoteService {
 
         for (Long voteItemId : voteItems) {
             VoteItem voteItem = voteItemRepository.findById(voteItemId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.VOTE_ITEM_NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(ErrorCode.VOTE_ITEM_NOT_FOUND));  //findAllIn
             voteItemList.add(voteItem);
         }
 

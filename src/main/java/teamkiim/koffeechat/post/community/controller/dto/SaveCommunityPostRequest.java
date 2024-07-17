@@ -1,33 +1,35 @@
 package teamkiim.koffeechat.post.community.controller.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.post.community.dto.request.SaveCommunityPostServiceRequest;
+import teamkiim.koffeechat.post.community.service.dto.request.SaveCommunityPostServiceRequest;
+import teamkiim.koffeechat.post.community.service.dto.request.SaveVoteServiceRequest;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+/**
+ * 클라이언트로부터 받아오는 커뮤니티 게시물 content
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaveCommunityPostRequest {
 
-    private Long id;
-    @NotBlank(message = "제목을 입력해주세요.")
-    private String title;
-    @NotBlank(message = "내용을 입력해주세요.")
-    private String bodyContent;
-    private List<Long> fileIdList;
+    private SaveCommunityPostInfoRequest saveCommunityPostInfoRequest;  //게시물 글 내용 dto
+    private SaveVoteRequest saveVoteRequest;                            //게시물 투표 내용 dto
 
-    public SaveCommunityPostServiceRequest toServiceRequest(LocalDateTime currDateTime){
+    public SaveCommunityPostServiceRequest toPostServiceRequest(){
         return SaveCommunityPostServiceRequest.builder()
-                .id(this.id)
-                .title(this.title)
-                .bodyContent(this.bodyContent)
-                .fileIdList(this.fileIdList)
-                .currDateTime(currDateTime)
+                .id(this.saveCommunityPostInfoRequest.getId())
+                .title(this.saveCommunityPostInfoRequest.getTitle())
+                .bodyContent(this.saveCommunityPostInfoRequest.getBodyContent())
+                .fileIdList(this.saveCommunityPostInfoRequest.getFileIdList())
+                .build();
+    }
+
+    public SaveVoteServiceRequest toVoteServiceRequest() {
+        return SaveVoteServiceRequest.builder()
+                .title(this.saveVoteRequest.getTitle())
+                .items(this.saveVoteRequest.getItems())
                 .build();
     }
 }

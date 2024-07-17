@@ -1,6 +1,5 @@
-package teamkiim.koffeechat.vote.controller.dto.request;
+package teamkiim.koffeechat.post.community.service.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,15 +14,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SaveVoteRequest {
+public class SaveVoteServiceRequest {
 
-    private Long id;
+    private String title;                   //투표 제목
+    private List<String> items;             //투표 항목
 
-    @NotEmpty(message="항목을 입력해주세요.")
-    private List<String> items;
-
-    public Vote toEntity(Post post) {
-        Vote vote = new Vote(post);
+    public Vote toEntity(Post post, String title) {
+        Vote vote = new Vote(post, title);
         for (String item : items) {
             VoteItem voteItem = new VoteItem(vote, item);
             vote.addVoteItem(voteItem);
@@ -31,5 +28,3 @@ public class SaveVoteRequest {
         return vote;
     }
 }
-
-

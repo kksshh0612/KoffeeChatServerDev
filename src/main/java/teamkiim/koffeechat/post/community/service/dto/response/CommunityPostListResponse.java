@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.post.community.dto.response;
+package teamkiim.koffeechat.post.community.service.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.file.domain.File;
 import teamkiim.koffeechat.post.community.domain.CommunityPost;
-import teamkiim.koffeechat.post.dev.domain.DevPost;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
 
 import java.time.LocalDateTime;
 

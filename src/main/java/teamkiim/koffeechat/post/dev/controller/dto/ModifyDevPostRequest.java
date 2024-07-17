@@ -25,14 +25,13 @@ public class ModifyDevPostRequest {
     private List<ParentSkillCategory> parentSkillCategoryList;
     private List<ChildSkillCategory> childSkillCategoryList;
 
-    public ModifyDevPostServiceRequest toServiceRequest(LocalDateTime currDateTime){
+    public ModifyDevPostServiceRequest toServiceRequest(){
         return ModifyDevPostServiceRequest.builder()
                 .id(this.id)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
                 .parentSkillCategoryList(this.parentSkillCategoryList)
                 .childSkillCategoryList(this.childSkillCategoryList)
-                .currDateTime(currDateTime)
                 .build();
     }
 }

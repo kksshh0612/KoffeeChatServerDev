@@ -4,9 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.post.community.dto.request.ModifyCommunityPostServiceRequest;
-
-import java.time.LocalDateTime;
+import teamkiim.koffeechat.post.community.service.dto.request.ModifyCommunityPostServiceRequest;
 
 @Getter
 @NoArgsConstructor
@@ -19,12 +17,11 @@ public class ModifyCommunityPostRequest {
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 
-    public ModifyCommunityPostServiceRequest toServiceRequest(LocalDateTime currDateTime){
+    public ModifyCommunityPostServiceRequest toServiceRequest(){
         return ModifyCommunityPostServiceRequest.builder()
                 .id(this.id)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
-                .currDateTime(currDateTime)
                 .build();
     }
 }

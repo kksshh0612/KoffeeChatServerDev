@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.vote.controller.dto.request.SaveVoteRecordRequest;
-import teamkiim.koffeechat.vote.controller.dto.request.SaveVoteRequest;
 import teamkiim.koffeechat.vote.service.VoteService;
 
 @RestController
@@ -24,36 +23,6 @@ public class VoteController {
 
     private final VoteService voteService;
 
-    /**
-     * 투표 생성
-     */
-    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
-            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @PostMapping("/create")
-    @Operation(summary = "투표 생성", description = "사용자가 커뮤니티 게시물에 투표를 생성한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "투표 저장 완료"),
-            @ApiResponse(responseCode = "403", content = @Content(mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "게시물이 수정 중이 아닌 경우",
-                                    value = "{\"code\":403, \"message\":\"투표 생성 권한이 없습니다.\"}")
-                    })
-            ),
-            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "사용자를 찾을 수 없는 경우",
-                                    value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다.\"}"),
-                            @ExampleObject(name = "postId에 해당하는 게시글이 없는 경우",
-                                    value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")
-                    })
-            )
-    })
-    public ResponseEntity<?> saveVote(@Valid @RequestBody SaveVoteRequest saveVoteRequest, HttpServletRequest request){
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return voteService.saveVote(saveVoteRequest, memberId);
-    }
 
     /**
      * 투표

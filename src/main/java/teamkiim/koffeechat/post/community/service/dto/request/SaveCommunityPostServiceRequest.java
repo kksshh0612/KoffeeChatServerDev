@@ -1,21 +1,21 @@
-package teamkiim.koffeechat.post.community.dto.request;
+package teamkiim.koffeechat.post.community.service.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ModifyCommunityPostServiceRequest {
+public class SaveCommunityPostServiceRequest {
 
     private Long id;
     private String title;
     private String bodyContent;
-    private LocalDateTime currDateTime;
+    private List<Long> fileIdList;
 }

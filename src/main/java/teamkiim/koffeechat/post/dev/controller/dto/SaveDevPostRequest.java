@@ -25,14 +25,13 @@ public class SaveDevPostRequest {
     private List<SkillCategory> skillCategoryList;
     private List<Long> fileIdList;
 
-    public SaveDevPostServiceRequest toServiceRequest(LocalDateTime currDateTime){
+    public SaveDevPostServiceRequest toServiceRequest(){
         return SaveDevPostServiceRequest.builder()
                 .id(this.id)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
                 .skillCategoryList(this.skillCategoryList)
                 .fileIdList(this.fileIdList)
-                .currDateTime(currDateTime)
                 .build();
     }
 }

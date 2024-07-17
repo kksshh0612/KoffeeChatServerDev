@@ -24,10 +24,11 @@ public class MemberInfoResponse {
     private Long followerCount;
     private Long followingCount;
     private boolean isLoginMember;
+    private Boolean isFollowingMember;
     private String profileImagePath;
     private String profileImageName;
 
-    public static MemberInfoResponse of(Member member, boolean isLoginMember){
+    public static MemberInfoResponse of(Member member, boolean isLoginMember, Boolean isFollowingMember){
 
         return MemberInfoResponse.builder()
                 .memberId(member.getId())
@@ -38,6 +39,7 @@ public class MemberInfoResponse {
                 .followerCount(member.getFollowerCount())
                 .followingCount(member.getFollowingCount())
                 .isLoginMember(isLoginMember)
+                .isFollowingMember(isFollowingMember)
                 .profileImagePath(member.getProfileImagePath())
                 .profileImageName(member.getProfileImageName())
                 .build();
