@@ -3,6 +3,8 @@ package teamkiim.koffeechat.post.common.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DialectOverride;
+import org.hibernate.annotations.SQLRestriction;
 import teamkiim.koffeechat.comment.domain.Comment;
 import teamkiim.koffeechat.file.domain.File;
 import teamkiim.koffeechat.member.domain.Member;
@@ -18,6 +20,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "DTYPE")
 @NoArgsConstructor
+@SQLRestriction("deleted = false")
 public abstract class Post {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +45,7 @@ public abstract class Post {
     private LocalDateTime modifiedTime;                         // 수정 시간
 
     private boolean isEditing;                                  // 작성중인 글인지
+    private boolean deleted = false;                            // delete 여부 (Default false)
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<File> fileList = new ArrayList<>();
@@ -111,6 +115,10 @@ public abstract class Post {
         this.modifiedTime = modifiedTime;
     }
 
+    public void delete(){
+        this.deleted = true;
+    }
+
     /**
      * 좋아요 토글 기능 : likeCount update
      * removeLike(), addLike()
@@ -121,5 +129,7 @@ public abstract class Post {
     public void removeLike() {
         this.likeCount--;
     }
+
+
 
 }

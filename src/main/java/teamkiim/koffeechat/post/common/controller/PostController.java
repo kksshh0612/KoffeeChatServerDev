@@ -50,4 +50,22 @@ public class PostController {
 
         return postService.like(postId, memberId);
     }
+
+    /**
+     * 게시글 삭제 (soft delete)
+     */
+    @DeleteMapping("delete/{postId}")
+    @Operation(summary = "게시글 삭제", description = "사용자가 작성한 게시물을 삭제한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "생성된 게시글의 PK를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = Long.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "게시물을 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 게시물이 존재하지 않습니다\"}")}
+            ))
+    })
+    public ResponseEntity<?> delete(@PathVariable("postId") Long postId){
+
+        return postService.softDelete(postId);
+    }
 }

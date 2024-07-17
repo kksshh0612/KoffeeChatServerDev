@@ -48,4 +48,15 @@ public class PostService {
         return ResponseEntity.ok(post.getLikeCount());
     }
 
+    @Transactional
+    public ResponseEntity<?> softDelete(Long postId){
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        post.delete();
+
+        return ResponseEntity.ok("게시글이 삭제되었습니다.");
+    }
+
 }
