@@ -5,10 +5,14 @@ import org.springframework.data.jpa.repository.Query;
 import teamkiim.koffeechat.vote.domain.Vote;
 import teamkiim.koffeechat.vote.domain.VoteItem;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface VoteItemRepository extends JpaRepository<VoteItem, Long> {
 
     @Query("SELECT vi.vote FROM VoteItem vi WHERE vi.id= :voteItemId")
     Optional<Vote> findVoteByVoteItemId(Long voteItemId);
+
+    List<VoteItem> findByVote(Vote vote);
+
 }

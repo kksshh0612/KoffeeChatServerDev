@@ -175,6 +175,7 @@ public class CommunityPostService {
      * @param modifyCommunityPostServiceRequest 게시글 수정 dto
      * @return CommunityPostResponse
      */
+    @Transactional
     public ResponseEntity<?> modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest,
                                         ModifyVoteServiceRequest modifyVoteServiceRequest, Long memberId) {
 
@@ -184,24 +185,24 @@ public class CommunityPostService {
         CommunityPost communityPost = communityPostRepository.findById(modifyCommunityPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        communityPost.modify(modifyCommunityPostServiceRequest.getTitle(), modifyCommunityPostServiceRequest.getBodyContent());
+        communityPost.modifyCommunityPost(modifyCommunityPostServiceRequest.getTitle(), modifyCommunityPostServiceRequest.getBodyContent());
 
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
-        Optional<Vote> vote = voteRepository.findByPost(communityPost);  //투표 찾아오는 쿼리
+        Optional<Vote> vote = voteRepository.findByPost(communityPost);  //게시글로 투표 찾아옴.
         VoteResponse voteResponse;
         //투표 유무 확인
-        if (modifyVoteServiceRequest == null) { //투표가 없는 경우
-            if (vote.isPresent()) {             //원래 투표가 있었으면 -> 투표 삭제
-                //투표 삭제
+        if (modifyVoteServiceRequest == null) {      //투표가 없는 경우
+            if (vote.isPresent()) {                  //원래 투표가 있었으면 -> 투표 삭제
+                voteRepository.delete(vote.get());   //투표 삭제
             }
             voteResponse = null;
-        } else {                                //투표가 있는 경우
-            if (vote.isPresent()) {             // 투표 내용 수정
-
-            } else {                            //원래 투표가 없었으면 -> 새로 생성
-
+        } else {                                     //투표가 있는 경우
+            if (vote.isPresent()) {                  // 투표 내용 수정
+                voteService.modifyVote(modifyVoteServiceRequest, vote.get());
+            } else {                                 //원래 투표가 없었으면 -> 새로 생성
+                voteService.saveVote(modifyVoteServiceRequest.toSaveVoteServiceRequest(), communityPost.getId());
             }
             voteResponse = VoteResponse.of(vote.get());
         }

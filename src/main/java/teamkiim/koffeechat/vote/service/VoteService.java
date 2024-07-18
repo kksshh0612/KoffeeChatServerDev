@@ -10,7 +10,8 @@ import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.repository.MemberRepository;
 import teamkiim.koffeechat.post.common.domain.Post;
 import teamkiim.koffeechat.post.common.repository.PostRepository;
-import teamkiim.koffeechat.post.community.service.dto.request.SaveVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.ModifyVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.vote.controller.dto.request.SaveVoteRecordRequest;
 import teamkiim.koffeechat.vote.domain.Vote;
 import teamkiim.koffeechat.vote.domain.VoteItem;
@@ -45,6 +46,7 @@ public class VoteService {
      * 투표 저장
      *
      * @param saveVoteServiceRequest 투표 저장 dto
+     * @param postId                 연관된 게시물 pk
      * @return Vote
      */
     @Transactional
@@ -67,6 +69,30 @@ public class VoteService {
         post.addVote(saveVote);                      //양방향 연관관계 주입
 
         return vote;
+    }
+
+    /**
+     * 투표 내용 수정
+     *
+     * @param modifyVoteServiceRequest 투표 수정 요청
+     * @param vote                     수정할 투표
+     */
+    @Transactional
+    public void modifyVote(ModifyVoteServiceRequest modifyVoteServiceRequest, Vote vote) {
+
+        vote.modify(modifyVoteServiceRequest.getTitle());
+
+        List<VoteItem> voteItemList = voteItemRepository.findByVote(vote);
+        List<String> newVoteItemList = modifyVoteServiceRequest.getItems();
+
+        //투표 항목 추가
+        if (newVoteItemList.size() > voteItemList.size()) {
+            for (int i = voteItemList.size() ; i < newVoteItemList.size(); i++) {
+                VoteItem voteItem = new VoteItem(vote, newVoteItemList.get(i));
+                VoteItem savedVoteItem=voteItemRepository.save(voteItem);
+                vote.addVoteItem(savedVoteItem);
+            }
+        }
     }
 
     /**
@@ -107,10 +133,16 @@ public class VoteService {
             }
         }
 
-        List<SaveVoteRecordServiceDto> saveVoteRecordServiceDto= vote.getVoteItems().stream()
+        List<SaveVoteRecordServiceDto> saveVoteRecordServiceDto = vote.getVoteItems().stream()
                 .map(SaveVoteRecordServiceDto::of).collect(Collectors.toList());
 
         return ResponseEntity.ok(saveVoteRecordServiceDto);
     }
+
+
+    /**
+     * 투표 삭제
+     */
+
 }
 

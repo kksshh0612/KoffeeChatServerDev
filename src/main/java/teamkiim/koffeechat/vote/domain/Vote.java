@@ -47,4 +47,11 @@ public class Vote extends CreatedDateBaseEntity {
         voteItem.injectVote(this);
     }
 
+    //===================================//
+
+    //== 비즈니스 로직 ==//
+    public void modify(String title) {
+        this.title=title;
+    }
+
 }

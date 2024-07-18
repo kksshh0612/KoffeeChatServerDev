@@ -38,7 +38,7 @@ public class CommunityPost extends Post {
      * @param title 제목
      * @param bodyContent 본문
      */
-    public void modify(String title, String bodyContent){
+    public void modifyCommunityPost(String title, String bodyContent){
 
         modify(title, bodyContent);
     }
