@@ -15,7 +15,8 @@ import teamkiim.koffeechat.member.repository.MemberRepository;
 import teamkiim.koffeechat.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.post.community.service.dto.request.ModifyCommunityPostServiceRequest;
 import teamkiim.koffeechat.post.community.service.dto.request.SaveCommunityPostServiceRequest;
-import teamkiim.koffeechat.post.community.service.dto.request.SaveVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.ModifyVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.post.community.service.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostResponse;
@@ -86,39 +87,13 @@ public class CommunityPostService {
     }
 
     /**
-     * 게시글 저장 : 투표 x
+     * 게시글 저장
      *
      * @param saveCommunityPostServiceRequest 게시글 저장 dto
      * @return CommunityPostResponse
      */
     @Transactional
-    public ResponseEntity<?> saveCommunityPostWithoutVote(SaveCommunityPostServiceRequest saveCommunityPostServiceRequest, Long memberId) {
-
-        memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        CommunityPost communityPost = communityPostRepository.findById(saveCommunityPostServiceRequest.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
-        communityPost.completeCommunityPost(saveCommunityPostServiceRequest.getTitle(), saveCommunityPostServiceRequest.getBodyContent());
-
-        fileService.deleteImageFiles(saveCommunityPostServiceRequest.getFileIdList(), communityPost);
-
-        List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
-                .map(CommentInfoDto::of).collect(Collectors.toList());
-
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList,null, memberId, false, false));
-
-    }
-
-    /**
-     * 게시글 저장 : 투표 o
-     *
-     * @param saveCommunityPostServiceRequest 게시글 저장 dto
-     * @return CommunityPostResponse
-     */
-    @Transactional
-    public ResponseEntity<?> saveCommunityPostWithVote(SaveCommunityPostServiceRequest saveCommunityPostServiceRequest,
+    public ResponseEntity<?> saveCommunityPost(SaveCommunityPostServiceRequest saveCommunityPostServiceRequest,
                                                SaveVoteServiceRequest saveVoteServiceRequest, Long memberId) {
 
         memberRepository.findById(memberId)
@@ -134,10 +109,13 @@ public class CommunityPostService {
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
-        Vote savedVote=voteService.saveVote(saveVoteServiceRequest, saveCommunityPostServiceRequest.getId());  //투표 저장
+        if (saveVoteServiceRequest == null) {  //투표 x
+            return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, null, memberId, false, false));
+            }
 
+        //투표 o
+        Vote savedVote = voteService.saveVote(saveVoteServiceRequest, saveCommunityPostServiceRequest.getId());  //투표 저장
         return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, VoteResponse.of(savedVote), memberId, false, false));
-
     }
 
     /**
@@ -178,15 +156,11 @@ public class CommunityPostService {
 
         Optional<Vote> vote = voteRepository.findByPost(communityPost);
         VoteResponse voteResponse;
-        if (vote.isPresent()) {
-            voteResponse = VoteResponse.of(vote.get());
-        } else {
-            voteResponse= null;
-        }
+        if (vote.isPresent()) voteResponse = VoteResponse.of(vote.get());
+        else voteResponse = null;
 
         boolean isMemberLiked;
         Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(communityPost, member);
-
         if (postLike.isPresent()) isMemberLiked = true;
         else isMemberLiked = false;
 
@@ -201,7 +175,8 @@ public class CommunityPostService {
      * @param modifyCommunityPostServiceRequest 게시글 수정 dto
      * @return CommunityPostResponse
      */
-    public ResponseEntity<?> modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest, Long memberId) {
+    public ResponseEntity<?> modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest,
+                                        ModifyVoteServiceRequest modifyVoteServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -214,12 +189,21 @@ public class CommunityPostService {
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(CommentInfoDto::of).collect(Collectors.toList());
 
-        Optional<Vote> vote = voteRepository.findByPost(communityPost);
+        Optional<Vote> vote = voteRepository.findByPost(communityPost);  //투표 찾아오는 쿼리
         VoteResponse voteResponse;
-        if (vote.isPresent()) {
+        //투표 유무 확인
+        if (modifyVoteServiceRequest == null) { //투표가 없는 경우
+            if (vote.isPresent()) {             //원래 투표가 있었으면 -> 투표 삭제
+                //투표 삭제
+            }
+            voteResponse = null;
+        } else {                                //투표가 있는 경우
+            if (vote.isPresent()) {             // 투표 내용 수정
+
+            } else {                            //원래 투표가 없었으면 -> 새로 생성
+
+            }
             voteResponse = VoteResponse.of(vote.get());
-        } else {
-            voteResponse= null;
         }
 
         boolean isMemberLiked;

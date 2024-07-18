@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.post.community.controller.dto.SaveCommunityPostRequest;
-import teamkiim.koffeechat.post.community.service.dto.request.SaveVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.post.community.service.CommunityPostService;
@@ -101,11 +101,8 @@ public class CommunityPostController {
         SaveVoteServiceRequest saveVoteServiceRequest = saveCommunityPostRequest.getSaveVoteRequest() != null ?
                 saveCommunityPostRequest.toVoteServiceRequest() : null;
 
-        if (saveVoteServiceRequest != null) {  //투표 기능이 포함된 경우
-            return communityPostService.saveCommunityPostWithVote(saveCommunityPostRequest.toPostServiceRequest(), saveVoteServiceRequest, memberId);
-        } else {
-            return communityPostService.saveCommunityPostWithoutVote(saveCommunityPostRequest.toPostServiceRequest(), memberId);
-        }
+        return communityPostService.saveCommunityPost(saveCommunityPostRequest.toPostServiceRequest(), saveVoteServiceRequest, memberId);
+
     }
 
     /**
@@ -164,7 +161,7 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(), memberId);
+        return communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
     }
 
 }

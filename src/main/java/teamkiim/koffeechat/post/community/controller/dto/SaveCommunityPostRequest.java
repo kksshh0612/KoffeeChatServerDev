@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.post.community.service.dto.request.SaveCommunityPostServiceRequest;
-import teamkiim.koffeechat.post.community.service.dto.request.SaveVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 
 /**
  * 클라이언트로부터 받아오는 커뮤니티 게시물 content
