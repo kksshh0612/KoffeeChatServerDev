@@ -39,6 +39,7 @@ public enum ErrorCode {
 
     // 409 CONFLICT
     EMAIL_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 회원가입된 이메일입니다."),
+    VOTE_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 투표되었습니다."),
 
     // 500 INTERNAL_SERVER_ERROR
     JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "소셜 로그인 사용자 정보 json 파싱 에러"),

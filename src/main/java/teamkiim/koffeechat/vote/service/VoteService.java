@@ -23,6 +23,7 @@ import teamkiim.koffeechat.vote.service.dto.SaveVoteRecordServiceDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,12 +36,6 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final VoteItemRepository voteItemRepository;
     private final VoteRecordRepository voteRecordRepository;
-
-    //멤버가 투표를 했는지
-    public boolean hasMemberVoted(Long voteId, Long memberId) {
-        return voteRecordRepository.findByVoteIdAndMemberId(voteId, memberId).isPresent();
-    }
-
 
     /**
      * 투표 저장
@@ -60,13 +55,13 @@ public class VoteService {
         }
 
         Vote vote = saveVoteServiceRequest.toEntity(post, saveVoteServiceRequest.getTitle());  //투표 생성
-        Vote saveVote = voteRepository.save(vote);
+        Vote savedVote = voteRepository.save(vote);
 
         for (VoteItem voteItem : vote.getVoteItems()) {
             voteItemRepository.save(voteItem);
         }
 
-        return vote;
+        return savedVote;
     }
 
     /**
@@ -85,16 +80,16 @@ public class VoteService {
 
         //투표 항목 추가
         if (newVoteItemList.size() > voteItemList.size()) {
-            for (int i = voteItemList.size() ; i < newVoteItemList.size(); i++) {
+            for (int i = voteItemList.size(); i < newVoteItemList.size(); i++) {
                 VoteItem voteItem = new VoteItem(vote, newVoteItemList.get(i));
-                VoteItem savedVoteItem=voteItemRepository.save(voteItem);
+                VoteItem savedVoteItem = voteItemRepository.save(voteItem);
                 vote.addVoteItem(savedVoteItem);
             }
         }
     }
 
     /**
-     * 투표
+     * 투표 / 재투표
      *
      * @param postId                투표 항목과 연관된 게시물의 PK
      * @param saveVoteRecordRequest 투표 요청 dto
@@ -106,29 +101,30 @@ public class VoteService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        postRepository.findById(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        List<Long> voteItems = saveVoteRecordRequest.getItems();  //투표한 항목들
-        List<VoteItem> voteItemList = new ArrayList<>();
-
-        for (Long voteItemId : voteItems) {
-            VoteItem voteItem = voteItemRepository.findById(voteItemId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.VOTE_ITEM_NOT_FOUND));  //findAllIn
-            voteItemList.add(voteItem);
-        }
-
-        Vote vote = voteItemRepository.findVoteByVoteItemId(voteItems.get(0))
+        Vote vote = voteRepository.findByPost(post)
                 .orElseThrow(() -> new CustomException(ErrorCode.VOTE_NOT_FOUND));
 
-        if (!hasMemberVoted(vote.getId(), memberId)) {  //처음 투표
-            //로그인한 멤버(투표한 멤버)의 투표 기록 저장
-            for (VoteItem voteItem : voteItemList) {
-                VoteRecord voteRecord = VoteRecord.create(member, voteItem);
-                VoteRecord saveVoteRecord = voteRecordRepository.save(voteRecord);
-                voteItem.addVoteRecord(saveVoteRecord);  //연관관계 주입
-                voteItem.addVoteCount();                 //투표 수 ++
+        List<VoteItem> voteItemList = voteItemRepository.findAllByPostAndIds(post, saveVoteRecordRequest.getItems());  //투표한 항목 존재 여부 확인
+        if (voteItemList.isEmpty()) throw new CustomException(ErrorCode.VOTE_ITEM_NOT_FOUND);
+
+        List<VoteRecord> voteRecordList = voteRecordRepository.findByVoteAndMember(vote, member);  //기존 투표 기록
+        if (!voteRecordList.isEmpty()) { //기존 투표 기록 삭제
+            for (VoteRecord voteRecord : voteRecordList) {
+                VoteItem voteItem= voteRecord.getVoteItem();
+                voteItem.removeVoteRecord(voteRecord);      // 연관관계 제거
+                voteItem.removeVoteCount();                 // 투표 수 --
             }
+            voteRecordRepository.deleteAll(voteRecordList);
+        }
+
+        for (VoteItem votedItem : voteItemList) {  //투표 항목들에 대해 투표 기록 생성
+            VoteRecord voteRecord = VoteRecord.create(member, votedItem);
+            VoteRecord saveVoteRecord = voteRecordRepository.save(voteRecord);
+            votedItem.addVoteRecord(saveVoteRecord);  //연관관계 주입
+            votedItem.addVoteCount();                 //투표 수 ++
         }
 
         List<SaveVoteRecordServiceDto> saveVoteRecordServiceDto = vote.getVoteItems().stream()
@@ -136,11 +132,6 @@ public class VoteService {
 
         return ResponseEntity.ok(saveVoteRecordServiceDto);
     }
-
-
-    /**
-     * 투표 삭제
-     */
 
 }
 

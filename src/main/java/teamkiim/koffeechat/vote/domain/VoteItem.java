@@ -46,6 +46,10 @@ public class VoteItem {
         this.voteRecords.add(voteRecord);
     }
 
+    public void removeVoteRecord(VoteRecord voteRecord) {
+        this.voteRecords.remove(voteRecord);
+    }
+
     //== 비즈니스 로직 ==//
     public void addVoteCount() {
         this.voteCount++;
@@ -54,4 +58,6 @@ public class VoteItem {
     public void removeVoteCount() {
         this.voteCount--;
     }
+
+
 }
