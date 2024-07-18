@@ -69,7 +69,7 @@ public class BookmarkService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
 
         List<Post> bookmarkPostList = bookmarkRepository.findBookmarkedPostsByMemberId(member, pageRequest).getContent();
 

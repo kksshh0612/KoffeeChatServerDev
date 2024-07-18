@@ -16,7 +16,6 @@ import teamkiim.koffeechat.memberfollow.service.dto.MemberFollowListResponse;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,10 +31,10 @@ public class MemberFollowService {
     }
 
     /**
-     * 구독 -> 팔로우, 언팔로우
+     * 사용자 팔로우 -> 팔로우, 언팔로우
      *
-     * @param memberId          구독 누른 회원 PK
-     * @param followingMemberId member가 구독한 회원 PK
+     * @param memberId          팔로우 누른 회원 PK
+     * @param followingMemberId member가 팔로우한 회원 PK
      * @return Long -> followingMember의 follower 수
      */
     @Transactional
@@ -91,7 +90,7 @@ public class MemberFollowService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
 
         List<Member> followerList = memberFollowRepository.findFollowersByFollowingId(member, pageRequest).getContent();
         List<MemberFollowListResponse> memberFollowListResponseList=new ArrayList<>();
@@ -106,6 +105,40 @@ public class MemberFollowService {
                 if(follower.equals(loginMember)) isLoginMember=true;
             }
             memberFollowListResponseList.add(MemberFollowListResponse.of(follower, isFollowedByLoginMember, isLoginMember));
+        }
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+
+    }
+
+    /**
+     * 특정 회원의 팔로잉 리스트 조회
+     *
+     * @param memberId 조회할 대상 회원 PK
+     * @param loginMemberId 로그인 회원 PK
+     * @param page     페이지 번호
+     * @param size     페이지 당 조회할 데이터 수
+     * @return List<MemberFollowListResponse>
+     */
+    public ResponseEntity<?> followingList(Long memberId, Long loginMemberId, int page, int size) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+
+        List<Member> followingList = memberFollowRepository.findFollowingsByFollowerId(member, pageRequest).getContent();
+        List<MemberFollowListResponse> memberFollowListResponseList=new ArrayList<>();
+
+        for (Member following : followingList) {
+            boolean isFollowedByLoginMember=false;  //로그인한 사용자가 팔로우하는 회원인지
+            boolean isLoginMember=false;            //팔로워 목록에 로그인한 사용자가 있는 경우
+            if (loginMemberId != null) {
+                Member loginMember = memberRepository.findById(loginMemberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                isFollowedByLoginMember=memberFollowRepository.existsByFollowerAndFollowing(loginMember, following);
+                if(following.equals(loginMember)) isLoginMember=true;
+            }
+            memberFollowListResponseList.add(MemberFollowListResponse.of(following, isFollowedByLoginMember, isLoginMember));
         }
 
         return ResponseEntity.ok(memberFollowListResponseList);
