@@ -66,8 +66,6 @@ public class VoteService {
             voteItemRepository.save(voteItem);
         }
 
-        post.addVote(saveVote);                      //양방향 연관관계 주입
-
         return vote;
     }
 

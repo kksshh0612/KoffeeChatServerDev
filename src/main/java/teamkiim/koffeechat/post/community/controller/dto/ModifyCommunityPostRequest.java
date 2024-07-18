@@ -24,9 +24,12 @@ public class ModifyCommunityPostRequest {
     }
 
     public ModifyVoteServiceRequest toVoteServiceRequest() {
-        return ModifyVoteServiceRequest.builder()
-                .title(this.modifyVoteRequest.getTitle())
-                .items(this.modifyVoteRequest.getItems())
-                .build();
+        if (this.modifyVoteRequest != null) {
+            return ModifyVoteServiceRequest.builder()
+                    .title(this.modifyVoteRequest.getTitle())
+                    .items(this.modifyVoteRequest.getItems())
+                    .build();
+        }
+        return null;
     }
 }

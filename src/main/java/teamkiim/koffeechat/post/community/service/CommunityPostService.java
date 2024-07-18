@@ -196,6 +196,7 @@ public class CommunityPostService {
         if (modifyVoteServiceRequest == null) {      //투표가 없는 경우
             if (vote.isPresent()) {                  //원래 투표가 있었으면 -> 투표 삭제
                 voteRepository.delete(vote.get());   //투표 삭제
+                voteRepository.flush();
             }
             voteResponse = null;
         } else {                                     //투표가 있는 경우

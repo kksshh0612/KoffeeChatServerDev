@@ -162,11 +162,7 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        //커뮤니티 게시물에 투표 기능이 포함된 경우/ 아닌 경우
-        ModifyVoteServiceRequest modifyVoteServiceRequest = modifyCommunityPostRequest.getModifyVoteRequest() != null ?
-                modifyCommunityPostRequest.toVoteServiceRequest() : null;
-
-        return communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyVoteServiceRequest, memberId);
+        return communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
     }
 
 }

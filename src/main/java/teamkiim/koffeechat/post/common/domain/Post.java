@@ -50,9 +50,6 @@ public abstract class Post extends DateBaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "post", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Vote vote;
-
     protected Post(Member member, PostCategory postCategory, String title, String bodyContent,
                    Long viewCount, Long likeCount, Long bookmarkCount, boolean isEditing) {
 
@@ -76,11 +73,6 @@ public abstract class Post extends DateBaseEntity {
     public void addComment(Comment comment){
         commentList.add(comment);
         comment.injectPost(this);
-    }
-
-    public void addVote(Vote vote) {
-        this.vote=vote;
-        vote.injectPost(this);
     }
 
     //========================//
