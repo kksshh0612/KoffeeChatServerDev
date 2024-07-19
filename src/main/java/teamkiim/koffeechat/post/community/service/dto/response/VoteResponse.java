@@ -17,10 +17,12 @@ public class VoteResponse {
 
     private String title;                                   //투표 제목
     private List<VoteItemResponse> voteItemResponseList;    //투표 항목들 dto list
+    private boolean isMemberVoted;
 
-    public static VoteResponse of(Vote vote) {
+    public static VoteResponse of(Vote vote, boolean isMemberVoted) {
+
         List<VoteItemResponse> voteItemResponseList = vote.getVoteItems().stream()
-                .map(VoteItemResponse::of)
+                .map(voteItem-> VoteItemResponse.of(voteItem, isMemberVoted))
                 .collect(Collectors.toList());
 
         return VoteResponse.builder()

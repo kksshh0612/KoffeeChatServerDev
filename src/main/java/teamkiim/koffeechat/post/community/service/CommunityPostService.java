@@ -13,20 +13,20 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.repository.MemberRepository;
 import teamkiim.koffeechat.post.community.domain.CommunityPost;
+import teamkiim.koffeechat.post.community.repository.CommunityPostRepository;
 import teamkiim.koffeechat.post.community.service.dto.request.ModifyCommunityPostServiceRequest;
 import teamkiim.koffeechat.post.community.service.dto.request.SaveCommunityPostServiceRequest;
-import teamkiim.koffeechat.vote.service.dto.request.ModifyVoteServiceRequest;
-import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.post.community.service.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostResponse;
-import teamkiim.koffeechat.post.community.repository.CommunityPostRepository;
 import teamkiim.koffeechat.post.community.service.dto.response.VoteResponse;
 import teamkiim.koffeechat.postlike.domain.PostLike;
 import teamkiim.koffeechat.postlike.repository.PostLikeRepository;
 import teamkiim.koffeechat.vote.domain.Vote;
 import teamkiim.koffeechat.vote.repository.VoteRepository;
 import teamkiim.koffeechat.vote.service.VoteService;
+import teamkiim.koffeechat.vote.service.dto.request.ModifyVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -115,7 +115,7 @@ public class CommunityPostService {
 
         //투표 o
         Vote savedVote = voteService.saveVote(saveVoteServiceRequest, saveCommunityPostServiceRequest.getId());  //투표 저장
-        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, VoteResponse.of(savedVote), memberId, false, false));
+        return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, VoteResponse.of(savedVote, true), memberId, false, false));
     }
 
     /**
@@ -156,7 +156,10 @@ public class CommunityPostService {
 
         Optional<Vote> vote = voteRepository.findByPost(communityPost);
         VoteResponse voteResponse;
-        if (vote.isPresent()) voteResponse = VoteResponse.of(vote.get());
+        if (vote.isPresent()) {
+            boolean isMemberVoted = voteService.hasMemberVoted(vote.get(), member);
+            voteResponse = VoteResponse.of(vote.get(), isMemberVoted);
+        }
         else voteResponse = null;
 
         boolean isMemberLiked;
@@ -205,7 +208,7 @@ public class CommunityPostService {
             } else {                                 //원래 투표가 없었으면 -> 새로 생성
                 voteService.saveVote(modifyVoteServiceRequest.toSaveVoteServiceRequest(), communityPost.getId());
             }
-            voteResponse = VoteResponse.of(vote.get());
+            voteResponse = VoteResponse.of(vote.get(), true);
         }
 
         boolean isMemberLiked;

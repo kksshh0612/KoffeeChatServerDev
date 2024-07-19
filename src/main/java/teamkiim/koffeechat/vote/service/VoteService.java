@@ -10,8 +10,6 @@ import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.member.repository.MemberRepository;
 import teamkiim.koffeechat.post.common.domain.Post;
 import teamkiim.koffeechat.post.common.repository.PostRepository;
-import teamkiim.koffeechat.vote.service.dto.request.ModifyVoteServiceRequest;
-import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.vote.controller.dto.request.SaveVoteRecordRequest;
 import teamkiim.koffeechat.vote.domain.Vote;
 import teamkiim.koffeechat.vote.domain.VoteItem;
@@ -20,10 +18,10 @@ import teamkiim.koffeechat.vote.repository.VoteItemRepository;
 import teamkiim.koffeechat.vote.repository.VoteRecordRepository;
 import teamkiim.koffeechat.vote.repository.VoteRepository;
 import teamkiim.koffeechat.vote.service.dto.SaveVoteRecordServiceDto;
+import teamkiim.koffeechat.vote.service.dto.request.ModifyVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +34,12 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final VoteItemRepository voteItemRepository;
     private final VoteRecordRepository voteRecordRepository;
+
+    //멤버가 투표를 했는지 안했는지
+    public boolean hasMemberVoted(Vote vote, Member member) {
+        if (voteRecordRepository.findByVoteAndMember(vote, member).isEmpty()) return false;
+        return true;
+    }
 
     /**
      * 투표 저장
