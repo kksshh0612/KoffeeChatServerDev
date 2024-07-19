@@ -23,6 +23,7 @@ public class CommunityPostListResponse {
     private Long likeCount;                         // 좋아요 수
     private Long bookmarkCount;                     // 북마크 수
     private LocalDateTime createdTime;              // 작성 시간
+    private LocalDateTime modifiedTime;             // 수정 시간
     private String nickname;                        // 작성자 닉네임
     private String profileImagePath;                // 작성자 프로필 이미지 path
     private String profileImageName;                // 작성자 프로필 이미지 이름
@@ -43,6 +44,7 @@ public class CommunityPostListResponse {
                 .likeCount(communityPost.getLikeCount())
                 .bookmarkCount(communityPost.getBookmarkCount())
                 .createdTime(communityPost.getCreatedTime())
+                .modifiedTime(communityPost.getModifiedTime())
                 .nickname(communityPost.getMember().getNickname())
                 .profileImagePath(communityPost.getMember().getProfileImagePath())
                 .profileImageName(communityPost.getMember().getProfileImageName())

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.post.common.domain.Post;
+import teamkiim.koffeechat.post.community.domain.CommunityPost;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +33,7 @@ public class CommunityPostResponse {
     private List<CommentInfoDto> commentInfoDtoList;
     private VoteResponse voteResponse;
 
-    public static CommunityPostResponse of(Post communityPost, List<CommentInfoDto> commentInfoDtoList, VoteResponse voteResponse, Long loginMemberId, boolean isMemberLiked, boolean isMemberBookmarked){
+    public static CommunityPostResponse of(CommunityPost communityPost, List<CommentInfoDto> commentInfoDtoList, VoteResponse voteResponse, Long loginMemberId, boolean isMemberLiked, boolean isMemberBookmarked){
 
         if(loginMemberId == communityPost.getMember().getId()){
             return CommunityPostResponse.builder()
