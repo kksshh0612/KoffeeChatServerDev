@@ -25,6 +25,7 @@ public class DevPostResponse {
     private String profileImageName;
     private boolean isMemberWritten;
     private boolean isMemberLiked;
+    private boolean isMemberBookmarked;
     private Long viewCount;
     private Long likeCount;
     private Long bookmarkCount;
@@ -32,7 +33,7 @@ public class DevPostResponse {
     private LocalDateTime modifiedTime;
     private List<SkillCategory> skillCategoryList;
 
-    public static DevPostResponse of(DevPost devPost, Long loginMemberId, boolean isMemberLiked){
+    public static DevPostResponse of(DevPost devPost, Long loginMemberId, boolean isMemberLiked, boolean isMemberBookmarked){
 
         if(loginMemberId == devPost.getMember().getId()){
             return DevPostResponse.builder()
@@ -44,6 +45,7 @@ public class DevPostResponse {
                     .profileImageName(devPost.getMember().getProfileImageName())
                     .isMemberWritten(true)
                     .isMemberLiked(isMemberLiked)
+                    .isMemberBookmarked(isMemberBookmarked)
                     .viewCount(devPost.getViewCount())
                     .likeCount(devPost.getLikeCount())
                     .bookmarkCount(devPost.getBookmarkCount())
@@ -62,6 +64,7 @@ public class DevPostResponse {
                     .profileImageName(devPost.getMember().getProfileImageName())
                     .isMemberWritten(false)
                     .isMemberLiked(isMemberLiked)
+                    .isMemberBookmarked(isMemberBookmarked)
                     .viewCount(devPost.getViewCount())
                     .likeCount(devPost.getLikeCount())
                     .bookmarkCount(devPost.getBookmarkCount())
