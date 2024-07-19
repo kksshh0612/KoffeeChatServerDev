@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.file.service.FileService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -39,6 +40,7 @@ public class DevPostService {
     private final MemberRepository memberRepository;
     private final FileService fileService;
     private final PostLikeRepository postLikeRepository;
+    private final BookmarkService bookmarkService;
 
     /**
      * 게시글 최초 임시 저장
@@ -91,11 +93,11 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getCurrDateTime(), saveDevPostServiceRequest.getSkillCategoryList());
+                saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
-        return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, false));
+        return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, false, false));
     }
 
     /**
@@ -143,7 +145,9 @@ public class DevPostService {
         if(postLike.isPresent()) isMemberLiked = true;
         else isMemberLiked = false;
 
-        return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, isMemberLiked));
+        boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
+
+        return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, isMemberLiked, isMemberBookmarked));
     }
 
     /**
@@ -161,7 +165,7 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
-                modifyDevPostServiceRequest.getCurrDateTime(), modifyDevPostServiceRequest.combineSkillCategory());
+                modifyDevPostServiceRequest.combineSkillCategory());
 
         boolean isMemberLiked;
         Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(devPost, member);
@@ -169,7 +173,9 @@ public class DevPostService {
         if(postLike.isPresent()) isMemberLiked = true;
         else isMemberLiked = false;
 
-        return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, isMemberLiked));
+        boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
+
+        return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, isMemberLiked,isMemberBookmarked ));
     }
 
 

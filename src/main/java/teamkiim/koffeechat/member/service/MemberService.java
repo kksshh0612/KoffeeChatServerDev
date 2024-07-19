@@ -15,6 +15,7 @@ import teamkiim.koffeechat.member.dto.request.EnrollSkillCategoryServiceRequest;
 import teamkiim.koffeechat.member.dto.request.ModifyProfileServiceRequest;
 import teamkiim.koffeechat.member.dto.response.MemberInfoResponse;
 import teamkiim.koffeechat.member.repository.MemberRepository;
+import teamkiim.koffeechat.memberfollow.service.MemberFollowService;
 import teamkiim.koffeechat.post.dev.domain.SkillCategory;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final FileStorageControlService fileStorageControlService;
+    private final MemberFollowService memberFollowService;
 
     @Transactional
     public ResponseEntity<?> modifyProfile(ModifyProfileServiceRequest modifyProfileServiceRequest, Long memberId){
@@ -90,21 +92,28 @@ public class MemberService {
     public ResponseEntity<?> findMemberInfo(Long profileMemberId, Long loginMemberId){
 
         Member member;
-        boolean isLoginMemberInfo;
+        boolean isLoginMemberInfo;      //로그인 한 사용자의 프로필인지
+        Boolean isFollowingMember=null;  //로그인 한 사용자가 팔로우하는 사용자의 프로필인지
 
-        if(profileMemberId == null){
+        if(profileMemberId == null){  // 마이페이지로의 접근
             member = memberRepository.findById(loginMemberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
             isLoginMemberInfo = true;
         }
-        else{
+        else{  // 프로필로의 접근
             member = memberRepository.findById(profileMemberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
             isLoginMemberInfo = (member.getId() == loginMemberId) ? true : false;
-        }
 
-        MemberInfoResponse response = MemberInfoResponse.of(member, isLoginMemberInfo);
+            if (!isLoginMemberInfo) {  //다른 회원의 프로필인 경우
+                Member loginMember= memberRepository.findById(loginMemberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                isFollowingMember = memberFollowService.isMemberFollowed(loginMember, member);
+            }
+        }
+        
+        MemberInfoResponse response = MemberInfoResponse.of(member, isLoginMemberInfo, isFollowingMember);
 
         return ResponseEntity.ok(response);
     }

@@ -1,22 +1,26 @@
-package teamkiim.koffeechat.post.community.dto.request;
+package teamkiim.koffeechat.post.community.controller.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class SaveCommunityPostServiceRequest {
+public class SaveCommunityPostInfoRequest {
 
     private Long id;
+
+    @NotBlank(message = "제목을 입력해주세요.")
     private String title;
+
+    @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
+
     private List<Long> fileIdList;
-    private LocalDateTime currDateTime;
+
 }
+

@@ -15,13 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.post.community.controller.dto.SaveCommunityPostRequest;
-import teamkiim.koffeechat.post.community.dto.response.CommunityPostListResponse;
-import teamkiim.koffeechat.post.community.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.post.community.service.CommunityPostService;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostListResponse;
-import teamkiim.koffeechat.post.dev.dto.response.DevPostResponse;
-
-import java.time.LocalDateTime;
+import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostListResponse;
+import teamkiim.koffeechat.post.community.service.dto.response.CommunityPostResponse;
+import teamkiim.koffeechat.vote.service.dto.request.ModifyVoteServiceRequest;
+import teamkiim.koffeechat.vote.service.dto.request.SaveVoteServiceRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,7 +48,7 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
             ))
     })
-    public ResponseEntity<?> initPost(HttpServletRequest request){
+    public ResponseEntity<?> initPost(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -58,7 +56,7 @@ public class CommunityPostController {
     }
 
     /**
-     * 개발 게시글 작성 취소
+     * 커뮤니티 게시글 작성 취소
      */
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
@@ -71,7 +69,7 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")}
             ))
     })
-    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId){
+    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
 
         return communityPostService.cancelWriteCommunityPost(postId);
     }
@@ -100,9 +98,12 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        LocalDateTime currDateTime = LocalDateTime.now();
+        //커뮤니티 게시물에 투표 기능이 포함된 경우/ 아닌 경우
+        SaveVoteServiceRequest saveVoteServiceRequest = saveCommunityPostRequest.getSaveVoteRequest() != null ?
+                saveCommunityPostRequest.toVoteServiceRequest() : null;
 
-        return communityPostService.saveCommunityPost(saveCommunityPostRequest.toServiceRequest(currDateTime), memberId);
+        return communityPostService.saveCommunityPost(saveCommunityPostRequest.toPostServiceRequest(), saveVoteServiceRequest, memberId);
+
     }
 
     /**
@@ -114,7 +115,7 @@ public class CommunityPostController {
             @ApiResponse(responseCode = "200", description = "커뮤니티 게시글 리스트를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
                     content = @Content(schema = @Schema(implementation = CommunityPostListResponse.class))),
     })
-    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size){
+    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size) {
 
         return communityPostService.findCommunityPostList(page, size);
     }
@@ -134,7 +135,7 @@ public class CommunityPostController {
                             value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")}
             ))
     })
-    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request){
+    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -157,12 +158,11 @@ public class CommunityPostController {
             ))
     })
     public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
-                                        HttpServletRequest request){
+                                        HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        LocalDateTime currDateTime = LocalDateTime.now();
-
-        return communityPostService.modifyPost(modifyCommunityPostRequest.toServiceRequest(currDateTime), memberId);
+        return communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
     }
+
 }

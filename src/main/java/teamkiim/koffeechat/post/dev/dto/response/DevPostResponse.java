@@ -25,13 +25,15 @@ public class DevPostResponse {
     private String profileImageName;
     private boolean isMemberWritten;
     private boolean isMemberLiked;
+    private boolean isMemberBookmarked;
     private Long viewCount;
     private Long likeCount;
+    private Long bookmarkCount;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
     private List<SkillCategory> skillCategoryList;
 
-    public static DevPostResponse of(DevPost devPost, Long loginMemberId, boolean isMemberLiked){
+    public static DevPostResponse of(DevPost devPost, Long loginMemberId, boolean isMemberLiked, boolean isMemberBookmarked){
 
         if(loginMemberId == devPost.getMember().getId()){
             return DevPostResponse.builder()
@@ -43,8 +45,10 @@ public class DevPostResponse {
                     .profileImageName(devPost.getMember().getProfileImageName())
                     .isMemberWritten(true)
                     .isMemberLiked(isMemberLiked)
+                    .isMemberBookmarked(isMemberBookmarked)
                     .viewCount(devPost.getViewCount())
                     .likeCount(devPost.getLikeCount())
+                    .bookmarkCount(devPost.getBookmarkCount())
                     .createdTime(devPost.getCreatedTime())
                     .modifiedTime(devPost.getModifiedTime())
                     .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))
@@ -60,8 +64,10 @@ public class DevPostResponse {
                     .profileImageName(devPost.getMember().getProfileImageName())
                     .isMemberWritten(false)
                     .isMemberLiked(isMemberLiked)
+                    .isMemberBookmarked(isMemberBookmarked)
                     .viewCount(devPost.getViewCount())
                     .likeCount(devPost.getLikeCount())
+                    .bookmarkCount(devPost.getBookmarkCount())
                     .createdTime(devPost.getCreatedTime())
                     .modifiedTime(devPost.getModifiedTime())
                     .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))

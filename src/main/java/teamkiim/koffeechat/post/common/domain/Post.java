@@ -3,9 +3,11 @@ package teamkiim.koffeechat.post.common.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.base.domain.DateBaseEntity;
 import teamkiim.koffeechat.comment.domain.Comment;
 import teamkiim.koffeechat.file.domain.File;
 import teamkiim.koffeechat.member.domain.Member;
+import teamkiim.koffeechat.vote.domain.Vote;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "DTYPE")
 @NoArgsConstructor
-public abstract class Post {
+public abstract class Post extends DateBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -38,8 +40,7 @@ public abstract class Post {
 
     private Long viewCount;                                     // 조회수
     private Long likeCount;                                     // 좋아요 수
-    private LocalDateTime createdTime;                          // 작성 시간
-    private LocalDateTime modifiedTime;                         // 수정 시간
+    private Long bookmarkCount;                                 // 북마크 수
 
     private boolean isEditing;                                  // 작성중인 글인지
 
@@ -50,7 +51,7 @@ public abstract class Post {
     private List<Comment> commentList = new ArrayList<>();
 
     protected Post(Member member, PostCategory postCategory, String title, String bodyContent,
-                   Long viewCount, Long likeCount, LocalDateTime createdTime, LocalDateTime modifiedTime, boolean isEditing) {
+                   Long viewCount, Long likeCount, Long bookmarkCount, boolean isEditing) {
 
         this.member = member;
         this.postCategory = postCategory;
@@ -58,8 +59,7 @@ public abstract class Post {
         this.bodyContent = bodyContent;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
-        this.createdTime = createdTime;
-        this.modifiedTime = modifiedTime;
+        this.bookmarkCount=bookmarkCount;
         this.isEditing = isEditing;
     }
 
@@ -84,17 +84,15 @@ public abstract class Post {
      * @param postCategory 카테고리
      * @param title 제목
      * @param bodyContent 본문
-     * @param createdTime 작성 시간
      */
-    protected void complete(PostCategory postCategory, String title, String bodyContent, LocalDateTime createdTime){
+    protected void complete(PostCategory postCategory, String title, String bodyContent){
 
         this.postCategory = postCategory;
         this.title = title;
         this.bodyContent = bodyContent;
         this.viewCount = 0L;
         this.likeCount = 0L;
-        this.createdTime = createdTime;
-        this.modifiedTime = null;
+        this.bookmarkCount=0L;
         isEditing = false;
     }
 
@@ -102,13 +100,11 @@ public abstract class Post {
      * 게시글 수정
      * @param title 제목
      * @param bodyContent 본문
-     * @param modifiedTime 수정 시간
      */
-    protected void modify(String title, String bodyContent, LocalDateTime modifiedTime){
+    protected void modify(String title, String bodyContent){
 
         this.title = title;
         this.bodyContent = bodyContent;
-        this.modifiedTime = modifiedTime;
     }
 
     /**
@@ -122,4 +118,10 @@ public abstract class Post {
         this.likeCount--;
     }
 
+    /**
+     * 북마크 토글 기능 : bookmarkCount update
+     * removeBookmark(), addBookmark()
+     */
+    public void addBookmark(){this.bookmarkCount++;}
+    public void removeBookmark(){this.bookmarkCount--;}
 }

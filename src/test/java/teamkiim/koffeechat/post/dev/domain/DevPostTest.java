@@ -19,7 +19,7 @@ class DevPostTest {
 //    }
 
     private DevPost create(Member member, String title, String bodyContent,
-                           LocalDateTime createdTime, List<SkillCategory> skillCategoryList){
+                           List<SkillCategory> skillCategoryList){
 
         return DevPost.builder()
                 .member(member)
@@ -27,8 +27,7 @@ class DevPostTest {
                 .bodyContent(bodyContent)
                 .viewCount(0L)
                 .likeCount(0L)
-                .createdTime(createdTime)
-                .modifiedTime(null)
+                .bookmarkCount(0L)
                 .skillCategoryList(skillCategoryList)
                 .build();
     }

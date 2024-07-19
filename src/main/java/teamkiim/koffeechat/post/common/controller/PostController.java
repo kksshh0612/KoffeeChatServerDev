@@ -30,7 +30,7 @@ public class PostController {
     @PostMapping("/like/{postId}")
     @Operation(summary = "게시글 좋아요", description = "사용자가 개발, 커뮤니티 게시판에 좋아요를 누른다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "생성된 게시글의 PK를 반환한다.",
+            @ApiResponse(responseCode = "200", description = "게시물 좋아요 수를 반환한다.",
                     content = @Content(schema = @Schema(implementation = Long.class))),
             @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "로그인하지 않은 사용자가 좋아요를 누르는 경우",
@@ -50,4 +50,33 @@ public class PostController {
 
         return postService.like(postId, memberId);
     }
+
+    /**
+     * 북마크
+     */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
+    @PostMapping("/bookmark/{postId}")
+    @Operation(summary = "게시글 북마크", description = "사용자가 개발, 커뮤니티 게시판에 북마크를 누른다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시물 북마크 수를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = Long.class))),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 북마크를 누르는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}"),
+                            @ExampleObject(name = "게시물을 찾을 수 없는 경우",
+                                    value = "{\"code\":404, \"message\":\"해당 게시물이 존재하지 않습니다\"}")}
+
+            ))
+    })
+    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request) {
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return postService.bookmark(memberId, postId);
+    }
+
 }
