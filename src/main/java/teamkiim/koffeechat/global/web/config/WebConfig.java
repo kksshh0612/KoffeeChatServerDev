@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import teamkiim.koffeechat.global.authentication.Authenticator;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.web.interceptor.AuthInterceptor;
@@ -19,8 +20,10 @@ import teamkiim.koffeechat.global.web.interceptor.AuthInterceptor;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
-    private final CookieProvider cookieProvider;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final Authenticator authenticator;
+
+//    private final CookieProvider cookieProvider;
+//    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${file-path}")
     private String filePath;
@@ -40,21 +43,22 @@ public class WebConfig implements WebMvcConfigurer {
         return new StandardServletMultipartResolver();
     }
 
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns("http://**", "https://**", "ws://**")
 //                .allowedOrigins("http://192.168.219.131:5173")
-//                .allowCredentials(true)
-//                .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
-//                .allowedHeaders("*");
-//
-//        WebMvcConfigurer.super.addCorsMappings(registry);
-//    }
+                .allowCredentials(true)
+                .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*");
+
+        WebMvcConfigurer.super.addCorsMappings(registry);
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
-        registry.addInterceptor(new AuthInterceptor(cookieProvider, jwtTokenProvider));
+        registry.addInterceptor(new AuthInterceptor(authenticator));
     }
 
     @Override
