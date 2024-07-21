@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.email.domain.repository;
+package teamkiim.koffeechat.email.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import teamkiim.koffeechat.email.domain.EmailAuth;
