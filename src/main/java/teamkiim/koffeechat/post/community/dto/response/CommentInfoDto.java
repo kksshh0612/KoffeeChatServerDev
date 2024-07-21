@@ -21,8 +21,12 @@ public class CommentInfoDto {
     private String profileImageName;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
+    private boolean isMemberWritten;
 
-    public static CommentInfoDto of(Comment comment){
+    public static CommentInfoDto of(Comment comment, Long loginMemberId){
+
+        boolean isMemberWritten = comment.getMember().getId().equals(loginMemberId);
+
         return CommentInfoDto.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
@@ -31,6 +35,7 @@ public class CommentInfoDto {
                 .profileImageName(comment.getMember().getProfileImageName())
                 .createdTime(comment.getCreatedTime())
                 .modifiedTime(comment.getModifiedTime())
+                .isMemberWritten(isMemberWritten)
                 .build();
     }
 }

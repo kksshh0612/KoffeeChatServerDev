@@ -20,11 +20,11 @@ public class Comment {
     @Column(name="comment_id")
     private Long id;
 
-    @ManyToOne(fetch= LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name="post_id")
     private Post post;                                  // 연관 게시물
 
-    @ManyToOne(fetch= LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name="member_id")
     private Member member;                              // 작성자
 
