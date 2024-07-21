@@ -20,7 +20,7 @@ public class File {
     @Column(name="file_id")
     private Long id;
 
-    @ManyToOne(fetch= LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name="post_id")
     private Post post;                                  // 연관 게시물
 

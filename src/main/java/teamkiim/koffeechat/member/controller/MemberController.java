@@ -168,4 +168,8 @@ public class MemberController {
         return memberService.modifyProfile(modifyProfileRequest.toServiceRequest(), memberId);
     }
 
+    @GetMapping("/test")
+    public void test(){
+        System.out.println("테스트 통과");
+    }
 }

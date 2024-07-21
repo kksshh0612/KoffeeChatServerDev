@@ -47,7 +47,7 @@ public class OAuthController {
     }
 
     /**
-     * 구글 인증 코드로 카카오 서버에 access, refresh 토큰 요청
+     * 구글 인증 코드로 구글 서버에 access, refresh 토큰 요청
      */
     @PostMapping("/get-google-code")
     @Operation(summary = "구글 인증 코드로 엑세스 토큰 발급", description = "카카오 인증 코드로 access, refresh 토큰을 발급받는다.")
