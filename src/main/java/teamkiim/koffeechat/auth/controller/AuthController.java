@@ -66,10 +66,14 @@ public class AuthController {
     /**
      * 로그아웃
      */
-//    @GetMapping("/logout")
-//    public ResponseEntity<?> logout(HttpServletRequest request){
-//
-//    }
+    @GetMapping("/logout")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그아웃 되었습니다.")
+    })
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response){
+
+        return authService.logout(request, response);
+    }
 
 
 }

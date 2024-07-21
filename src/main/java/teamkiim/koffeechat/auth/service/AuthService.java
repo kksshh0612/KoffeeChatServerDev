@@ -71,7 +71,12 @@ public class AuthService {
         return ResponseEntity.ok("로그인이 완료되었습니다.");
     }
 
-
+    /**
+     * 로그아웃
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @return ok
+     */
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response){
 
         authenticator.invalidate(request, response);

@@ -40,7 +40,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         // @Auth가 없는 경우 인증 해당 인터셉터에서 인가 작업을 수행하지 않음.
         if(auth == null) return true;
 
-        String validAccessToken = authenticator.authenticate(request, response);
+        String validAccessToken = authenticator.verify(request, response);
 
         Long memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);
 

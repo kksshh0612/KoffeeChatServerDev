@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -12,6 +13,8 @@ import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
+import teamkiim.koffeechat.global.redis.util.RedisUtil;
+import teamkiim.koffeechat.member.domain.Member;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +23,13 @@ public class Authenticator {
 
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtil redisUtil;
+
+    private static final String accessTokenName = "Authorization";
+    private static final String refreshTokenName = "refresh-token";
+
+    @Value("${jwt.refresh.exp}")
+    private long refreshTokenExpTime;
 
     /**
      * HttpServletRequest 객체에서 JWT 토큰을 이용하여 인증을 진행하고 유효한 토큰을 리턴
@@ -27,7 +37,7 @@ public class Authenticator {
      * @param response HttpServletResponse
      * @return accessToken
      */
-    public String authenticate(HttpServletRequest request, HttpServletResponse response) {
+    public String verify(HttpServletRequest request, HttpServletResponse response) {
 
         String accessToken = cookieProvider.getAccessToken(request);
 
@@ -58,7 +68,7 @@ public class Authenticator {
      * @param response ServerHttpResponse
      * @return accessToken
      */
-    public String authenticate(ServerHttpRequest request, ServerHttpResponse response) {
+    public String verify(ServerHttpRequest request, ServerHttpResponse response) {
 
         HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) request).getServletRequest();
 
@@ -83,6 +93,45 @@ public class Authenticator {
         }
 
         return validAccessToken;
+    }
+
+    /**
+     * 회원 정보로 JWT 토큰을 생성하여 HttpServletResponse 객체에 set
+     * @param response HttpServletResponse
+     * @param member Domain Member
+     */
+    public void authenticate(HttpServletResponse response, Member member) {
+
+        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
+
+        // 레디스 세팅
+        redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
+
+        // 쿠키 세팅
+        cookieProvider.setCookie(accessTokenName, accessToken, false, response);
+        cookieProvider.setCookie(refreshTokenName, refreshToken, false, response);
+    }
+
+    /**
+     * accessToken, refreshToken을 만료시킴
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     */
+    public void invalidate(HttpServletRequest request, HttpServletResponse response) {
+
+        String accessToken = cookieProvider.getAccessToken(request);
+        String refreshToken = cookieProvider.getRefreshToken(request);
+
+        if(accessToken != null){
+            jwtTokenProvider.invalidateAccessToken(accessToken);
+        }
+        if(refreshToken != null){
+            jwtTokenProvider.invalidateRefreshToken(refreshToken);
+        }
+
+        cookieProvider.setCookie(accessTokenName, null, true, response);
+        cookieProvider.setCookie(refreshTokenName, null, true, response);
     }
 
     /**
