@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.global.swagger;
+package teamkiim.koffeechat.global.swagger.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
