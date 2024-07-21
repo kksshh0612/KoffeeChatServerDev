@@ -1,14 +1,14 @@
 # 로컬 개발 환경에서의 설정
 spring:
   config:
-    name: application-local
+    name: application-test
     activate:
-      on-profile: local
-    location: classpath:/application-local.yml
+      on-profile: test
+    location: classpath:/application-test.yml
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/koffeechat?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/koffeechat_test?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: ${mysql-pw}
 
@@ -18,14 +18,14 @@ spring:
       port: 6379
 
     mongodb:
-      uri: mongodb://root:root@localhost:27017/koffeechat?authSource=admin
+      uri: mongodb://root:root@localhost:27017/koffeechat_test?authSource=admin
       host: localhost
       port: 27017
-      database: koffeechat
+      database: koffeechat_test
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         default_batch_fetch_size: 100

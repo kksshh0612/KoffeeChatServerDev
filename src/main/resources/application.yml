@@ -52,5 +52,10 @@ spring:
 ---
 spring:
   profiles:
+    active: test
+
+---
+spring:
+  profiles:
     active: local
     default: local
