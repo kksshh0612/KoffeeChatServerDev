@@ -31,39 +31,22 @@ public class CommunityPostResponse {
 
     public static CommunityPostResponse of(Post communityPost, List<CommentInfoDto> commentInfoDtoList, Long loginMemberId, boolean isMemberLiked){
 
-        if(loginMemberId == communityPost.getMember().getId()){
-            return CommunityPostResponse.builder()
-                    .id(communityPost.getId())
-                    .title(communityPost.getTitle())
-                    .bodyContent(communityPost.getBodyContent())
-                    .nickname(communityPost.getMember().getNickname())
-                    .profileImagePath(communityPost.getMember().getProfileImagePath())
-                    .profileImageName(communityPost.getMember().getProfileImageName())
-                    .isMemberWritten(true)
-                    .isMemberLiked(isMemberLiked)
-                    .viewCount(communityPost.getViewCount())
-                    .likeCount(communityPost.getLikeCount())
-                    .createdTime(communityPost.getCreatedTime())
-                    .modifiedTime(communityPost.getModifiedTime())
-                    .commentInfoDtoList(commentInfoDtoList)
-                    .build();
-        }
-        else{
-            return CommunityPostResponse.builder()
-                    .id(communityPost.getId())
-                    .title(communityPost.getTitle())
-                    .bodyContent(communityPost.getBodyContent())
-                    .nickname(communityPost.getMember().getNickname())
-                    .profileImagePath(communityPost.getMember().getProfileImagePath())
-                    .profileImageName(communityPost.getMember().getProfileImageName())
-                    .isMemberWritten(false)
-                    .isMemberLiked(isMemberLiked)
-                    .viewCount(communityPost.getViewCount())
-                    .likeCount(communityPost.getLikeCount())
-                    .createdTime(communityPost.getCreatedTime())
-                    .modifiedTime(communityPost.getModifiedTime())
-                    .commentInfoDtoList(commentInfoDtoList)
-                    .build();
-        }
+        boolean isMemberWritten = loginMemberId.equals(communityPost.getMember().getId());
+
+        return CommunityPostResponse.builder()
+                .id(communityPost.getId())
+                .title(communityPost.getTitle())
+                .bodyContent(communityPost.getBodyContent())
+                .nickname(communityPost.getMember().getNickname())
+                .profileImagePath(communityPost.getMember().getProfileImagePath())
+                .profileImageName(communityPost.getMember().getProfileImageName())
+                .isMemberWritten(isMemberWritten)
+                .isMemberLiked(isMemberLiked)
+                .viewCount(communityPost.getViewCount())
+                .likeCount(communityPost.getLikeCount())
+                .createdTime(communityPost.getCreatedTime())
+                .modifiedTime(communityPost.getModifiedTime())
+                .commentInfoDtoList(commentInfoDtoList)
+                .build();
     }
 }

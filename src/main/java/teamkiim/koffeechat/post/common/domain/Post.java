@@ -18,7 +18,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "DTYPE")
+@DiscriminatorColumn(name = "dtype")
 @NoArgsConstructor
 @SQLRestriction("deleted = false")
 public abstract class Post {

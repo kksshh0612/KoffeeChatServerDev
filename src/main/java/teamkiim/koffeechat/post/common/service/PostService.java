@@ -48,6 +48,11 @@ public class PostService {
         return ResponseEntity.ok(post.getLikeCount());
     }
 
+    /**
+     * 게시글 삭제 (soft delete)
+     * @param postId 삭제할 게시글 PK
+     * @return ok
+     */
     @Transactional
     public ResponseEntity<?> softDelete(Long postId){
 

@@ -33,40 +33,23 @@ public class DevPostResponse {
 
     public static DevPostResponse of(DevPost devPost, Long loginMemberId, boolean isMemberLiked){
 
-        if(loginMemberId == devPost.getMember().getId()){
-            return DevPostResponse.builder()
-                    .id(devPost.getId())
-                    .title(devPost.getTitle())
-                    .bodyContent(devPost.getBodyContent())
-                    .nickname(devPost.getMember().getNickname())
-                    .profileImagePath(devPost.getMember().getProfileImagePath())
-                    .profileImageName(devPost.getMember().getProfileImageName())
-                    .isMemberWritten(true)
-                    .isMemberLiked(isMemberLiked)
-                    .viewCount(devPost.getViewCount())
-                    .likeCount(devPost.getLikeCount())
-                    .createdTime(devPost.getCreatedTime())
-                    .modifiedTime(devPost.getModifiedTime())
-                    .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))
-                    .build();
-        }
-        else{
-            return DevPostResponse.builder()
-                    .id(devPost.getId())
-                    .title(devPost.getTitle())
-                    .bodyContent(devPost.getBodyContent())
-                    .nickname(devPost.getMember().getNickname())
-                    .profileImagePath(devPost.getMember().getProfileImagePath())
-                    .profileImageName(devPost.getMember().getProfileImageName())
-                    .isMemberWritten(false)
-                    .isMemberLiked(isMemberLiked)
-                    .viewCount(devPost.getViewCount())
-                    .likeCount(devPost.getLikeCount())
-                    .createdTime(devPost.getCreatedTime())
-                    .modifiedTime(devPost.getModifiedTime())
-                    .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))
-                    .build();
-        }
+        boolean isMemberWritten = loginMemberId.equals(devPost.getMember().getId());
+
+        return DevPostResponse.builder()
+                .id(devPost.getId())
+                .title(devPost.getTitle())
+                .bodyContent(devPost.getBodyContent())
+                .nickname(devPost.getMember().getNickname())
+                .profileImagePath(devPost.getMember().getProfileImagePath())
+                .profileImageName(devPost.getMember().getProfileImageName())
+                .isMemberWritten(isMemberWritten)
+                .isMemberLiked(isMemberLiked)
+                .viewCount(devPost.getViewCount())
+                .likeCount(devPost.getLikeCount())
+                .createdTime(devPost.getCreatedTime())
+                .modifiedTime(devPost.getModifiedTime())
+                .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))
+                .build();
     }
 
 }

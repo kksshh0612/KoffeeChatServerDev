@@ -33,6 +33,7 @@ import teamkiim.koffeechat.postlike.domain.PostLike;
 import teamkiim.koffeechat.postlike.repository.PostLikeRepository;
 import teamkiim.koffeechat.postlike.service.PostLikeService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ public class CommunityPostService {
     private final MemberRepository memberRepository;
     private final FileService fileService;
     private final PostLikeRepository postLikeRepository;
+    private final PostLikeService postLikeService;
 
     /**
      * 게시글 최초 임시 저장
@@ -76,12 +78,12 @@ public class CommunityPostService {
     @Transactional
     public ResponseEntity<?> cancelWriteCommunityPost(Long postId){
 
-        CommunityPost devPost = communityPostRepository.findById(postId)
+        CommunityPost communityPost = communityPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        fileService.deleteImageFiles(devPost);
+        fileService.deleteImageFiles(communityPost);
 
-        communityPostRepository.delete(devPost);
+        communityPostRepository.delete(communityPost);
 
         return ResponseEntity.ok("게시글 삭제 완료");
     }
@@ -102,8 +104,7 @@ public class CommunityPostService {
 
         fileService.deleteImageFiles(saveCommunityPostServiceRequest.getFileIdList(), communityPost);
 
-        List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
-                .map(CommentInfoDto::of).collect(Collectors.toList());
+        List<CommentInfoDto> commentInfoDtoList = new ArrayList<>();
 
         return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, false));
 
@@ -141,13 +142,9 @@ public class CommunityPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
-                .map(CommentInfoDto::of).collect(Collectors.toList());
+                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
 
-        boolean isMemberLiked;
-        Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(communityPost, member);
-
-        if(postLike.isPresent()) isMemberLiked = true;
-        else isMemberLiked = false;
+        boolean isMemberLiked = postLikeService.isMemberLiked(communityPost, member);
 
         return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, isMemberLiked));
     }
@@ -169,13 +166,9 @@ public class CommunityPostService {
                 modifyCommunityPostServiceRequest.getBodyContent(), modifyCommunityPostServiceRequest.getCurrDateTime());
 
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
-                .map(CommentInfoDto::of).collect(Collectors.toList());
+                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
 
-        boolean isMemberLiked;
-        Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(communityPost, member);
-
-        if(postLike.isPresent()) isMemberLiked = true;
-        else isMemberLiked = false;
+        boolean isMemberLiked = postLikeService.isMemberLiked(communityPost, member);
 
         return ResponseEntity.ok(CommunityPostResponse.of(communityPost, commentInfoDtoList, memberId, isMemberLiked));
     }

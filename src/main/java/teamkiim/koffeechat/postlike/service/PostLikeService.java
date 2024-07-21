@@ -7,6 +7,7 @@ import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.member.domain.Member;
 import teamkiim.koffeechat.post.common.domain.Post;
+import teamkiim.koffeechat.post.common.service.PostService;
 import teamkiim.koffeechat.postlike.domain.PostLike;
 import teamkiim.koffeechat.postlike.repository.PostLikeRepository;
 

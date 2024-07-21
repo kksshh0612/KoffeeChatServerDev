@@ -22,6 +22,7 @@ import teamkiim.koffeechat.post.dev.dto.response.ImageFileInfoDto;
 import teamkiim.koffeechat.post.dev.repository.DevPostRepository;
 import teamkiim.koffeechat.postlike.domain.PostLike;
 import teamkiim.koffeechat.postlike.repository.PostLikeRepository;
+import teamkiim.koffeechat.postlike.service.PostLikeService;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class DevPostService {
     private final MemberRepository memberRepository;
     private final FileService fileService;
     private final PostLikeRepository postLikeRepository;
+    private final PostLikeService postLikeService;
 
     /**
      * 게시글 최초 임시 저장
@@ -137,11 +139,7 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        boolean isMemberLiked;
-        Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(devPost, member);
-
-        if(postLike.isPresent()) isMemberLiked = true;
-        else isMemberLiked = false;
+        boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
 
         return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, isMemberLiked));
     }
@@ -163,11 +161,7 @@ public class DevPostService {
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
                 modifyDevPostServiceRequest.getCurrDateTime(), modifyDevPostServiceRequest.combineSkillCategory());
 
-        boolean isMemberLiked;
-        Optional<PostLike> postLike = postLikeRepository.findByPostAndMember(devPost, member);
-
-        if(postLike.isPresent()) isMemberLiked = true;
-        else isMemberLiked = false;
+        boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
 
         return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, isMemberLiked));
     }
