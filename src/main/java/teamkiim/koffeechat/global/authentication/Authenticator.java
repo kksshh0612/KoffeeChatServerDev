@@ -14,7 +14,7 @@ import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
-import teamkiim.koffeechat.member.domain.Member;
+import teamkiim.koffeechat.domain.member.domain.Member;
 
 @Component
 @RequiredArgsConstructor
