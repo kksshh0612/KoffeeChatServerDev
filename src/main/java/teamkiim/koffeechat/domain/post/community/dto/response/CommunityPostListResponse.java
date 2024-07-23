@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.post.community.service.dto.response;
+package teamkiim.koffeechat.domain.post.community.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -30,9 +30,6 @@ public class CommunityPostListResponse {
 
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
-
-    @JsonIgnore
-    private File imageInfo;
 
     public static CommunityPostListResponse of(CommunityPost communityPost){
 

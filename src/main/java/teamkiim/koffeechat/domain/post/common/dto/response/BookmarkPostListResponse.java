@@ -31,9 +31,6 @@ public class BookmarkPostListResponse {
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
 
-    @JsonIgnore
-    private File imageInfo;
-
     public static BookmarkPostListResponse of(Post post) {
         BookmarkPostListResponse response= BookmarkPostListResponse.builder()
                 .id(post.getId())
