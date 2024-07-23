@@ -29,21 +29,10 @@ public class CommentController {
     /**
      * 댓글 작성
      */
+    @PostMapping("/{postId}/comments")
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @PostMapping("/{postId}/comments")
-    @Operation(summary = "댓글 저장", description = "사용자가 게시물에 댓글을 작성한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = ""),
-            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "사용자를 찾을 수 없는 경우",
-                                    value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다.\"}"),
-                            @ExampleObject(name = "postId에 해당하는 게시글이 없는 경우",
-                                    value = "{\"code\":404, \"message\":\"해당 게시글이 존재하지 않습니다.\"}")
-                    })
-            )
-    })
+    @CommentApiDocument.SaveCommentApiDoc
     public ResponseEntity<?> saveComment(@PathVariable("postId") Long postId,
                                          @Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request){
 
@@ -57,19 +46,10 @@ public class CommentController {
     /**
      * 댓글 수정
      */
+    @PostMapping("/modify")
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @PostMapping("/modify")
-    @Operation(summary = "댓글 수정", description = "사용자가 자신이 작성한 댓글을 수정한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = ""),
-            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "해당 댓글을 찾을 수 없는 경우",
-                                    value = "{\"code\":404, \"message\":\"해당 댓글이 존재하지 않습니다.\"}")
-                    })
-            )
-    })
+    @CommentApiDocument.ModifyCommentApiDoc
     public ResponseEntity<?> modifyComment(@Valid @RequestBody ModifyCommentRequest modifyCommentRequest){
 
         LocalDateTime currDateTime = LocalDateTime.now();
@@ -80,19 +60,10 @@ public class CommentController {
     /**
      * 댓글 삭제
      */
+    @DeleteMapping("/delete/{commentId}")
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @DeleteMapping("/delete/{commentId}")
-    @Operation(summary = "댓글 삭제", description = "사용자가 자신이 작성한 댓글을 삭제한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = ""),
-            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "해당 댓글을 찾을 수 없는 경우",
-                                    value = "{\"code\":404, \"message\":\"해당 댓글이 존재하지 않습니다.\"}")
-                    })
-            )
-    })
+    @CommentApiDocument.DeleteCommentApiDoc
     public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId){
 
         return commentService.deleteComment(commentId);
