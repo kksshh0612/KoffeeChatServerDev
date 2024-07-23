@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 
@@ -73,12 +74,36 @@ public class PostController {
 
             ))
     })
-    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request) {
+    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request){
+
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         return postService.bookmark(memberId, postId);
     }
 
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
+    @GetMapping("/bookmark")
+    @Operation(summary = "사용자 북마크 게시물 리스트 조회", description = "로그인한 사용자의 북마크 게시물 리스트롤 조회한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "북마크한 게시물 리스트를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = BookmarkPostListResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 북마크를 누르는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    public ResponseEntity<?> findBookmarkedPostList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                                    HttpServletRequest request){
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return postService.findBookmarkPostList(memberId, page, size);
+    }
 
     /**
      * 게시글 삭제 (soft delete)

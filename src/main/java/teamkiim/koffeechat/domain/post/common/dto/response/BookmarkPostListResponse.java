@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.bookmark.service.dto;
+package teamkiim.koffeechat.domain.post.common.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -23,6 +23,7 @@ public class BookmarkPostListResponse {
     private Long likeCount;                         // 좋아요 수
     private Long bookmarkCount;                     // 북마크 수
     private LocalDateTime createdTime;              // 작성 시간
+    private LocalDateTime modifiedTime;             // 수정 시간
     private String nickname;                        // 작성자 닉네임
     private String profileImagePath;                // 작성자 프로필 이미지 path
     private String profileImageName;                // 작성자 프로필 이미지 이름
