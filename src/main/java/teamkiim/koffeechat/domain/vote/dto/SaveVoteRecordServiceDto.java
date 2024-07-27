@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.post.community.service.dto.response;
+package teamkiim.koffeechat.domain.vote.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,14 +10,14 @@ import teamkiim.koffeechat.domain.vote.domain.VoteItem;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VoteItemInfoDto {
+public class SaveVoteRecordServiceDto {
 
-    private Long id;
+    private Long id;                                        // 투표 항목 id
     private String itemText;
     private Long voteCount;
 
-    public static VoteItemInfoDto of(VoteItem voteItem) {
-        return VoteItemInfoDto.builder()
+    public static SaveVoteRecordServiceDto of(VoteItem voteItem) {
+        return SaveVoteRecordServiceDto.builder()
                 .id(voteItem.getId())
                 .itemText(voteItem.getItemText())
                 .voteCount(voteItem.getVoteCount())

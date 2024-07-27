@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.post.community.service.dto.response;
+package teamkiim.koffeechat.domain.post.community.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

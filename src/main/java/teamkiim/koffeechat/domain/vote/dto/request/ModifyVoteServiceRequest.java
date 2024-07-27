@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.vote.service.dto.request;
+package teamkiim.koffeechat.domain.vote.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

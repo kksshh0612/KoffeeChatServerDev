@@ -16,9 +16,9 @@ import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
-import teamkiim.koffeechat.domain.post.community.service.dto.response.CommunityPostListResponse;
-import teamkiim.koffeechat.domain.post.community.service.dto.response.CommunityPostResponse;
-import teamkiim.koffeechat.domain.vote.service.dto.request.SaveVoteServiceRequest;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
+import teamkiim.koffeechat.domain.vote.dto.request.SaveVoteServiceRequest;
 
 @RestController
 @RequiredArgsConstructor

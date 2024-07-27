@@ -3,8 +3,8 @@ package teamkiim.koffeechat.domain.post.community.controller.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.domain.post.community.service.dto.request.SaveCommunityPostServiceRequest;
-import teamkiim.koffeechat.domain.vote.service.dto.request.SaveVoteServiceRequest;
+import teamkiim.koffeechat.domain.post.community.dto.request.SaveCommunityPostServiceRequest;
+import teamkiim.koffeechat.domain.vote.dto.request.SaveVoteServiceRequest;
 
 /**
  * 클라이언트로부터 받아오는 커뮤니티 게시물 content

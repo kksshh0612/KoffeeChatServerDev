@@ -29,6 +29,12 @@ public class MemberService {
     private final FileStorageControlService fileStorageControlService;
     private final MemberFollowService memberFollowService;
 
+    /**
+     * 회원 정보 수정
+     * @param modifyProfileServiceRequest 회원 정보 수정 dto
+     * @param memberId 사용자 PK
+     * @return ok
+     */
     @Transactional
     public ResponseEntity<?> modifyProfile(ModifyProfileServiceRequest modifyProfileServiceRequest, Long memberId){
 

@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.vote.controller.dto.request;
+package teamkiim.koffeechat.domain.vote.controller.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;

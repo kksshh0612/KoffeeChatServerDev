@@ -3,8 +3,8 @@ package teamkiim.koffeechat.domain.post.community.controller.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.domain.post.community.service.dto.request.ModifyCommunityPostServiceRequest;
-import teamkiim.koffeechat.domain.vote.service.dto.request.ModifyVoteServiceRequest;
+import teamkiim.koffeechat.domain.post.community.dto.request.ModifyCommunityPostServiceRequest;
+import teamkiim.koffeechat.domain.vote.dto.request.ModifyVoteServiceRequest;
 
 @Getter
 @NoArgsConstructor

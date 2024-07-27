@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.global.Auth;
-import teamkiim.koffeechat.domain.vote.controller.dto.request.SaveVoteRecordRequest;
+import teamkiim.koffeechat.domain.vote.controller.dto.SaveVoteRecordRequest;
 import teamkiim.koffeechat.domain.vote.service.VoteService;
 
 @RestController
