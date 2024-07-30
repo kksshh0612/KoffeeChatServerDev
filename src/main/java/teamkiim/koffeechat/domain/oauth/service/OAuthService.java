@@ -140,19 +140,15 @@ public class OAuthService {
 
         String requestUrl = "https://oauth2.googleapis.com/token";
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        JSONObject requestBody = new JSONObject();
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("grant_type", "authorization_code");
+        requestBody.add("client_id", googleAuthServiceRequest.getClientId());
+        requestBody.add("redirect_uri", googleAuthServiceRequest.getRedirectUri());
+        requestBody.add("code", googleAuthServiceRequest.getCode());
+        requestBody.add("client_secret", googleAuthServiceRequest.getClientSecret());
 
-        try{
-            requestBody.put("grant_type", "authorization_code");
-            requestBody.put("client_id", googleAuthServiceRequest.getClientId());
-            requestBody.put("redirect_uri", googleAuthServiceRequest.getRedirectUri());
-            requestBody.put("code", googleAuthServiceRequest.getCode());
-            requestBody.put("client_secret", googleAuthServiceRequest.getClientSecret());
-        } catch (JSONException e){
-            throw new CustomException(ErrorCode.JSON_ERROR);
-        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), httpHeaders);
 
