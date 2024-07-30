@@ -1,7 +1,7 @@
 package teamkiim.koffeechat.domain.chat.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import teamkiim.koffeechat.domain.chat.domain.message.ChatMessage;
 
-public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
+public interface ChatMessageRepository extends ReactiveMongoRepository<ChatMessage, String> {
 }
