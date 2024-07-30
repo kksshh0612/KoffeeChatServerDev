@@ -1,8 +1,9 @@
 package teamkiim.koffeechat.post.dev.domain;
 
-import teamkiim.koffeechat.member.domain.Member;
+import teamkiim.koffeechat.domain.member.domain.Member;
+import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
+import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 class DevPostTest {

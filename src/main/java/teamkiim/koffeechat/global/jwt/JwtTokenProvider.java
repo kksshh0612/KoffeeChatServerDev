@@ -4,7 +4,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -12,8 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
-import teamkiim.koffeechat.member.domain.Member;
-import teamkiim.koffeechat.member.domain.MemberRole;
 
 import java.security.Key;
 import java.util.Date;

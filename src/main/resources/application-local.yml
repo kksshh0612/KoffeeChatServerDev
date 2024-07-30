@@ -18,6 +18,7 @@ spring:
       port: 6379
 
     mongodb:
+      uri: mongodb://root:root@localhost:27017/koffeechat?authSource=admin
       host: localhost
       port: 27017
       database: koffeechat
@@ -31,5 +32,12 @@ spring:
         format_sql: true                                    # sout으로 보기에 편안한 sql 출력
         dialect: org.hibernate.dialect.MySQL8Dialect        # mysql 방언
     open-in-view: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug    # 하이버네이트가 생성하는 sql 로그로 출력
+    org.hibernate.orm.jdbc.bind: trace    # 쿼리 파라미터 로그 남김
+    org.springframework.data.mongodb.core: info
+#    org.mongodb.driver: debug
 
 file-path: C:\coffeeChatFile\
