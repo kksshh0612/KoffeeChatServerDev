@@ -22,9 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final Authenticator authenticator;
 
-//    private final CookieProvider cookieProvider;
-//    private final JwtTokenProvider jwtTokenProvider;
-
     @Value("${file-path}")
     private String filePath;
 
