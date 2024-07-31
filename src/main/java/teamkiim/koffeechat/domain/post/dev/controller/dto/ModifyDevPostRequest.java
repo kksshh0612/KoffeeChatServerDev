@@ -20,11 +20,11 @@ public class ModifyDevPostRequest {
     @Schema(description = "수정할 개발 게시글 pk")
     private Long id;
 
-    @Schema(description = "개발 게시글 제목", example="개발 게시글 제목입니다.")
+    @Schema(description = "개발 게시글 제목", example="개발 게시글 제목 수정입니다.")
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
 
-    @Schema(description = "개발 게시글 내용", example="개발 게시글 내용입니다.")
+    @Schema(description = "개발 게시글 내용", example="개발 게시글 내용 수정입니다.")
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 

@@ -17,7 +17,7 @@ import java.util.List;
 @Schema(description = "커뮤니티 게시글 투표 수정 Request")
 public class ModifyVoteRequest {
 
-    @Schema(description = "투표 제목", example = "커뮤니티 게시글 투표 제목입니다.")
+    @Schema(description = "투표 제목", example = "커뮤니티 게시글 투표 제목 수정입니다.")
     @NotBlank(message = "투표 제목을 입력해 주세요.")
     private String title;
 
