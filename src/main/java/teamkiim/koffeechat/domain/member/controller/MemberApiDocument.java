@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import teamkiim.koffeechat.domain.file.dto.response.ProfileImageInfoResponse;
 import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
 

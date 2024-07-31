@@ -1,6 +1,8 @@
 package teamkiim.koffeechat.domain.vote.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,7 +114,6 @@ public class VoteService {
                 .orElseThrow(() -> new CustomException(ErrorCode.VOTE_NOT_FOUND));
 
         List<VoteItem> voteItemList = voteItemRepository.findAllByPostAndIds(post, saveVoteRecordRequest.getItems());  //투표한 항목 존재 여부 확인
-        if (voteItemList.isEmpty()) throw new CustomException(ErrorCode.VOTE_ITEM_NOT_FOUND);
 
         List<VoteRecord> voteRecordList = voteRecordRepository.findByVoteAndMember(vote, member);  //기존 투표 기록
         if (!voteRecordList.isEmpty()) { //기존 투표 기록 삭제
@@ -124,17 +125,21 @@ public class VoteService {
             voteRecordRepository.deleteAll(voteRecordList);
         }
 
-        for (VoteItem votedItem : voteItemList) {  //투표 항목들에 대해 투표 기록 생성
-            VoteRecord voteRecord = VoteRecord.create(member, votedItem);
-            VoteRecord saveVoteRecord = voteRecordRepository.save(voteRecord);
-            votedItem.addVoteRecord(saveVoteRecord);  //연관관계 주입
-            votedItem.addVoteCount();                 //투표 수 ++
+        if (voteItemList.isEmpty()) return ResponseEntity.status(HttpStatus.CREATED).body("투표 완료");
+
+        if (!voteItemList.isEmpty()) { //재투표 항목에 대한 투표 기록
+            for (VoteItem votedItem : voteItemList) {  //투표 항목들에 대해 투표 기록 생성
+                VoteRecord voteRecord = VoteRecord.create(member, votedItem);
+                VoteRecord saveVoteRecord = voteRecordRepository.save(voteRecord);
+                votedItem.addVoteRecord(saveVoteRecord);  //연관관계 주입
+                votedItem.addVoteCount();                 //투표 수 ++
+            }
         }
 
         List<SaveVoteRecordServiceDto> saveVoteRecordServiceDto = vote.getVoteItems().stream()
                 .map(SaveVoteRecordServiceDto::of).collect(Collectors.toList());
 
-        return ResponseEntity.ok(saveVoteRecordServiceDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saveVoteRecordServiceDto);
     }
 
 }
