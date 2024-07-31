@@ -51,5 +51,4 @@ public class AuthController {
         return authService.logout(request, response);
     }
 
-
 }
