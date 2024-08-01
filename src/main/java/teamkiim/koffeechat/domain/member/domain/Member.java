@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 
 import java.util.ArrayList;
@@ -42,6 +43,9 @@ public class Member {
     private final String profileImagePath = "PROFILE";
 
     private String profileImageName;
+
+    private String corpName;                                        //회사 이름
+    private String corpEmail;                                       //회사 이메일
 
     @Builder
     public Member(String email, String password, String nickname, MemberRole memberRole,

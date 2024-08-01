@@ -35,11 +35,13 @@ public enum ErrorCode {
     MEMBER_FOLLOW_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER FOLLOW가 존재하지 않습니다."),
     VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "투표가 존재하지 않습니다."),
     VOTE_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"투표 항목이 존재하지 않습니다."),
+    CORP_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회사 도메인이 존재하지 않습니다."),
 
     // 409 CONFLICT
     EMAIL_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 회원가입된 이메일입니다."),
     CHAT_ROOM_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 채팅방이 존재합니다."),
     VOTE_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 투표되었습니다."),
+    CORP_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 회사 도메인입니다."),
 
     // 500 INTERNAL_SERVER_ERROR
     JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "소셜 로그인 사용자 정보 json 파싱 에러"),
