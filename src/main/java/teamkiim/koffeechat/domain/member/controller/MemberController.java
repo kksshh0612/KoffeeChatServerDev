@@ -35,7 +35,7 @@ public class MemberController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return memberService.enrollProfileImage(memberId, multipartFile);
+        return ResponseEntity.ok(memberService.enrollProfileImage(memberId, multipartFile));
     }
 
     /**
@@ -53,7 +53,9 @@ public class MemberController {
                 .map(EnrollSkillCategoryRequest::toServiceRequest)
                 .collect(Collectors.toList());
 
-        return memberService.enrollSkillCategory(memberId, serviceRequestList);
+        memberService.enrollSkillCategory(memberId, serviceRequestList);
+
+        return ResponseEntity.ok("관심 기술 설정 완료");
     }
 
     /**
@@ -66,7 +68,7 @@ public class MemberController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return memberService.findMemberInfo(null, memberId);
+        return ResponseEntity.ok(memberService.findMemberInfo(null, memberId));
     }
 
     /**
@@ -79,7 +81,7 @@ public class MemberController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return memberService.findMemberInfo(profileMemberId, memberId);
+        return ResponseEntity.ok(memberService.findMemberInfo(profileMemberId, memberId));
     }
 
     /**
@@ -92,7 +94,10 @@ public class MemberController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return memberService.modifyProfile(modifyProfileRequest.toServiceRequest(), memberId);
+        memberService.modifyProfile(modifyProfileRequest.toServiceRequest(), memberId);
+
+        return ResponseEntity.ok("회원 정보 수정 완료");
+
     }
 
     @GetMapping("/test")
