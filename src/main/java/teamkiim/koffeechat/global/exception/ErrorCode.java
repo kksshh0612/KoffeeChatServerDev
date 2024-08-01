@@ -22,9 +22,7 @@ public enum ErrorCode {
 
     // 403 FORBIDDEN
     FORBIDDEN(HttpStatus.FORBIDDEN, "해당 회원에 권한이 없습니다."),
-    UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN,"게시글 수정 권한이 없습니다."),
-    DELETE_FORBIDDEN(HttpStatus.FORBIDDEN,"게시글 삭제 권한이 없습니다."),
-    VOTE_FORBIDDEN(HttpStatus.FORBIDDEN, "투표 생성 권한이 없습니다."),
+    VOTE_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 회원에 투표 생성 권한이 없습니다."),
 
     // 404 NOT FOUND
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
