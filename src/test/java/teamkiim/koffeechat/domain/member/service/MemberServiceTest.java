@@ -223,7 +223,7 @@ class MemberServiceTest extends TestSupport {
         Assertions.assertThat(memberInfoResponse.getIsFollowingMember()).isEqualTo(true);
     }
 
-    @DisplayName("현재 로그인한 멤버가 팔로우한 멤버의 프로필을 조회한다.")
+    @DisplayName("현재 로그인한 멤버가 팔로우하지 않은 멤버의 프로필을 조회한다.")
     @Test
     void findOtherNotFollowedMemberInfo() {
         // given
