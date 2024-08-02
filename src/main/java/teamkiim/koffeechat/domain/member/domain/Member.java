@@ -33,8 +33,8 @@ public class Member {
     @ElementCollection(fetch = FetchType.LAZY)
     private List<SkillCategory> interestSkillCategoryList = new ArrayList<>();
 
-    private Long followerCount;                                     //팔로워 수
-    private Long followingCount;                                    //팔로잉 수
+    private long followerCount;                                     //팔로워 수
+    private long followingCount;                                    //팔로잉 수
 
     @Transient
     private final String profileImagePath = "PROFILE";
@@ -44,7 +44,7 @@ public class Member {
     @Builder
     public Member(String email, String password, String nickname, MemberRole memberRole,
                   List<SkillCategory> interestSkillCategoryList,
-                  Long followerCount, Long followingCount, String profileImageName) {
+                  long followerCount, long followingCount, String profileImageName) {
 
         this.email = email;
         this.password = password;
@@ -53,8 +53,8 @@ public class Member {
         if (interestSkillCategoryList != null) {
             this.interestSkillCategoryList.addAll(interestSkillCategoryList);
         }
-        this.followerCount= followerCount;
-        this.followingCount=followingCount;
+        this.followerCount = followerCount;
+        this.followingCount = followingCount;
         this.profileImageName = profileImageName;
     }
 
