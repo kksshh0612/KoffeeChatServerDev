@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.auth.dto.TokenDto;
 import teamkiim.koffeechat.domain.auth.dto.request.LoginServiceRequest;
 import teamkiim.koffeechat.domain.auth.dto.request.SignUpServiceRequest;
 import teamkiim.koffeechat.global.authentication.Authenticator;
@@ -34,7 +35,7 @@ public class AuthService {
      * @return HttpStatus.CREATED
      */
     @Transactional
-    public ResponseEntity<?> signUp(SignUpServiceRequest signUpServiceRequest){
+    public void signUp(SignUpServiceRequest signUpServiceRequest){
 
         Optional<Member> existMember = memberRepository.findByEmail(signUpServiceRequest.getEmail());
 
@@ -45,8 +46,6 @@ public class AuthService {
         member.encodePassword(passwordEncoder.encode(member.getPassword()));
 
         memberRepository.save(member);
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -55,7 +54,7 @@ public class AuthService {
      * @param response HttpServletResponse
      * @return ok
      */
-    public ResponseEntity<?> login(LoginServiceRequest loginServiceRequest, HttpServletResponse response){
+    public TokenDto login(LoginServiceRequest loginServiceRequest){
 
         Member member = memberRepository.findByEmail(loginServiceRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -64,9 +63,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.EMAIL_PASSWORD_NOT_MATCH);
         }
 
-        authenticator.authenticate(response, member);
-
-        return ResponseEntity.ok("로그인이 완료되었습니다.");
+        return authenticator.authenticate(member);
     }
 
     /**
