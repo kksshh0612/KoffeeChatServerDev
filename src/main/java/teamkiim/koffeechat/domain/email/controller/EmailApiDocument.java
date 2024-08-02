@@ -37,7 +37,7 @@ public @interface EmailApiDocument {
      */
     @Operation(summary = "회원가입 시 이메일로 전송한 코드 확인", description = "회원가입 시 이메일로 전송한 코드를 확인한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "이메일 전송 완료"),
+            @ApiResponse(responseCode = "200", description = "인증 코드 확인 완료"),
             @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "인증 코드가 불일치하는 경우",
                             value = "{\"code\": 400, \"message\": \"인증 코드가 일치하지 않습니다.\"}")}

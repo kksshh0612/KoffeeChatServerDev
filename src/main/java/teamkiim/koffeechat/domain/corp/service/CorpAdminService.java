@@ -3,13 +3,16 @@ package teamkiim.koffeechat.domain.corp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.corp.controller.admindto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,12 +32,33 @@ public class CorpAdminService {
     }
 
     @Transactional
-    public Verified modifyCorpDomain(String corpName, String corpEmailDomain, Verified verified) {
-        Corp corp = corpRepository.findByCorpNameAndCorpEmailDomain(corpName, corpEmailDomain)
+    public Verified modifyCorpDomain(Long corpId, Verified verified) {
+        Corp corp = corpRepository.findById(corpId)
                 .orElseThrow(()-> new CustomException(ErrorCode.CORP_NOT_FOUND));
 
         corp.statusModify(verified);
 
         return corp.getVerified();
+    }
+
+    @Transactional
+    public void deleteCorpDomain(Long corpId) {
+        Corp corp = corpRepository.findById(corpId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
+        corpRepository.delete(corp);
+    }
+
+    public List<AdminCorpDomainListResponse> list() {
+        List<Corp> corpList = corpRepository.findAll();
+
+        List<AdminCorpDomainListResponse> responseList= corpList.stream().map(AdminCorpDomainListResponse::of).toList();
+        return responseList;
+    }
+
+    public List<AdminCorpDomainListResponse> search(String keyword) {
+        List<Corp> corpList = corpRepository.findByKeyword(keyword);
+
+        List<AdminCorpDomainListResponse> responseList= corpList.stream().map(AdminCorpDomainListResponse::of).toList();
+        return responseList;
     }
 }
