@@ -90,28 +90,19 @@ public class MemberService {
      */
     public MemberInfoResponse findMemberInfo(Long profileMemberId, Long loginMemberId){
 
-        Member member;
-        boolean isLoginMemberInfo;      //로그인 한 사용자의 프로필인지
-        Boolean isFollowingMember=null;  //로그인 한 사용자가 팔로우하는 사용자의 프로필인지
+        boolean isLoginMemberProfile = loginMemberId.equals(profileMemberId);
+        Boolean isFollowingMember = null;
 
-        if(profileMemberId == null){  // 마이페이지로의 접근
-            member = memberRepository.findById(loginMemberId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-            isLoginMemberInfo = true;
-        }
-        else{  // 프로필로의 접근
-            member = memberRepository.findById(profileMemberId)
+        Member member = memberRepository.findById(profileMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if(!isLoginMemberProfile){
+            Member loginMember = memberRepository.findById(loginMemberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-            isLoginMemberInfo = (member.getId() == loginMemberId) ? true : false;
-
-            if (!isLoginMemberInfo) {  //다른 회원의 프로필인 경우
-                Member loginMember= memberRepository.findById(loginMemberId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-                isFollowingMember = memberFollowService.isMemberFollowed(loginMember, member);
-            }
+            isFollowingMember = memberFollowService.isMemberFollowed(loginMember, member);
         }
 
-        return MemberInfoResponse.of(member, isLoginMemberInfo, isFollowingMember);
+        return MemberInfoResponse.of(member, isLoginMemberProfile, isFollowingMember);
     }
 }
