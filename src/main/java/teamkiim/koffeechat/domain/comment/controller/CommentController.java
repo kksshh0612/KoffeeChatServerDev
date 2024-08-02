@@ -40,7 +40,9 @@ public class CommentController {
 
         LocalDateTime currDateTime = LocalDateTime.now();
 
-        return commentService.saveComment(postId, commentRequest.toServiceRequest(currDateTime), memberId);
+        commentService.saveComment(postId, commentRequest.toServiceRequest(currDateTime), memberId);
+
+        return ResponseEntity.ok("댓글 저장 완료");
     }
 
     /**
@@ -51,9 +53,9 @@ public class CommentController {
     @CommentApiDocument.ModifyCommentApiDoc
     public ResponseEntity<?> modifyComment(@Valid @RequestBody ModifyCommentRequest modifyCommentRequest){
 
-        LocalDateTime currDateTime = LocalDateTime.now();
+        commentService.modifyComment(modifyCommentRequest.toServiceRequest());
 
-        return commentService.modifyComment(modifyCommentRequest.toServiceRequest(currDateTime));
+        return ResponseEntity.ok("댓글 수정 완료");
     }
 
     /**
@@ -64,6 +66,8 @@ public class CommentController {
     @CommentApiDocument.DeleteCommentApiDoc
     public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId){
 
-        return commentService.deleteComment(commentId);
+        commentService.deleteComment(commentId);
+
+        return ResponseEntity.ok("댓글 삭제 완료");
     }
 }

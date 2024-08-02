@@ -24,8 +24,6 @@ public class CommentServiceRequest {
                 .post(post)
                 .member(member)
                 .content(this.content)
-                .createdTime(this.currDateTime)
-                .modifiedTime(null)
                 .build();
     }
 }

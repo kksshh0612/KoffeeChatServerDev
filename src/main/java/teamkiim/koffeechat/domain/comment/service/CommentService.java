@@ -34,7 +34,7 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> saveComment(Long postId, CommentServiceRequest commentServiceRequest, Long memberId){
+    public void saveComment(Long postId, CommentServiceRequest commentServiceRequest, Long memberId){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -47,8 +47,6 @@ public class CommentService {
         Comment saveComment = commentRepository.save(comment);
 
         post.addComment(saveComment);               // 양방향 연관관계 주입
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("댓글 저장 완료");
     }
 
     /**
@@ -57,14 +55,12 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> modifyComment(ModifyCommentServiceRequest modifyCommentServiceRequest){
+    public void modifyComment(ModifyCommentServiceRequest modifyCommentServiceRequest){
 
         Comment comment = commentRepository.findById(modifyCommentServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
-        comment.modify(modifyCommentServiceRequest.getContent(), modifyCommentServiceRequest.getCurrDateTime());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("댓글 수정 완료");
+        comment.modify(modifyCommentServiceRequest.getContent());
     }
 
     /**
@@ -73,13 +69,11 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> deleteComment(Long commentId){
+    public void deleteComment(Long commentId){
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         commentRepository.delete(comment);
-
-        return ResponseEntity.ok("댓글 삭제 완료");
     }
 }
