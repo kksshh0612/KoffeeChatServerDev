@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.member.domain.Member;
 
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
@@ -17,23 +18,23 @@ public class MemberFollow {
     @Column(name="member_follow_id")
     private Long id;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name="follower_id")
     private Member follower;                                        //구독 한 사람
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name="following_id")
     private Member following;                                       //구독 당한 사람..
 
     @Builder
-    public MemberFollow(Member member, Member following) {
-        this.follower=member;
-        this.following=following;
+    public MemberFollow(Member follower, Member following) {
+        this.follower = follower;
+        this.following = following;
     }
 
-    public static MemberFollow createFollow(Member member, Member following) {
+    public static MemberFollow createFollow(Member follower, Member following) {
         return MemberFollow.builder()
-                .member(member)
+                .follower(follower)
                 .following(following)
                 .build();
     }

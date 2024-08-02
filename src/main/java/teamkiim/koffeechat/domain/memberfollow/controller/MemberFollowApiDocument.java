@@ -7,8 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
-import teamkiim.koffeechat.domain.memberfollow.service.dto.MemberFollowListResponse;
+import teamkiim.koffeechat.domain.memberfollow.dto.MemberFollowListResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -39,7 +38,7 @@ public @interface MemberFollowApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface MemberFollow { }
+    @interface FollowMember { }
 
     /**
      * 사용자 follower list 확인
