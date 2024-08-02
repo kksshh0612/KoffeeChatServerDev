@@ -23,6 +23,7 @@ import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceR
 import teamkiim.koffeechat.domain.member.dto.request.ModifyProfileServiceRequest;
 import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.memberfollow.domain.MemberFollow;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.memberfollow.service.MemberFollowService;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -43,8 +44,6 @@ class MemberServiceTest extends TestSupport {
     MemberService memberService;
     @Autowired
     MemberRepository memberRepository;
-    @Autowired
-    MemberFollowService memberFollowService;
     @Autowired
     MemberFollowRepository memberFollowRepository;
 
@@ -211,7 +210,7 @@ class MemberServiceTest extends TestSupport {
         // given
         Member profileMember = memberRepository.save(createMember("1@email.com"));
         Member loginMember = memberRepository.save(createMember("2@email.com"));
-        memberFollowService.follow(loginMember, profileMember);
+        memberFollowRepository.save(new MemberFollow(loginMember, profileMember));
 
         // when
         MemberInfoResponse memberInfoResponse = memberService.findMemberInfo(profileMember.getId(), loginMember.getId());
