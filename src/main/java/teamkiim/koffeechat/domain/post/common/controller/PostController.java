@@ -5,8 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
-import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 @RestController
@@ -23,7 +23,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/like/{postId}")
     @PostApiDocument.LikeApiDoc
-    public ResponseEntity<?> like(@PathVariable("postId") Long postId, HttpServletRequest request){
+    public ResponseEntity<?> like(@PathVariable("postId") Long postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -36,7 +36,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/bookmark/{postId}")
     @PostApiDocument.BookmarkApiDoc
-    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request){
+    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -44,19 +44,17 @@ public class PostController {
     }
 
     /**
-     * 북마크 리스트 확인
+     * 마이페이지 북마크 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
-            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @GetMapping("/bookmark")
+    @GetMapping("/bookmark/{postType}")
     @PostApiDocument.BookmarkedPostListApiDoc
-    public ResponseEntity<?> findBookmarkedPostList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                                    HttpServletRequest request){
+    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType,
+                                                    @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return postService.findBookmarkPostList(memberId, page, size);
+        return postService.findBookmarkPostList(memberId, postType, page, size);
     }
 
     /**
@@ -65,7 +63,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("delete/{postId}")
     @PostApiDocument.DeletePostApiDoc
-    public ResponseEntity<?> delete(@PathVariable("postId") Long postId){
+    public ResponseEntity<?> delete(@PathVariable("postId") Long postId) {
 
         return postService.softDelete(postId);
     }
