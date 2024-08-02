@@ -33,18 +33,19 @@ public class BookmarkService {
     /**
      * 게시물 북마크 생성
      * @param member 북마크한 멤버
-     * @param post   북마크한 게시글
+     * @param post 북마크한 게시글
      */
     @Transactional
     public void bookmark(Member member, Post post) {
+
         Bookmark bookmark = Bookmark.create(member, post);
         bookmarkRepository.save(bookmark);
     }
 
     /**
-     * 게시글 북마크 삭제
+     * 게시글 북마크 취소
      * @param member 북마크한 멤버
-     * @param post   삭제할 게시글
+     * @param post 북마크를 취소할 게시글
      */
     @Transactional
     public void cancelBookmark(Member member, Post post) {
