@@ -21,7 +21,9 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.domain.MemberRole;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
 import teamkiim.koffeechat.domain.member.dto.request.ModifyProfileServiceRequest;
+import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.memberfollow.service.MemberFollowService;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.ParentSkillCategory;
@@ -32,6 +34,8 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest extends TestSupport {
 
@@ -41,14 +45,16 @@ class MemberServiceTest extends TestSupport {
     MemberRepository memberRepository;
     @Autowired
     MemberFollowService memberFollowService;
+    @Autowired
+    MemberFollowRepository memberFollowRepository;
 
     @MockBean
     private FileStorageControlService fileStorageControlService;
 
     @AfterEach
     void tearDown() {
+        memberFollowRepository.deleteAllInBatch();
         memberRepository.deleteAllInBatch();
-
     }
 
     @DisplayName("회원 수정 정보를 받아 회원 정보를 수정한다.")
@@ -158,11 +164,11 @@ class MemberServiceTest extends TestSupport {
        );
 
        ProfileImageInfoResponse profileImageInfoResponse = ProfileImageInfoResponse.builder()
-                       .profileImagePath("path")
-                               .profileImageName("name")
-                                       .build();
+               .profileImagePath("path")
+               .profileImageName("name")
+               .build();
 
-       BDDMockito.given(fileStorageControlService.saveFile(saveMember, multipartFile))
+       BDDMockito.given(fileStorageControlService.saveFile(any(Member.class), any(MultipartFile.class)))
                .willReturn(profileImageInfoResponse);
 
        // when
@@ -173,14 +179,94 @@ class MemberServiceTest extends TestSupport {
        Assertions.assertThat(response.getProfileImageName()).isEqualTo("name");
    }
 
-    @DisplayName("")
+    @DisplayName("존재하지 않는 회원 프로필 사진을 등록하려 하면 예외가 발생한다.")
     @Test
-    void findMemberInfo() {
+    void enrollProfileImageWithNoExistMember() {
         // given
+        Long notExistMemberId = Long.MAX_VALUE;
+        MultipartFile multipartFile = new MockMultipartFile(
+                "file",
+                "filename.jpg",
+                "image/jpeg",
+                "file content".getBytes()
+        );
+
+        ProfileImageInfoResponse profileImageInfoResponse = ProfileImageInfoResponse.builder()
+                .profileImagePath("path")
+                .profileImageName("name")
+                .build();
+
+        BDDMockito.given(fileStorageControlService.saveFile(any(Member.class), any(MultipartFile.class)))
+                .willReturn(profileImageInfoResponse);
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> memberService.enrollProfileImage(notExistMemberId, multipartFile))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBER_NOT_FOUND);
+    }
+
+    @DisplayName("현재 로그인한 멤버가 팔로우한 멤버의 프로필을 조회한다.")
+    @Test
+    void findOtherFollowedMemberInfo() {
+        // given
+        Member profileMember = memberRepository.save(createMember("1@email.com"));
+        Member loginMember = memberRepository.save(createMember("2@email.com"));
+        memberFollowService.follow(loginMember, profileMember);
 
         // when
+        MemberInfoResponse memberInfoResponse = memberService.findMemberInfo(profileMember.getId(), loginMember.getId());
 
         // then
+        Assertions.assertThat(memberInfoResponse).isNotNull();
+        Assertions.assertThat(memberInfoResponse.getMemberId()).isEqualTo(profileMember.getId());
+        Assertions.assertThat(memberInfoResponse.getIsLoginMember()).isEqualTo(false);
+        Assertions.assertThat(memberInfoResponse.getIsFollowingMember()).isEqualTo(true);
+    }
+
+    @DisplayName("현재 로그인한 멤버가 팔로우한 멤버의 프로필을 조회한다.")
+    @Test
+    void findOtherNotFollowedMemberInfo() {
+        // given
+        Member profileMember = memberRepository.save(createMember("1@email.com"));
+        Member loginMember = memberRepository.save(createMember("2@email.com"));
+
+        // when
+        MemberInfoResponse memberInfoResponse = memberService.findMemberInfo(profileMember.getId(), loginMember.getId());
+
+        // then
+        Assertions.assertThat(memberInfoResponse).isNotNull();
+        Assertions.assertThat(memberInfoResponse.getMemberId()).isEqualTo(profileMember.getId());
+        Assertions.assertThat(memberInfoResponse.getIsLoginMember()).isEqualTo(false);
+        Assertions.assertThat(memberInfoResponse.getIsFollowingMember()).isEqualTo(false);
+    }
+
+    @DisplayName("현재 로그인한 멤버가 자신의 프로필을 조회한다.")
+    @Test
+    void findMyMemberInfo() {
+        // given
+        Member loginMember = memberRepository.save(createMember("2@email.com"));
+
+        // when
+        MemberInfoResponse memberInfoResponse = memberService.findMemberInfo(loginMember.getId(), loginMember.getId());
+
+        // then
+        Assertions.assertThat(memberInfoResponse).isNotNull();
+        Assertions.assertThat(memberInfoResponse.getMemberId()).isEqualTo(loginMember.getId());
+        Assertions.assertThat(memberInfoResponse.getIsLoginMember()).isEqualTo(true);
+        Assertions.assertThat(memberInfoResponse.getIsFollowingMember()).isNull();
+    }
+
+    @DisplayName("존재하지 않는 회원의 프로필을 조회하면 예외가 발생한다.")
+    @Test
+    void findMemberInfoWithNoExistMember() {
+        // given
+        Member loginMember = memberRepository.save(createMember("2@email.com"));
+        Long notExistMemberId = Long.MAX_VALUE;
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> memberService.findMemberInfo(notExistMemberId, loginMember.getId()))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBER_NOT_FOUND);
     }
 
     private Member createMember(String email){

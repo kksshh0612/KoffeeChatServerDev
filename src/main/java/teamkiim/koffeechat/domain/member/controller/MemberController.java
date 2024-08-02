@@ -59,32 +59,6 @@ public class MemberController {
     }
 
     /**
-     * 본인 프로필 조회
-     */
-    @AuthenticatedMemberPrincipal
-    @GetMapping("/profile")
-    @MemberApiDocument.FindProfile
-    public ResponseEntity<?> findProfile(HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return ResponseEntity.ok(memberService.findMemberInfo(null, memberId));
-    }
-
-    /**
-     * 타회원 프로필 조회
-     */
-    @AuthenticatedMemberPrincipal
-    @GetMapping("/profile/{profileMemberId}")
-    @MemberApiDocument.FindMemberProfile
-    public ResponseEntity<?> findProfile(@PathVariable("profileMemberId") Long profileMemberId, HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return ResponseEntity.ok(memberService.findMemberInfo(profileMemberId, memberId));
-    }
-
-    /**
      * 프로필 수정
      */
     @AuthenticatedMemberPrincipal
@@ -100,8 +74,18 @@ public class MemberController {
 
     }
 
-    @GetMapping("/test")
-    public void test() {
-        System.out.println("테스트 통과");
+    /**
+     * 프로필 조회
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/profile/{profileMemberId}")
+    @MemberApiDocument.FindMemberProfile
+    public ResponseEntity<?> findProfile(@PathVariable("profileMemberId") Long profileMemberId, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok(memberService.findMemberInfo(profileMemberId, memberId));
     }
+
+
 }
