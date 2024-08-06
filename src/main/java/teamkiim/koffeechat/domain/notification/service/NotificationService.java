@@ -78,11 +78,13 @@ public class NotificationService {
         String eventId = receiver.getId() + "_" + System.currentTimeMillis();   //eventId 생성
         Notification savedNotification = notificationRepository.save(new Notification(createNotificationRequest, receiver, eventId));
 
+        receiver.addUnreadNotifications();  //읽지 않은 알림 갯수 +1
+
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiver.getId()));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
 
         emitters.forEach(
                 (id, emitter) -> {
-                    sendNotification(id, emitter, eventId, NotificationResponse.of(savedNotification));
+                    sendNotification(id, emitter, eventId, NotificationResponse.of(savedNotification, receiver.getUnreadNotifications()));
                 }
         );
     }

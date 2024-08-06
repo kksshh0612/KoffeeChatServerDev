@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class NotificationResponse {
 
     private Long receiverId;  //알림을 받는 회원
+    private long unreadNotifications;  //읽지 않은 알림 갯수
 
     private Long memberId;  //알림 내용에 포함될 회원
     private String memberNickname;
@@ -30,9 +31,10 @@ public class NotificationResponse {
 
     private LocalDateTime createdTime;
 
-    public static NotificationResponse of(Notification notification) {
+    public static NotificationResponse of(Notification notification, long unreadNotifications) {
         return NotificationResponse.builder()
                 .receiverId(notification.getReceiver().getId())
+                .unreadNotifications(unreadNotifications)
                 .memberId(notification.getMember().getId())
                 .memberNickname(notification.getMember().getNickname())
                 .profileImagePath(notification.getMember().getProfileImagePath())
