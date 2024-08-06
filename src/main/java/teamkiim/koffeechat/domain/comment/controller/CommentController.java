@@ -1,10 +1,5 @@
 package teamkiim.koffeechat.domain.comment.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -14,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.comment.controller.dto.CommentRequest;
 import teamkiim.koffeechat.domain.comment.controller.dto.ModifyCommentRequest;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
-import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.time.LocalDateTime;
