@@ -2,6 +2,8 @@ package teamkiim.koffeechat.domain.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -10,13 +12,16 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
+import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationListResponse;
 import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationResponse;
 import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -60,7 +65,7 @@ public class NotificationService {
 
         //연결 후 첫 메시지 전송
         String eventId = memberId + "_" + System.currentTimeMillis();
-        sendNotification(emitterId, sseEmitter, eventId, member.getNickname()+" SSE connected");
+        sendNotification(emitterId, sseEmitter, eventId, member.getNickname() + " SSE connected");
 
         return sseEmitter;
     }
@@ -89,6 +94,11 @@ public class NotificationService {
         );
     }
 
+    /**
+     * 알림 발송
+     *
+     * @param response 알림 내용
+     */
     private void sendNotification(String emitterId, SseEmitter emitter, String eventId, Object response) {
         try {
             emitter.send(SseEmitter.event()
@@ -99,6 +109,24 @@ public class NotificationService {
             emitter.completeWithError(e);
             emitterRepository.deleteById(emitterId);
         }
+    }
+
+    /**
+     * 알림 목록 조회
+     *
+     * @param page 페이지 번호 ( ex) 0, 1,,,, )
+     * @param size 페이지 당 조회할 데이터 수
+     * @param memberId 로그인 한 회원
+     * @return List<NotificationListResponse>
+     */
+    public List<NotificationListResponse> list(Long memberId, int page, int size) {
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        List<Notification> notificationList = notificationRepository.findAllByReceiverId(memberId, pageRequest).getContent();
+
+        return notificationList.stream().map(NotificationListResponse::of).collect(Collectors.toList());
     }
 
 }
