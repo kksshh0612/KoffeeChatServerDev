@@ -136,7 +136,7 @@ public class NotificationService {
      * @param notiId   notification pk
      */
     @Transactional
-    public boolean readUpdate(Long memberId, Long notiId) {
+    public long readUpdate(Long memberId, Long notiId) {
         Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         Notification notification = notificationRepository.findByIdAndReceiverId(notiId, memberId)
@@ -147,15 +147,25 @@ public class NotificationService {
             receiver.removeUnreadNotifications();  // 읽지 않은 알림 개수 -1
         }
 
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiver.getId()));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
-        String eventId = receiver.getId() + "_" + System.currentTimeMillis();   //eventId 생성
+        return receiver.getUnreadNotifications();
+    }
 
-        emitters.forEach(
-                (id, emitter) -> {
-                    sendNotification(id, emitter, eventId, receiver.getUnreadNotifications());
-                }
-        );
+    /**
+     * 알림 단건 삭제
+     *
+     * @param memberId member pk
+     * @param notiId   notification pk
+     */
+    @Transactional
+    public long delete(Long memberId, Long notiId) {
+        Member receiver = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Notification notification = notificationRepository.findByIdAndReceiverId(notiId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
-        return notification.isRead();
+        if (!notification.isRead()) receiver.removeUnreadNotifications();  // 읽지 않은 알림 개수 -1
+        notificationRepository.delete(notification);
+
+        return receiver.getUnreadNotifications();
     }
 }

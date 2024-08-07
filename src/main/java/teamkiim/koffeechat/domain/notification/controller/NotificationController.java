@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationListResponse;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,9 +38,7 @@ public class NotificationController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<NotificationListResponse> responseList = notificationService.list(memberId, page, size);
-
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(notificationService.list(memberId, page, size));
     }
 
     /**
@@ -55,8 +50,18 @@ public class NotificationController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        boolean isRead = notificationService.readUpdate(memberId, notiId);
+        return ResponseEntity.ok(notificationService.readUpdate(memberId, notiId));
+    }
 
-        return ResponseEntity.ok(isRead);
+    /**
+     * 알림 단건 삭제
+     */
+    @AuthenticatedMemberPrincipal
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<?> delete(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok(notificationService.delete(memberId, notiId));
     }
 }
