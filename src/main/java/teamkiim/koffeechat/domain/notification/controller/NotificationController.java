@@ -30,6 +30,18 @@ public class NotificationController {
     }
 
     /**
+     * 페이지 로딩 시 읽지 않은 알림 개수 조회
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/unread-count")
+    public ResponseEntity<?> getUnreadNotificationCount(HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok(notificationService.getUnreadNotificationCount(memberId));
+    }
+
+    /**
      * 알림 목록 조회
      */
     @AuthenticatedMemberPrincipal

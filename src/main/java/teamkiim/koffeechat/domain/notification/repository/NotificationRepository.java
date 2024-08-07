@@ -3,6 +3,7 @@ package teamkiim.koffeechat.domain.notification.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 
 import java.util.Optional;
@@ -16,4 +17,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Page<Notification> findAllByReceiverId(Long id, Pageable pageable);
 
     Optional<Notification> findByIdAndReceiverId(Long notiId, Long memberId);
+
+    int countByReceiverAndIsReadFalse(Member member);
+
 }

@@ -112,6 +112,22 @@ public class NotificationService {
     }
 
     /**
+     * 페이지 로딩 시 읽지 않은 알림 개수 조회
+     * @Return 읽지 않은 알림 개수
+     */
+    @Transactional
+    public int getUnreadNotificationCount(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        int unreadNotificationCount = notificationRepository.countByReceiverAndIsReadFalse(member);
+
+        member.updateUnreadNotificationCount(unreadNotificationCount);
+
+        return unreadNotificationCount;
+    }
+
+    /**
      * 알림 목록 조회
      *
      * @param page     페이지 번호 ( ex) 0, 1,,,, )
@@ -134,6 +150,7 @@ public class NotificationService {
      *
      * @param memberId member pk
      * @param notiId   notification pk
+     * @Return 읽지 않은 알림 개수
      */
     @Transactional
     public long readUpdate(Long memberId, Long notiId) {
@@ -155,6 +172,7 @@ public class NotificationService {
      *
      * @param memberId member pk
      * @param notiId   notification pk
+     * @Return 읽지 않은 알림 개수
      */
     @Transactional
     public long delete(Long memberId, Long notiId) {
@@ -168,4 +186,5 @@ public class NotificationService {
 
         return receiver.getUnreadNotifications();
     }
+
 }
