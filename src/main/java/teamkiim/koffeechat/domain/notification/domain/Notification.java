@@ -44,7 +44,7 @@ public class Notification {
      * 생성자
      */
     public Notification(CreateNotificationRequest createNotificationRequest, Member receiver, String eventId) {
-        this.eventId= eventId;
+        this.eventId = eventId;
         this.receiver = receiver;
         this.member = createNotificationRequest.getMember();
         this.title = createNotificationRequest.getTitle();
@@ -53,5 +53,14 @@ public class Notification {
         this.isRead = createNotificationRequest.isRead();
         this.notificationType = createNotificationRequest.getNotificationType();
         this.createdTime = LocalDateTime.now();
+    }
+
+    //== 비즈니스 로직 ==//
+
+    /**
+     * 알림 읽음 처리
+     */
+    public void read() {
+        this.isRead = true;
     }
 }

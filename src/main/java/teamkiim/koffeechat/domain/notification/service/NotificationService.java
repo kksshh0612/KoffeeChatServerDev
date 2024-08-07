@@ -12,9 +12,9 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
+import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationListResponse;
 import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationResponse;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
@@ -114,8 +114,8 @@ public class NotificationService {
     /**
      * 알림 목록 조회
      *
-     * @param page 페이지 번호 ( ex) 0, 1,,,, )
-     * @param size 페이지 당 조회할 데이터 수
+     * @param page     페이지 번호 ( ex) 0, 1,,,, )
+     * @param size     페이지 당 조회할 데이터 수
      * @param memberId 로그인 한 회원
      * @return List<NotificationListResponse>
      */
@@ -129,4 +129,33 @@ public class NotificationService {
         return notificationList.stream().map(NotificationListResponse::of).collect(Collectors.toList());
     }
 
+    /**
+     * 알림 읽음
+     *
+     * @param memberId member pk
+     * @param notiId   notification pk
+     */
+    @Transactional
+    public boolean readUpdate(Long memberId, Long notiId) {
+        Member receiver = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Notification notification = notificationRepository.findByIdAndReceiverId(notiId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        if (!notification.isRead()) {
+            notification.read();                   // 알림 읽음 처리
+            receiver.removeUnreadNotifications();  // 읽지 않은 알림 개수 -1
+        }
+
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiver.getId()));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
+        String eventId = receiver.getId() + "_" + System.currentTimeMillis();   //eventId 생성
+
+        emitters.forEach(
+                (id, emitter) -> {
+                    sendNotification(id, emitter, eventId, receiver.getUnreadNotifications());
+                }
+        );
+
+        return notification.isRead();
+    }
 }
