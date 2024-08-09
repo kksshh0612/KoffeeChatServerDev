@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 
 import java.util.ArrayList;
@@ -108,10 +107,21 @@ public class Member {
      * addFollowerCount(), removeFollowerCount()
      * addFollowingCount(), removeFollowingCount()
      */
-    public void addFollowerCount(){this.followerCount++;}
-    public void removeFollowerCount(){this.followerCount--;}
-    public void addFollowingCount(){this.followingCount++;}
-    public void removeFollowingCount(){this.followingCount--;}
+    public void addFollowerCount() {
+        this.followerCount++;
+    }
+
+    public void removeFollowerCount() {
+        this.followerCount--;
+    }
+
+    public void addFollowingCount() {
+        this.followingCount++;
+    }
+
+    public void removeFollowingCount() {
+        this.followingCount--;
+    }
 
     /**
      * 현직자 인증
@@ -124,6 +134,10 @@ public class Member {
     /**
      * 읽지 않은 알림 수 관리
      */
+    public void updateUnreadNotificationCount(int unreadNotifications) {
+        this.unreadNotifications = unreadNotifications;
+    }
+
     public void addUnreadNotifications() {
         this.unreadNotifications++;
     }
