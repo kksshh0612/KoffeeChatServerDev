@@ -63,7 +63,7 @@ public class NotificationService {
             emitterRepository.deleteById(emitterId);
         });
 
-        //연결 후 첫 메시지 전송
+        //연결 후 첫 메시지 전송 : 503 에러 방지
         String eventId = memberId + "_" + System.currentTimeMillis();
         sendNotification(emitterId, sseEmitter, eventId, member.getNickname() + " SSE connected");
 
@@ -146,7 +146,7 @@ public class NotificationService {
     }
 
     /**
-     * 알림 읽음
+     * 알림 확인
      *
      * @param memberId member pk
      * @param notiId   notification pk

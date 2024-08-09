@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import teamkiim.koffeechat.domain.notification.controller.dto.NotificationApiDocument;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -22,6 +23,7 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/subscribe")
+    @NotificationApiDocument.SubscribeApiDoc
     public SseEmitter subscribe(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
@@ -33,7 +35,8 @@ public class NotificationController {
      * 페이지 로딩 시 읽지 않은 알림 개수 조회
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/unread-count")
+    @GetMapping("/unread-notifications")
+    @NotificationApiDocument.getUnreadNotificationCountApiDoc
     public ResponseEntity<?> getUnreadNotificationCount(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
@@ -46,6 +49,7 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/list")
+    @NotificationApiDocument.ShowListApiDoc
     public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
@@ -57,7 +61,8 @@ public class NotificationController {
      * 알림 확인
      */
     @AuthenticatedMemberPrincipal
-    @PatchMapping("/{notificationId}/read")
+    @PatchMapping("/{notificationId}")
+    @NotificationApiDocument.ReadApiDoc
     public ResponseEntity<?> read(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
@@ -70,6 +75,7 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{notificationId}")
+    @NotificationApiDocument.DeleteApiDoc
     public ResponseEntity<?> delete(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
