@@ -6,10 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.*;
 import teamkiim.koffeechat.domain.corp.service.CorpService;
 import teamkiim.koffeechat.domain.corp.service.dto.response.CorpDomainResponse;
@@ -19,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/corp")
+@RequestMapping("/corps")
 @Tag(name="현직자 인증 API")
 public class CorpController {
 
@@ -41,7 +38,7 @@ public class CorpController {
      * 회사 도메인 검색
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/find-corp-mail")
+    @GetMapping("/corp-email-domain")
     @CorpApiDocument.FindCorpDomain
     public ResponseEntity<?> findCorpDomain(@Valid @RequestBody FindCorpNameRequest corpNameRequest) {
 
@@ -56,7 +53,7 @@ public class CorpController {
     }
 
     @AuthenticatedMemberPrincipal
-    @PostMapping("/find-corp-name")
+    @GetMapping("/corp-name")
     @CorpApiDocument.FindCorpDomain
     public ResponseEntity<?> findCorpName(@Valid @RequestBody FindCorpDomainRequest corpDomainRequest) {
 
@@ -75,7 +72,7 @@ public class CorpController {
      * 이메일 보내고 인증까지 받고나서 admin 최종 승인받기 (승인 목록)
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/send-corp-code")
+    @PostMapping("/corp-email-auth-code")
     @CorpApiDocument.SendCorpEmail
     public ResponseEntity<?> sendCorpEmail(@Valid @RequestBody CorpAuthRequest corpRequest, HttpServletRequest request ){
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
@@ -88,7 +85,7 @@ public class CorpController {
      * 회사 이메일 인증 코드 확인
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/check-corp-code")
+    @PostMapping("/corp-auth-code")
     @CorpApiDocument.CheckCorpCode
     public ResponseEntity<?> checkCorpCode(@Valid @RequestBody CorpAuthCodeCheckRequest codeCheckRequest , HttpServletRequest request ){
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
