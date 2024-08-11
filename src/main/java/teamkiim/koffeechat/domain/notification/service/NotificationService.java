@@ -83,7 +83,7 @@ public class NotificationService {
         String eventId = receiver.getId() + "_" + System.currentTimeMillis();   //eventId 생성
         Notification savedNotification = notificationRepository.save(new Notification(createNotificationRequest, receiver, eventId));
 
-        receiver.addUnreadNotifications();  //읽지 않은 알림 갯수 +1
+        receiver.addUnreadNotifications();  //읽지 않은 알림 개수 +1
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiver.getId()));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
 
@@ -113,6 +113,7 @@ public class NotificationService {
 
     /**
      * 페이지 로딩 시 읽지 않은 알림 개수 조회
+     *
      * @Return 읽지 않은 알림 개수
      */
     @Transactional

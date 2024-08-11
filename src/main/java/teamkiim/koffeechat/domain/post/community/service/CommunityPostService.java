@@ -11,6 +11,10 @@ import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
+import teamkiim.koffeechat.domain.notification.domain.NotificationType;
+import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.domain.post.community.dto.request.ModifyCommunityPostServiceRequest;
 import teamkiim.koffeechat.domain.post.community.dto.request.SaveCommunityPostServiceRequest;
@@ -19,7 +23,6 @@ import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListR
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.VoteResponse;
 import teamkiim.koffeechat.domain.post.community.repository.CommunityPostRepository;
-import teamkiim.koffeechat.domain.postlike.repository.PostLikeRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.domain.vote.domain.Vote;
 import teamkiim.koffeechat.domain.vote.dto.request.ModifyVoteServiceRequest;
@@ -42,11 +45,12 @@ public class CommunityPostService {
     private final CommunityPostRepository communityPostRepository;
     private final MemberRepository memberRepository;
     private final FileService fileService;
-    private final PostLikeRepository postLikeRepository;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
     private final VoteRepository voteRepository;
     private final VoteService voteService;
+    private final MemberFollowRepository memberFollowRepository;
+    private final NotificationService notificationService;
 
     /**
      * 게시글 최초 임시 저장
@@ -99,7 +103,7 @@ public class CommunityPostService {
     public ResponseEntity<?> saveCommunityPost(SaveCommunityPostServiceRequest saveCommunityPostServiceRequest,
                                                SaveVoteServiceRequest saveVoteServiceRequest, Long memberId) {
 
-        memberRepository.findById(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         CommunityPost communityPost = communityPostRepository.findById(saveCommunityPostServiceRequest.getId())
@@ -113,11 +117,19 @@ public class CommunityPostService {
 
         if (saveVoteServiceRequest == null) {  //투표 x
             return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostResponse.of(communityPost, commentInfoDtoList, null, memberId, false, false));
-
         }
 
         //투표 o
         Vote savedVote = voteService.saveVote(saveVoteServiceRequest, saveCommunityPostServiceRequest.getId());  //투표 저장
+
+        //팔로워들에게 알림 발송
+        List<Long> followerList = memberFollowRepository.findFollowerIdListByFollowing(member);
+        String notiTitle = member.getNickname() + "님의 새 글";
+        String notiUrl = String.format("/community-post?postId=%d", communityPost.getId());
+        followerList.forEach(followerId ->
+                notificationService.createNotification(CreateNotificationRequest
+                        .of(member, notiTitle, communityPost.getTitle(), notiUrl, NotificationType.POST), followerId)
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostResponse.of(communityPost, commentInfoDtoList, VoteResponse.of(savedVote, true), memberId, false, false));
 
