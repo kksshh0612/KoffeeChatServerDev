@@ -60,18 +60,18 @@ public abstract class Post extends BaseEntity {
         this.bodyContent = bodyContent;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
-        this.bookmarkCount=bookmarkCount;
+        this.bookmarkCount = bookmarkCount;
         this.isEditing = isEditing;
     }
 
     //== 연관관계 편의 매서드 ==//
 
-    public void addFile(File file){
+    public void addFile(File file) {
         this.fileList.add(file);
         file.injectPost(this);
     }
 
-    public void addComment(Comment comment){
+    public void addComment(Comment comment) {
         commentList.add(comment);
         comment.injectPost(this);
     }
@@ -82,33 +82,33 @@ public abstract class Post extends BaseEntity {
 
     /**
      * 게시글 완성
+     *
      * @param postCategory 카테고리
-     * @param title 제목
-     * @param bodyContent 본문
+     * @param title        제목
+     * @param bodyContent  본문
      */
-    protected void complete(PostCategory postCategory, String title, String bodyContent){
-
+    protected void complete(PostCategory postCategory, String title, String bodyContent) {
         this.postCategory = postCategory;
         this.title = title;
         this.bodyContent = bodyContent;
         this.viewCount = 0L;
         this.likeCount = 0L;
-        this.bookmarkCount=0L;
+        this.bookmarkCount = 0L;
         isEditing = false;
     }
 
     /**
      * 게시글 수정
-     * @param title 제목
+     *
+     * @param title       제목
      * @param bodyContent 본문
      */
-    protected void modify(String title, String bodyContent){
-
+    protected void modify(String title, String bodyContent) {
         this.title = title;
         this.bodyContent = bodyContent;
     }
 
-    public void delete(){
+    public void delete() {
         this.deleted = true;
     }
 
@@ -119,6 +119,7 @@ public abstract class Post extends BaseEntity {
     public void addLike() {
         this.likeCount++;
     }
+
     public void removeLike() {
         this.likeCount--;
     }
@@ -127,8 +128,19 @@ public abstract class Post extends BaseEntity {
      * 북마크 토글 기능 : bookmarkCount update
      * removeBookmark(), addBookmark()
      */
-    public void addBookmark(){this.bookmarkCount++;}
-    public void removeBookmark(){this.bookmarkCount--;}
+    public void addBookmark() {
+        this.bookmarkCount++;
+    }
 
+    public void removeBookmark() {
+        this.bookmarkCount--;
+    }
+
+    /**
+     * 조회수 증가 : viewCount update
+     */
+    public void addViewCount() {
+        this.viewCount++;
+    }
 
 }

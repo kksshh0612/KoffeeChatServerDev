@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.domain.post.dev.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -15,6 +16,7 @@ import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
 import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceRequest;
@@ -44,9 +46,11 @@ public class DevPostService {
     private final BookmarkService bookmarkService;
     private final MemberFollowRepository memberFollowRepository;
     private final NotificationService notificationService;
+    private final PostService postService;
 
     /**
      * 게시글 최초 임시 저장
+     *
      * @param memberId 작성자 PK
      * @return Long 게시글 PK
      */
@@ -68,6 +72,7 @@ public class DevPostService {
 
     /**
      * 개발 게시글 작성 취소
+     *
      * @param postId 게시글 PK
      * @return ok
      */
@@ -86,6 +91,7 @@ public class DevPostService {
 
     /**
      * 게시글 저장
+     *
      * @param saveDevPostServiceRequest 게시글 저장 dto
      * @return DevPostResponse
      */
@@ -112,11 +118,12 @@ public class DevPostService {
                         .of(member, notiTitle, devPost.getTitle(), notiUrl, NotificationType.POST), followerId)
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, memberId, false, false));
+        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, false, false, true));
     }
 
     /**
      * 게시글 목록 조회
+     *
      * @param page 페이지 번호 ( ex) 0, 1,,,, )
      * @param size 페이지 당 조회할 데이터 수
      * @return List<DevPostListResponse>
@@ -141,11 +148,12 @@ public class DevPostService {
 
     /**
      * 게시글 상세 조회
+     *
      * @param postId 게시글 PK
      * @return DevPostResponse
      */
     @Transactional
-    public ResponseEntity<?> findPost(Long postId, Long memberId) {
+    public DevPostResponse findPost(Long postId, Long memberId, HttpServletRequest request) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -154,14 +162,19 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
-
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
+        boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
 
-        return ResponseEntity.ok(DevPostResponse.of(devPost, memberId, isMemberLiked, isMemberBookmarked));
+        if (!isMemberWritten) {  //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
+            postService.viewPost(devPost, request);
+        }
+
+        return DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
      * 게시글 수정
+     *
      * @param modifyDevPostServiceRequest 게시글 수정 dto
      * @return DevPostResponse
      */
@@ -178,9 +191,8 @@ public class DevPostService {
                 modifyDevPostServiceRequest.combineSkillCategory());
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
-
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, memberId, isMemberLiked, isMemberBookmarked));
+        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, true));
     }
 }

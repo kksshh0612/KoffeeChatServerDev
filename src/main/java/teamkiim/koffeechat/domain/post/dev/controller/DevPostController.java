@@ -1,11 +1,5 @@
 package teamkiim.koffeechat.domain.post.dev.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -13,12 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
-import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -39,7 +31,7 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/init")
     @DevPostApiDocument.InitPostApiDoc
-    public ResponseEntity<?> initPost(HttpServletRequest request){
+    public ResponseEntity<?> initPost(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -52,7 +44,7 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/cancel/{postId}")
     @DevPostApiDocument.CancelPostApiDoc
-    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId){
+    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
 
         return devPostService.cancelWriteDevPost(postId);
     }
@@ -76,7 +68,7 @@ public class DevPostController {
     @GetMapping("/list")
     @DevPostApiDocument.ShowListApiDoc
     public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                      @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList){
+                                      @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
 
         log.info("/dev-post/list 진입");
 
@@ -89,11 +81,13 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postId}")
     @DevPostApiDocument.ShowPostApiDoc
-    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request){
+    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.findPost(postId, memberId);
+        DevPostResponse postResponse = devPostService.findPost(postId, memberId, request);
+
+        return ResponseEntity.ok(postResponse);
     }
 
     /**
@@ -102,7 +96,7 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/modify")
     @DevPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest, HttpServletRequest request){
+    public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

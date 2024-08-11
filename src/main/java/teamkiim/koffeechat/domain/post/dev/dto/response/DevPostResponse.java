@@ -32,9 +32,7 @@ public class DevPostResponse {
     private LocalDateTime modifiedTime;
     private List<SkillCategory> skillCategoryList;
 
-    public static DevPostResponse of(DevPost devPost, Long loginMemberId, boolean isMemberLiked, boolean isMemberBookmarked) {
-
-        boolean isMemberWritten = loginMemberId.equals(devPost.getMember().getId());
+    public static DevPostResponse of(DevPost devPost, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return DevPostResponse.builder()
                 .id(devPost.getId())

@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.domain.post.common.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -166,6 +167,18 @@ public class PostService {
 
         return postList.stream().map(MyPostListResponse::of).toList();
 
+    }
+
+    /**
+     * 게시글 조회수
+     */
+    public void viewPost(Post post, HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr();
+        String uniqueViewKey = "viewedPost_" + post.getId() + "_" + clientIp;
+        if (request.getSession().getAttribute(uniqueViewKey) == null) {
+            post.addViewCount();
+            request.getSession().setAttribute(uniqueViewKey, true);
+        }
     }
 
 }
