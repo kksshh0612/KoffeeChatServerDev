@@ -1,11 +1,10 @@
-package teamkiim.koffeechat.domain.post.common.dto.response;
+package teamkiim.koffeechat.domain.post.common.controller.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 
 import java.time.LocalDateTime;
@@ -14,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "회원이 북마크한 게시글 리스트 Response")
 public class BookmarkPostListResponse {
     
     private Long id;                                // PK
@@ -47,17 +47,7 @@ public class BookmarkPostListResponse {
                 .imageName(null)
                 .build();
 
-        if (!post.getFileList().isEmpty()) {
-            response.setImageInfo(post.getFileList().get(0));
-        }
-
         return response;
-    }
-
-    private void setImageInfo(File file){
-
-        this.imagePath = file.getPath();
-        this.imageName = file.getName();
     }
 
 }
