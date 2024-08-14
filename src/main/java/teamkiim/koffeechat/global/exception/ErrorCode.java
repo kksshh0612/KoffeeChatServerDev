@@ -36,6 +36,7 @@ public enum ErrorCode {
     VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "투표가 존재하지 않습니다."),
     VOTE_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"투표 항목이 존재하지 않습니다."),
     CORP_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회사 도메인이 존재하지 않습니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림이 존재하지 않습니다."),
 
     // 409 CONFLICT
     EMAIL_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 회원가입된 이메일입니다."),

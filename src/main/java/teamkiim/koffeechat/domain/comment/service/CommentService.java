@@ -14,12 +14,13 @@ import teamkiim.koffeechat.domain.comment.dto.request.ModifyCommentServiceReques
 import teamkiim.koffeechat.domain.comment.repository.CommentRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.notification.domain.NotificationType;
+import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,6 +30,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     /**
      * 댓글 저장
@@ -49,9 +51,16 @@ public class CommentService {
 
         Comment comment = commentServiceRequest.toEntity(post, member);
 
-        Comment saveComment = commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
 
-        post.addComment(saveComment);               // 양방향 연관관계 주입
+        post.addComment(savedComment);               // 양방향 연관관계 주입
+
+        //글쓴이에게 댓글 알림 전송
+        Long writerId = post.getMember().getId();
+        String notiTitle = member.getNickname() + "님이 " + post.getTitle() + "글에 댓글을 남겼습니다.";
+        String notiUrl = String.format("/community-post?postId=%d", post.getId());
+        notificationService.createNotification(CreateNotificationRequest
+                .of(member, notiTitle, savedComment.getContent(), notiUrl, NotificationType.COMMENT), writerId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("댓글 저장 완료");
     }
