@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.domain.vote.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
@@ -83,7 +84,9 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return communityPostService.findPost(postId, memberId);
+        CommunityPostResponse postResponse = communityPostService.findPost(postId, memberId, request);
+
+        return ResponseEntity.ok(postResponse);
     }
 
     /**
