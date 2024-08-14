@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @Schema(description = "내가 작성한 게시글 Response")
 public class MyPostListResponse {
-    
+
     private Long id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
@@ -32,7 +32,7 @@ public class MyPostListResponse {
     private String imageName;                       // 이미지 이름
 
     public static MyPostListResponse of(Post post) {
-        MyPostListResponse response= MyPostListResponse.builder()
+        return MyPostListResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .bodyContent(post.getBodyContent())
@@ -46,8 +46,6 @@ public class MyPostListResponse {
                 .imagePath(null)
                 .imageName(null)
                 .build();
-
-        return response;
     }
 
 }

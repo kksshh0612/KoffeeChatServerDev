@@ -1,10 +1,13 @@
 package teamkiim.koffeechat.domain.comment.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.comment.controller.dto.response.MyCommentListResponse;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.comment.dto.request.CommentServiceRequest;
 import teamkiim.koffeechat.domain.comment.dto.request.ModifyCommentServiceRequest;
@@ -94,5 +97,25 @@ public class CommentService {
         commentRepository.delete(comment);
 
         return ResponseEntity.ok("댓글 삭제 완료");
+    }
+
+    /**
+     * 로그인한 회원이 작성한 댓글 목록 조회
+     *
+     * @param memberId 로그인한 회원
+     * @param page     페이지 번호 ( ex) 0, 1,,,, )
+     * @param size     페이지 당 조회할 데이터 수
+     * @return List<MyCommentListResponse>
+     */
+    public List<MyCommentListResponse> findMyCommentList(Long memberId, int page, int size) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 작성한 댓글부터
+
+        List<Comment> commentList = commentRepository.findAllByMember(member, pageRequest).getContent();
+
+        return commentList.stream().map(MyCommentListResponse::of).toList();
     }
 }
