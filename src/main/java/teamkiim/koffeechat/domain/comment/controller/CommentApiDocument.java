@@ -69,4 +69,19 @@ public @interface CommentApiDocument {
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface DeleteCommentApiDoc {}
+
+    /**
+     * 마이페이지 내가 쓴 댓글 리스트 확인
+     */
+    @Operation(summary = "마이페이지 내가 쓴 댓글 리스트 확인", description = "사용자가 자신이 작성한 댓글들을 확인한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "댓글 리스트 반환 완료"),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 댓글 리스트를 조회하려고 하는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MyCommentListApiDoc {}
 }

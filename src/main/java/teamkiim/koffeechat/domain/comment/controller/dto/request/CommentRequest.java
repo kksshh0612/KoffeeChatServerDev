@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.comment.controller.dto;
+package teamkiim.koffeechat.domain.comment.controller.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +19,7 @@ public class CommentRequest {
     @NotBlank(message = "댓글을 작성해주세요.")
     String content;
 
-    public CommentServiceRequest toServiceRequest(LocalDateTime currDateTime){
+    public CommentServiceRequest toServiceRequest(LocalDateTime currDateTime) {
         return CommentServiceRequest.builder()
                 .content(this.content)
                 .currDateTime(currDateTime)
