@@ -18,6 +18,7 @@ public class CommunityPostResponse {
     private Long id;
     private String title;
     private String bodyContent;
+    private Long memberId;
     private String nickname;
     private String profileImagePath;
     private String profileImageName;
@@ -32,47 +33,26 @@ public class CommunityPostResponse {
     private List<CommentInfoDto> commentInfoDtoList;
     private VoteResponse voteResponse;
 
-    public static CommunityPostResponse of(CommunityPost communityPost, List<CommentInfoDto> commentInfoDtoList, VoteResponse voteResponse, Long loginMemberId, boolean isMemberLiked, boolean isMemberBookmarked){
+    public static CommunityPostResponse of(CommunityPost communityPost, List<CommentInfoDto> commentInfoDtoList, VoteResponse voteResponse, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
-        if(loginMemberId == communityPost.getMember().getId()){
-            return CommunityPostResponse.builder()
-                    .id(communityPost.getId())
-                    .title(communityPost.getTitle())
-                    .bodyContent(communityPost.getBodyContent())
-                    .nickname(communityPost.getMember().getNickname())
-                    .profileImagePath(communityPost.getMember().getProfileImagePath())
-                    .profileImageName(communityPost.getMember().getProfileImageName())
-                    .isMemberWritten(true)
-                    .isMemberLiked(isMemberLiked)
-                    .isMemberBookmarked(isMemberBookmarked)
-                    .viewCount(communityPost.getViewCount())
-                    .likeCount(communityPost.getLikeCount())
-                    .bookmarkCount(communityPost.getBookmarkCount())
-                    .createdTime(communityPost.getCreatedTime())
-                    .modifiedTime(communityPost.getModifiedTime())
-                    .commentInfoDtoList(commentInfoDtoList)
-                    .voteResponse(voteResponse)
-                    .build();
-        }
-        else{
-            return CommunityPostResponse.builder()
-                    .id(communityPost.getId())
-                    .title(communityPost.getTitle())
-                    .bodyContent(communityPost.getBodyContent())
-                    .nickname(communityPost.getMember().getNickname())
-                    .profileImagePath(communityPost.getMember().getProfileImagePath())
-                    .profileImageName(communityPost.getMember().getProfileImageName())
-                    .isMemberWritten(false)
-                    .isMemberLiked(isMemberLiked)
-                    .isMemberBookmarked(isMemberBookmarked)
-                    .viewCount(communityPost.getViewCount())
-                    .likeCount(communityPost.getLikeCount())
-                    .bookmarkCount(communityPost.getBookmarkCount())
-                    .createdTime(communityPost.getCreatedTime())
-                    .modifiedTime(communityPost.getModifiedTime())
-                    .commentInfoDtoList(commentInfoDtoList)
-                    .voteResponse(voteResponse)
-                    .build();
-        }
+        return CommunityPostResponse.builder()
+                .id(communityPost.getId())
+                .title(communityPost.getTitle())
+                .bodyContent(communityPost.getBodyContent())
+                .memberId(communityPost.getMember().getId())
+                .nickname(communityPost.getMember().getNickname())
+                .profileImagePath(communityPost.getMember().getProfileImagePath())
+                .profileImageName(communityPost.getMember().getProfileImageName())
+                .isMemberWritten(isMemberWritten)
+                .isMemberLiked(isMemberLiked)
+                .isMemberBookmarked(isMemberBookmarked)
+                .viewCount(communityPost.getViewCount())
+                .likeCount(communityPost.getLikeCount())
+                .bookmarkCount(communityPost.getBookmarkCount())
+                .createdTime(communityPost.getCreatedTime())
+                .modifiedTime(communityPost.getModifiedTime())
+                .commentInfoDtoList(commentInfoDtoList)
+                .voteResponse(voteResponse)
+                .build();
     }
 }
