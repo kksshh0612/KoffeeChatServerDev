@@ -16,7 +16,13 @@ import java.time.LocalDateTime;
 @Schema(description = "내가 쓴 댓글 리스트 response")
 public class MyCommentListResponse {
 
-    @Schema(description = "댓글 내용", example = "댓글 내용입니다.")
+    @Schema(description = "게시글 pk")
+    Long post_id;
+
+    @Schema(description = "댓글 pk")
+    Long comment_id;
+
+    @Schema(description = "댓글 내용")
     String content;
 
     @Schema(description = "댓글을 작성한 시간")
@@ -24,6 +30,8 @@ public class MyCommentListResponse {
 
     public static MyCommentListResponse of(Comment comment) {
         return MyCommentListResponse.builder()
+                .post_id(comment.getPost().getId())
+                .comment_id(comment.getId())
                 .content(comment.getContent())
                 .createdTime(comment.getCreatedTime())
                 .build();
