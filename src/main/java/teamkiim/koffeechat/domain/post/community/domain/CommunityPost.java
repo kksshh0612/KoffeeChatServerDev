@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.domain.post.community.domain;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 
 @Entity
 @Getter
+@DiscriminatorValue("COMMUNITY")
 @NoArgsConstructor
 public class CommunityPost extends Post {
 
