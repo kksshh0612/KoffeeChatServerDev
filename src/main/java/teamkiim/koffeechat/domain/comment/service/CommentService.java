@@ -22,6 +22,8 @@ import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
