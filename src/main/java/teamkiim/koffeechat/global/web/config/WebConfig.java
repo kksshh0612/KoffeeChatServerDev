@@ -46,7 +46,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns("http://**", "https://**", "ws://**")
 //                .allowedOrigins("http://192.168.219.131:5173")
                 .allowCredentials(true)
-                .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
+                .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE", "PATCH")
                 .allowedHeaders("*");
 
         WebMvcConfigurer.super.addCorsMappings(registry);
