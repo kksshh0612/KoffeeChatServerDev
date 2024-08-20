@@ -51,7 +51,6 @@ public class AuthService {
     /**
      * 로그인
      * @param loginServiceRequest 로그인 요청 dto
-     * @param response HttpServletResponse
      * @return ok
      */
     public TokenDto login(LoginServiceRequest loginServiceRequest){
