@@ -35,7 +35,24 @@ public class MemberFollowController {
     }
 
     /**
-     * 회원의 follower list 확인
+     * 본인의 follower list 확인
+     */
+    @Auth(role={})
+    @GetMapping("/follower-list")
+    @MemberFollowApiDocument.FollowerList
+    public ResponseEntity<?> followerList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                          HttpServletRequest request) {
+
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.findFollowerList(null, loginMemberId, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 타회원의 follower list 확인
      */
     @Auth(role={})
     @GetMapping("/follower-list/{memberId}")
@@ -53,12 +70,31 @@ public class MemberFollowController {
     }
 
     /**
-     * 회원의 following list 확인
+     * 본인의 following list 확인
+     */
+    @Auth(role={})
+    @GetMapping("/following-list")
+    @MemberFollowApiDocument.FollowingList
+    public ResponseEntity<?> followingList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                           HttpServletRequest request) {
+
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.findFollowingList(null, loginMemberId, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 타회원의 following list 확인
      */
     @Auth(role={})
     @GetMapping("/following-list/{memberId}")
     @MemberFollowApiDocument.FollowingList
-    public ResponseEntity<?> followingList(@PathVariable("memberId") Long memberId, @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    public ResponseEntity<?> followingList(@PathVariable("memberId") Long memberId,
+                                           @RequestParam("page") int page, @RequestParam("size") int size,
+                                           HttpServletRequest request) {
 
         Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

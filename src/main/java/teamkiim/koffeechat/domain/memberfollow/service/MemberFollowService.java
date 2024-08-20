@@ -93,10 +93,17 @@ public class MemberFollowService {
      */
     public List<MemberFollowListResponse> findFollowerList(Long memberId, Long loginMemberId, int page, int size) {
 
-        // member를 팔로우하는 follower들 찾기
+        Member member = null;
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // member를 팔로우하는 follower들 찾기
+        if(memberId == null){
+            member = memberRepository.findById(loginMemberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        }
+        else{
+            member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        }
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
@@ -128,10 +135,17 @@ public class MemberFollowService {
      */
     public List<MemberFollowListResponse> findFollowingList(Long memberId, Long loginMemberId, int page, int size) {
 
-        // member가 팔료우하는 following들 찾기
+        Member member = null;
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // member가 팔료우하는 following들 찾기
+        if(memberId == null){
+            member = memberRepository.findById(loginMemberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        }
+        else{
+            member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        }
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
