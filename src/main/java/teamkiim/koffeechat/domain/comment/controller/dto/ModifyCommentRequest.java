@@ -22,11 +22,10 @@ public class ModifyCommentRequest {
     @NotBlank(message = "댓글을 작성해주세요.")
     private String content;
 
-    public ModifyCommentServiceRequest toServiceRequest(LocalDateTime currDateTime){
+    public ModifyCommentServiceRequest toServiceRequest(){
         return ModifyCommentServiceRequest.builder()
                 .id(this.id)
                 .content(this.content)
-                .currDateTime(currDateTime)
                 .build();
     }
 }
