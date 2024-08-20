@@ -90,19 +90,31 @@ public class MemberService {
      */
     public MemberInfoResponse findMemberInfo(Long profileMemberId, Long loginMemberId){
 
-        boolean isLoginMemberProfile = loginMemberId.equals(profileMemberId);
+        boolean isLoginMemberProfile = false;
         Boolean isFollowingMember = null;
+        Member profileMember = null;
 
-        Member member = memberRepository.findById(profileMemberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // 프로필 PK가 null이면 로그인한 회원 PK로 조회
+        if(profileMemberId == null){
+            profileMember = memberRepository.findById(loginMemberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+            isLoginMemberProfile = true;
+        }
+        else{
+            profileMember = memberRepository.findById(profileMemberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+            isLoginMemberProfile = loginMemberId.equals(profileMember.getId());
+        }
 
         if(!isLoginMemberProfile){
             Member loginMember = memberRepository.findById(loginMemberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-            isFollowingMember = memberFollowService.isMemberFollowed(loginMember, member);
+            isFollowingMember = memberFollowService.isMemberFollowed(loginMember, profileMember);
         }
 
-        return MemberInfoResponse.of(member, isLoginMemberProfile, isFollowingMember);
+        return MemberInfoResponse.of(profileMember, isLoginMemberProfile, isFollowingMember);
     }
 }
