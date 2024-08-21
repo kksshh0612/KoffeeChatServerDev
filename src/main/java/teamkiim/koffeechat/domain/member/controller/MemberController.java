@@ -14,6 +14,7 @@ import teamkiim.koffeechat.domain.member.service.MemberService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,7 +36,7 @@ public class MemberController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return memberService.enrollProfileImage(memberId, multipartFile);
+        return ResponseEntity.ok(memberService.enrollProfileImage(memberId, multipartFile));
     }
 
     /**
@@ -53,33 +54,9 @@ public class MemberController {
                 .map(EnrollSkillCategoryRequest::toServiceRequest)
                 .collect(Collectors.toList());
 
-        return memberService.enrollSkillCategory(memberId, serviceRequestList);
-    }
+        memberService.enrollSkillCategory(memberId, serviceRequestList);
 
-    /**
-     * 본인 프로필 조회
-     */
-    @AuthenticatedMemberPrincipal
-    @GetMapping("/profile")
-    @MemberApiDocument.FindProfile
-    public ResponseEntity<?> findProfile(HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return memberService.findMemberInfo(null, memberId);
-    }
-
-    /**
-     * 타회원 프로필 조회
-     */
-    @AuthenticatedMemberPrincipal
-    @GetMapping("/profile/{profileMemberId}")
-    @MemberApiDocument.FindMemberProfile
-    public ResponseEntity<?> findProfile(@PathVariable("profileMemberId") Long profileMemberId, HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return memberService.findMemberInfo(profileMemberId, memberId);
+        return ResponseEntity.ok("관심 기술 설정 완료");
     }
 
     /**
@@ -92,11 +69,37 @@ public class MemberController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return memberService.modifyProfile(modifyProfileRequest.toServiceRequest(), memberId);
+        memberService.modifyProfile(modifyProfileRequest.toServiceRequest(), memberId);
+
+        return ResponseEntity.ok("회원 정보 수정 완료");
+
     }
 
-    @GetMapping("/test")
-    public void test() {
-        System.out.println("테스트 통과");
+    /**
+     * 본인 프로필 조회
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/profile")
+    @MemberApiDocument.FindMemberProfile
+    public ResponseEntity<?> findProfile(HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok(memberService.findMemberInfo(null, memberId));
     }
+
+    /**
+     * 타회원 프로필 조회
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/profile/{profileMemberId}")
+    @MemberApiDocument.FindMemberProfile
+    public ResponseEntity<?> findProfile(@PathVariable(value = "profileMemberId") Long profileMemberId, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok(memberService.findMemberInfo(profileMemberId, memberId));
+    }
+
+
 }

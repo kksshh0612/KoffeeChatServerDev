@@ -18,10 +18,13 @@ spring:
       port: 6379
 
     mongodb:
-      uri: mongodb://root:root@localhost:27017/koffeechat?authSource=admin
       host: localhost
       port: 27017
       database: koffeechat
+      username: kksshh0612
+      password: kksshh1735
+      #      uri: mongodb://kksshh0612:kksshh1735@localhost:27017/koffeechat_test
+      authentication-database: admin
 
   jpa:
     hibernate:

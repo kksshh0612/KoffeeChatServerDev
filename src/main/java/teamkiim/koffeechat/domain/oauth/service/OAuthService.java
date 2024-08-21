@@ -3,25 +3,21 @@ package teamkiim.koffeechat.domain.oauth.service;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import teamkiim.koffeechat.global.cookie.CookieProvider;
-import teamkiim.koffeechat.global.exception.CustomException;
-import teamkiim.koffeechat.global.exception.ErrorCode;
-import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
-import teamkiim.koffeechat.global.redis.util.RedisUtil;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.domain.MemberRole;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.oauth.dto.request.GoogleAuthServiceRequest;
 import teamkiim.koffeechat.domain.oauth.dto.request.KakaoAuthServiceRequest;
 import teamkiim.koffeechat.domain.oauth.dto.request.SaveSocialLoginMemberInfoServiceRequest;
+import teamkiim.koffeechat.global.cookie.CookieProvider;
+import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
+import teamkiim.koffeechat.global.redis.util.RedisUtil;
 
 import java.util.Optional;
 
@@ -73,7 +69,6 @@ public class OAuthService {
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        httpHeaders.set("charset", "utf-8");
         httpHeaders.setBearerAuth(accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
@@ -114,7 +109,6 @@ public class OAuthService {
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        httpHeaders.set("charset", "utf-8");
 
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
 

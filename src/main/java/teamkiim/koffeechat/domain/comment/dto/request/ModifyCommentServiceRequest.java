@@ -15,6 +15,5 @@ public class ModifyCommentServiceRequest {
 
     private Long id;
     private String content;
-    private LocalDateTime currDateTime;
     
 }

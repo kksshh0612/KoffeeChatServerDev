@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
+import teamkiim.koffeechat.global.auditing.BaseEntity;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +15,7 @@ import static jakarta.persistence.FetchType.*;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Comment {
+public class Comment extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="comment_id")
@@ -30,17 +31,11 @@ public class Comment {
 
     private String content;                             // 댓글 내용
 
-    private LocalDateTime createdTime;                  // 댓글 작성 시간
-
-    private LocalDateTime modifiedTime;                 // 댓글 수정 시간
-
     @Builder
-    public Comment(Post post, Member member, String content, LocalDateTime createdTime, LocalDateTime modifiedTime) {
+    public Comment(Post post, Member member, String content) {
         this.post = post;
         this.member = member;
         this.content = content;
-        this.createdTime = createdTime;
-        this.modifiedTime = modifiedTime;
     }
 
     //== 연관관계 주입 매서드 ==//
@@ -49,9 +44,8 @@ public class Comment {
     }
 
     //== 비지니스 로직 ==//
-    public void modify(String content, LocalDateTime modifiedTime){
+    public void modify(String content){
 
         this.content = content;
-        this.modifiedTime = modifiedTime;
     }
 }

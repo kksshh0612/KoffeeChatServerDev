@@ -9,6 +9,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
+import teamkiim.koffeechat.domain.auth.dto.TokenDto;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -97,10 +98,9 @@ public class Authenticator {
 
     /**
      * 회원 정보로 JWT 토큰을 생성하여 HttpServletResponse 객체에 set
-     * @param response HttpServletResponse
      * @param member Domain Member
      */
-    public void authenticate(HttpServletResponse response, Member member) {
+    public TokenDto authenticate(Member member) {
 
         String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
@@ -108,9 +108,10 @@ public class Authenticator {
         // 레디스 세팅
         redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
 
-        // 쿠키 세팅
-        cookieProvider.setCookie(accessTokenName, accessToken, false, response);
-        cookieProvider.setCookie(refreshTokenName, refreshToken, false, response);
+        return TokenDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     /**
