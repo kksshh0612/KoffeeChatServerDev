@@ -10,7 +10,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.auth.controller.dto.LoginRequest;
 import teamkiim.koffeechat.domain.auth.controller.dto.SignUpRequest;
+import teamkiim.koffeechat.domain.auth.dto.TokenDto;
 import teamkiim.koffeechat.domain.auth.service.AuthService;
+import teamkiim.koffeechat.global.cookie.CookieProvider;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +22,10 @@ import teamkiim.koffeechat.domain.auth.service.AuthService;
 public class AuthController {
 
     private final AuthService authService;
+    private final CookieProvider cookieProvider;
+
+    private static final String accessTokenName = "Authorization";
+    private static final String refreshTokenName = "refresh-token";
 
     /**
      * 회원가입
@@ -28,7 +34,9 @@ public class AuthController {
     @AuthApiDocument.SignUpApiDoc
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest signUpRequest){
 
-        return authService.signUp(signUpRequest.toServiceRequest());
+        authService.signUp(signUpRequest.toServiceRequest());
+
+        return ResponseEntity.ok("회원가입 성공");
     }
 
     /**
@@ -38,7 +46,13 @@ public class AuthController {
     @AuthApiDocument.loginApiDoc
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response){
 
-        return authService.login(loginRequest.toServiceRequest(), response);
+        TokenDto jwtTokenDto = authService.login(loginRequest.toServiceRequest());
+
+        // 쿠키 세팅
+        cookieProvider.setCookie(accessTokenName, jwtTokenDto.getAccessToken(), false, response);
+        cookieProvider.setCookie(refreshTokenName, jwtTokenDto.getRefreshToken(), false, response);
+
+        return ResponseEntity.ok("로그인 성공");
     }
 
     /**

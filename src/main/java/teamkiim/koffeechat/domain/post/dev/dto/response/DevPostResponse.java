@@ -19,6 +19,7 @@ public class DevPostResponse {
     private Long id;
     private String title;
     private String bodyContent;
+    private Long memberId;
     private String nickname;
     private String profileImagePath;
     private String profileImageName;
@@ -38,6 +39,7 @@ public class DevPostResponse {
                 .id(devPost.getId())
                 .title(devPost.getTitle())
                 .bodyContent(devPost.getBodyContent())
+                .memberId(devPost.getMember().getId())
                 .nickname(devPost.getMember().getNickname())
                 .profileImagePath(devPost.getMember().getProfileImagePath())
                 .profileImageName(devPost.getMember().getProfileImageName())

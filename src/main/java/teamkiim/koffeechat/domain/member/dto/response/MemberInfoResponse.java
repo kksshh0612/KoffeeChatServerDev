@@ -23,7 +23,7 @@ public class MemberInfoResponse {
     List<SkillCategory> interestSkillCategoryList;
     private Long followerCount;
     private Long followingCount;
-    private boolean isLoginMember;
+    private Boolean isLoginMember;
     private Boolean isFollowingMember;
     private String profileImagePath;
     private String profileImageName;

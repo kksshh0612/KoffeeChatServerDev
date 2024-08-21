@@ -1,7 +1,6 @@
 package teamkiim.koffeechat.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,14 +36,12 @@ public class MemberService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> modifyProfile(ModifyProfileServiceRequest modifyProfileServiceRequest, Long memberId){
+    public void modifyProfile(ModifyProfileServiceRequest modifyProfileServiceRequest, Long memberId){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.modify(modifyProfileServiceRequest.getNickname(), modifyProfileServiceRequest.getMemberRole());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("회원 정보 수정 완료");
     }
 
     /**
@@ -54,8 +51,7 @@ public class MemberService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> enrollSkillCategory(Long memberId,
-                                                 List<EnrollSkillCategoryServiceRequest> enrollSkillCategoryServiceRequestList){
+    public void enrollSkillCategory(Long memberId, List<EnrollSkillCategoryServiceRequest> enrollSkillCategoryServiceRequestList){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -65,8 +61,6 @@ public class MemberService {
                         .collect(Collectors.toList());
 
         member.enrollSkillCategory(skillCategoryList);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("관심 기술 설정 완료");
     }
 
     /**
@@ -76,7 +70,7 @@ public class MemberService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> enrollProfileImage(Long memberId, MultipartFile multipartFile){
+    public ProfileImageInfoResponse enrollProfileImage(Long memberId, MultipartFile multipartFile){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -85,7 +79,7 @@ public class MemberService {
 
         member.enrollProfileImage(response.getProfileImageName());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return response;
     }
 
     /**
@@ -94,32 +88,33 @@ public class MemberService {
      * @param loginMemberId 로그인한 회원 (현재 요청을 보낸) 의 PK
      * @return
      */
-    public ResponseEntity<?> findMemberInfo(Long profileMemberId, Long loginMemberId){
+    public MemberInfoResponse findMemberInfo(Long profileMemberId, Long loginMemberId){
 
-        Member member;
-        boolean isLoginMemberInfo;      //로그인 한 사용자의 프로필인지
-        Boolean isFollowingMember=null;  //로그인 한 사용자가 팔로우하는 사용자의 프로필인지
+        boolean isLoginMemberProfile = false;
+        Boolean isFollowingMember = null;
+        Member profileMember = null;
 
-        if(profileMemberId == null){  // 마이페이지로의 접근
-            member = memberRepository.findById(loginMemberId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-            isLoginMemberInfo = true;
-        }
-        else{  // 프로필로의 접근
-            member = memberRepository.findById(profileMemberId)
+        // 프로필 PK가 null이면 로그인한 회원 PK로 조회
+        if(profileMemberId == null){
+            profileMember = memberRepository.findById(loginMemberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-            isLoginMemberInfo = (member.getId() == loginMemberId) ? true : false;
-
-            if (!isLoginMemberInfo) {  //다른 회원의 프로필인 경우
-                Member loginMember= memberRepository.findById(loginMemberId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-                isFollowingMember = memberFollowService.isMemberFollowed(loginMember, member);
-            }
+            isLoginMemberProfile = true;
         }
-        
-        MemberInfoResponse response = MemberInfoResponse.of(member, isLoginMemberInfo, isFollowingMember);
+        else{
+            profileMember = memberRepository.findById(profileMemberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return ResponseEntity.ok(response);
+            isLoginMemberProfile = loginMemberId.equals(profileMember.getId());
+        }
+
+        if(!isLoginMemberProfile){
+            Member loginMember = memberRepository.findById(loginMemberId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+            isFollowingMember = memberFollowService.isMemberFollowed(loginMember, profileMember);
+        }
+
+        return MemberInfoResponse.of(profileMember, isLoginMemberProfile, isFollowingMember);
     }
 }
