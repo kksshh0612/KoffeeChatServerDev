@@ -25,7 +25,6 @@ public class SignUpRequest {
     private String password;
 
     @Schema(description = "회원가입용 닉네임", example = "커피챗")
-    @Pattern(regexp = "^[a-zA-Z0-9가-힣_.-]{3,10}$", message = "닉네임은 3~10자의 알파벳 대소문자, 숫자, _ . -만 사용 가능합니다.")
     @NotBlank(message = "닉네임을 입력해주세요")
     private String nickname;
 

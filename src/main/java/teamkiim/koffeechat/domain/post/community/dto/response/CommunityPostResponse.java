@@ -33,9 +33,7 @@ public class CommunityPostResponse {
     private List<CommentInfoDto> commentInfoDtoList;
     private VoteResponse voteResponse;
 
-    public static CommunityPostResponse of(CommunityPost communityPost, List<CommentInfoDto> commentInfoDtoList, VoteResponse voteResponse, Long loginMemberId, boolean isMemberLiked, boolean isMemberBookmarked){
-
-        boolean isMemberWritten = loginMemberId.equals(communityPost.getMember().getId());
+    public static CommunityPostResponse of(CommunityPost communityPost, List<CommentInfoDto> commentInfoDtoList, VoteResponse voteResponse, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return CommunityPostResponse.builder()
                 .id(communityPost.getId())
@@ -56,7 +54,5 @@ public class CommunityPostResponse {
                 .commentInfoDtoList(commentInfoDtoList)
                 .voteResponse(voteResponse)
                 .build();
-
-
     }
 }

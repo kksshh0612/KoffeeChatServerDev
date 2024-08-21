@@ -5,9 +5,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.domain.post.common.controller.dto.response.BookmarkPostListResponse;
+import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
-import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,12 +22,23 @@ public class PostController {
     private final PostService postService;
 
     /**
+     * 게시글 삭제 (soft delete)
+     */
+    @AuthenticatedMemberPrincipal
+    @DeleteMapping("delete/{postId}")
+    @PostApiDocument.DeletePostApiDoc
+    public ResponseEntity<?> delete(@PathVariable("postId") Long postId) {
+
+        return postService.softDelete(postId);
+    }
+
+    /**
      * 좋아요
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/like/{postId}")
     @PostApiDocument.LikeApiDoc
-    public ResponseEntity<?> like(@PathVariable("postId") Long postId, HttpServletRequest request){
+    public ResponseEntity<?> like(@PathVariable("postId") Long postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -36,7 +51,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/bookmark/{postId}")
     @PostApiDocument.BookmarkApiDoc
-    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request){
+    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -44,29 +59,35 @@ public class PostController {
     }
 
     /**
-     * 북마크 리스트 확인
+     * 마이페이지 북마크 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
-            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @GetMapping("/bookmark")
+    @GetMapping("/my/bookmark/{postType}")
     @PostApiDocument.BookmarkedPostListApiDoc
-    public ResponseEntity<?> findBookmarkedPostList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                                    HttpServletRequest request){
+    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType,
+                                                    @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return postService.findBookmarkPostList(memberId, page, size);
+        List<BookmarkPostListResponse> bookmarkPostResponseList = postService.findBookmarkPostList(memberId, postType, page, size);
+
+        return ResponseEntity.ok(bookmarkPostResponseList);
     }
 
     /**
-     * 게시글 삭제 (soft delete)
+     * 마이페이지 내가 쓴 게시글 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @DeleteMapping("delete/{postId}")
-    @PostApiDocument.DeletePostApiDoc
-    public ResponseEntity<?> delete(@PathVariable("postId") Long postId){
+    @GetMapping("/my/{postType}")
+    @PostApiDocument.MyPostListApiDoc
+    public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType,
+                                                    @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
-        return postService.softDelete(postId);
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MyPostListResponse> myPostListResponseList= postService.findMyPostList(memberId, postType, page, size);
+
+        return ResponseEntity.ok(myPostListResponseList);
     }
+
 }

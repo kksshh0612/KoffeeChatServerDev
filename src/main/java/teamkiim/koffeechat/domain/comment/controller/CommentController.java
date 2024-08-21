@@ -1,23 +1,19 @@
 package teamkiim.koffeechat.domain.comment.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.domain.comment.controller.dto.CommentRequest;
-import teamkiim.koffeechat.domain.comment.controller.dto.ModifyCommentRequest;
+import teamkiim.koffeechat.domain.comment.controller.dto.request.CommentRequest;
+import teamkiim.koffeechat.domain.comment.controller.dto.request.ModifyCommentRequest;
+import teamkiim.koffeechat.domain.comment.controller.dto.response.MyCommentListResponse;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
-import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +30,7 @@ public class CommentController {
     @PostMapping("/{postId}/comments")
     @CommentApiDocument.SaveCommentApiDoc
     public ResponseEntity<?> saveComment(@PathVariable("postId") Long postId,
-                                         @Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request){
+                                         @Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -51,7 +47,7 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/modify")
     @CommentApiDocument.ModifyCommentApiDoc
-    public ResponseEntity<?> modifyComment(@Valid @RequestBody ModifyCommentRequest modifyCommentRequest){
+    public ResponseEntity<?> modifyComment(@Valid @RequestBody ModifyCommentRequest modifyCommentRequest) {
 
         commentService.modifyComment(modifyCommentRequest.toServiceRequest());
 
@@ -64,10 +60,25 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/delete/{commentId}")
     @CommentApiDocument.DeleteCommentApiDoc
-    public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId){
+    public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId) {
 
         commentService.deleteComment(commentId);
 
         return ResponseEntity.ok("댓글 삭제 완료");
+    }
+
+    /**
+     * 마이페이지 내가 쓴 댓글 리스트 확인
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/my")
+    @CommentApiDocument.MyCommentListApiDoc
+    public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MyCommentListResponse> myCommentListResponseList = commentService.findMyCommentList(memberId, page, size);
+
+        return ResponseEntity.ok(myCommentListResponseList);
     }
 }
