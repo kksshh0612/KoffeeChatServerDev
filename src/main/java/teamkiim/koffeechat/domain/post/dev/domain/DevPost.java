@@ -1,9 +1,6 @@
 package teamkiim.koffeechat.domain.post.dev.domain;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,14 +20,18 @@ import java.util.List;
 @NoArgsConstructor
 public class DevPost extends Post {
 
+    @Column(columnDefinition = "TEXT")
+    private String visualData;
+
     @ElementCollection(fetch = FetchType.EAGER)
     private List<SkillCategory> skillCategoryList = new ArrayList<>();
 
     @Builder
     public DevPost(Member member, String title, String bodyContent, Long viewCount, Long likeCount, Long bookmarkCount,
-                   boolean isEditing, List<SkillCategory> skillCategoryList) {
+                   boolean isEditing, String visualDate, List<SkillCategory> skillCategoryList) {
 
         super(member, PostCategory.DEV, title, bodyContent, viewCount, likeCount, bookmarkCount, isEditing);
+        this.visualData = visualDate;
         if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
@@ -40,11 +41,13 @@ public class DevPost extends Post {
      * DevPost 완성
      * @param title 제목
      * @param bodyContent 본문
+     * @param visualData 시각자료
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
-    public void completeDevPost(String title, String bodyContent, List<SkillCategory> skillCategoryList){
+    public void completeDevPost(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList){
 
         complete(PostCategory.DEV, title, bodyContent);
+        this.visualData = visualData;
         if(skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
     }
 
@@ -52,11 +55,13 @@ public class DevPost extends Post {
      * DevPost 수정
      * @param title 제목
      * @param bodyContent 본문
+     * @param visualData 시각자료
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
-    public void modify(String title, String bodyContent, List<SkillCategory> skillCategoryList){
+    public void modify(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList){
 
         modify(title, bodyContent);
+        this.visualData = visualData;
         this.skillCategoryList.clear();
         if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
