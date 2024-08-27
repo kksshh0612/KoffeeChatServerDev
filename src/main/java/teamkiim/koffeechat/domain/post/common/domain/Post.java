@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
-import teamkiim.koffeechat.global.auditing.BaseEntity;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.member.domain.Member;
+import teamkiim.koffeechat.global.auditing.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,8 @@ import static jakarta.persistence.FetchType.LAZY;
 @SQLRestriction("deleted = false")
 public abstract class Post extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
     private Long id;
 
@@ -38,9 +39,9 @@ public abstract class Post extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String bodyContent;                                 // 본문
 
-    private Long viewCount;                                     // 조회수
-    private Long likeCount;                                     // 좋아요 수
-    private Long bookmarkCount;                                 // 북마크 수
+    private long viewCount;                                     // 조회수
+    private long likeCount;                                     // 좋아요 수
+    private long bookmarkCount;                                 // 북마크 수
 
     private boolean isEditing;                                  // 작성중인 글인지
     private boolean deleted = false;                            // delete 여부 (Default false)
@@ -51,16 +52,12 @@ public abstract class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
-    protected Post(Member member, PostCategory postCategory, String title, String bodyContent,
-                   Long viewCount, Long likeCount, Long bookmarkCount, boolean isEditing) {
+    protected Post(Member member, PostCategory postCategory, String title, String bodyContent, boolean isEditing) {
 
         this.member = member;
         this.postCategory = postCategory;
         this.title = title;
         this.bodyContent = bodyContent;
-        this.viewCount = viewCount;
-        this.likeCount = likeCount;
-        this.bookmarkCount = bookmarkCount;
         this.isEditing = isEditing;
     }
 
@@ -91,9 +88,6 @@ public abstract class Post extends BaseEntity {
         this.postCategory = postCategory;
         this.title = title;
         this.bodyContent = bodyContent;
-        this.viewCount = 0L;
-        this.likeCount = 0L;
-        this.bookmarkCount = 0L;
         isEditing = false;
     }
 
@@ -108,6 +102,9 @@ public abstract class Post extends BaseEntity {
         this.bodyContent = bodyContent;
     }
 
+    /**
+     * 게시글 삭제 (soft delete)
+     */
     public void delete() {
         this.deleted = true;
     }
