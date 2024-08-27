@@ -27,7 +27,9 @@ public class EmailController {
     @EmailApiDocument.SendAuthEmail
     public ResponseEntity<?> sendAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest){
 
-        return emailService.sendEmailAuthCode(emailAuthRequest.getEmail());
+        emailService.sendEmailAuthCode(emailAuthRequest.getEmail());
+
+        return ResponseEntity.ok("이메일 전송 완료, 이메일을 확인해주세요");
     }
 
     /**
@@ -37,6 +39,8 @@ public class EmailController {
     @EmailApiDocument.CheckAuthCode
     public ResponseEntity<?> checkAuthCode(@Valid @RequestBody AuthCodeCheckRequest authCodeCheckRequest){
 
-        return emailService.checkEmailAuthCode(authCodeCheckRequest.toServiceRequest());
+        emailService.checkEmailAuthCode(authCodeCheckRequest.toServiceRequest());
+
+        return ResponseEntity.ok("이메일 인증 완료되었습니다.");
     }
 }
