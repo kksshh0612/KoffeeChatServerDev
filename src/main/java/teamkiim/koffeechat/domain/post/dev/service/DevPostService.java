@@ -12,6 +12,7 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
 import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceRequest;
@@ -23,7 +24,9 @@ import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 개발 게시글 관련 서비스
@@ -105,7 +108,7 @@ public class DevPostService {
         //팔로워들에게 알림 발송
         notificationService.createPostNotification(member, devPost);
 
-        return DevPostResponse.of(devPost, false, false, true);
+        return DevPostResponse.of(devPost, new ArrayList<>(), false, false, true);
     }
 
     /**
@@ -142,6 +145,9 @@ public class DevPostService {
 
         if (devPost.isEditing()) throw new CustomException(ErrorCode.POST_NOT_FOUND);
 
+        List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
+                .map(comment -> CommentInfoDto.of(comment, memberId)).toList();
+
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
         boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
@@ -149,7 +155,7 @@ public class DevPostService {
         //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
         if (!isMemberWritten) postService.viewPost(devPost, request);
 
-        return DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
@@ -172,9 +178,12 @@ public class DevPostService {
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
                 modifyDevPostServiceRequest.combineSkillCategory());
 
+        List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
+                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
+
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
 
-        return DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, true);
+        return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, true);
     }
 }

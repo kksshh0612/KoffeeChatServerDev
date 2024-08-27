@@ -27,38 +27,39 @@ public class DevPost extends Post {
     private List<SkillCategory> skillCategoryList = new ArrayList<>();
 
     @Builder
-    public DevPost(Member member, String title, String bodyContent, Long viewCount, Long likeCount, Long bookmarkCount,
-                   boolean isEditing, List<SkillCategory> skillCategoryList) {
+    public DevPost(Member member, String title, String bodyContent, boolean isEditing, List<SkillCategory> skillCategoryList) {
 
-        super(member, PostCategory.DEV, title, bodyContent, viewCount, likeCount, bookmarkCount, isEditing);
-        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
+        super(member, PostCategory.DEV, title, bodyContent, isEditing);
+        if (skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
     //== 비지니스 로직==//
 
     /**
      * DevPost 완성
-     * @param title 제목
-     * @param bodyContent 본문
+     *
+     * @param title             제목
+     * @param bodyContent       본문
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
-    public void completeDevPost(String title, String bodyContent, List<SkillCategory> skillCategoryList){
+    public void completeDevPost(String title, String bodyContent, List<SkillCategory> skillCategoryList) {
 
         complete(PostCategory.DEV, title, bodyContent);
-        if(skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
+        if (skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
     }
 
     /**
      * DevPost 수정
-     * @param title 제목
-     * @param bodyContent 본문
+     *
+     * @param title             제목
+     * @param bodyContent       본문
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
-    public void modify(String title, String bodyContent, List<SkillCategory> skillCategoryList){
+    public void modify(String title, String bodyContent, List<SkillCategory> skillCategoryList) {
 
         modify(title, bodyContent);
         this.skillCategoryList.clear();
-        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
+        if (skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
 }
