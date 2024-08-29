@@ -194,13 +194,19 @@ public class CommunityPostService {
         List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
                 .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
 
-        Optional<Vote> vote = voteRepository.findByPost(communityPost);  //게시글로 투표 찾아옴.
-        VoteResponse voteResponse = vote.map(value -> VoteResponse.of(voteService.modifyVote(modifyVoteServiceRequest, value), true)).orElse(null);
+        //투표가 있다면 투표 내용 수정
+        Optional<Vote> vote = voteRepository.findByPost(communityPost);
+        VoteResponse voteResponse = vote.map(value -> modifyVote(value, modifyVoteServiceRequest)).orElse(null);
 
         boolean isMemberLiked = postLikeService.isMemberLiked(communityPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, communityPost);
 
         return CommunityPostResponse.of(communityPost, commentInfoDtoList, voteResponse, isMemberLiked, isMemberBookmarked, true);
+    }
+
+    private VoteResponse modifyVote(Vote vote, ModifyVoteServiceRequest modifyVoteServiceRequest) {
+        voteService.modifyVote(modifyVoteServiceRequest, vote);
+        return VoteResponse.of(vote, true);
     }
 
 }

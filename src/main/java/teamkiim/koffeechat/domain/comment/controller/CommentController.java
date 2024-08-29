@@ -71,7 +71,7 @@ public class CommentController {
      * 마이페이지 내가 쓴 댓글 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/my")
+    @GetMapping("")
     @CommentApiDocument.MyCommentListApiDoc
     public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
