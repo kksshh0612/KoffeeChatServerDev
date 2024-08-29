@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.vote.domain.Vote;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -22,8 +21,7 @@ public class VoteResponse {
     public static VoteResponse of(Vote vote, boolean isMemberVoted) {
 
         List<VoteItemResponse> voteItemResponseList = vote.getVoteItems().stream()
-                .map(voteItem-> VoteItemResponse.of(voteItem, isMemberVoted))
-                .collect(Collectors.toList());
+                .map(voteItem -> VoteItemResponse.of(voteItem, isMemberVoted)).toList();
 
         return VoteResponse.builder()
                 .title(vote.getTitle())

@@ -15,6 +15,8 @@ public enum ErrorCode {
     POST_REQUEST_WITHOUT_TITLE(HttpStatus.BAD_REQUEST, "제목을 입력해주세요"),
     POST_REQUEST_WITHOUT_CONTENT(HttpStatus.BAD_REQUEST, "내용을 입력해주세요"),
 
+    INVALID_VOTE_REQUEST(HttpStatus.BAD_REQUEST, "투표 요청이 올바르지 않습니다."),
+
     FILE_REQUEST_ERROR(HttpStatus.BAD_REQUEST, "파일 요청이 올바르지 않습니다."),
 
     // 401 UNAUTHORIZED
