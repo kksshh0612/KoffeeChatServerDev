@@ -34,7 +34,7 @@ public @interface CorpAdminApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface EnrollCorpDomain {
+    @interface CreateApprovedCorp {
     }
 
     /**
@@ -58,7 +58,7 @@ public @interface CorpAdminApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ManageCorpDomain {
+    @interface UpdateCorpVerified {
     }
 
     /**
@@ -78,7 +78,7 @@ public @interface CorpAdminApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface DeleteCorpDomain {
+    @interface DeleteCorp {
     }
 
     /**
@@ -94,7 +94,7 @@ public @interface CorpAdminApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface List {
+    @interface ListCorp {
     }
 
     /**
@@ -110,6 +110,6 @@ public @interface CorpAdminApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface Search {
+    @interface GetCorp {
     }
 }

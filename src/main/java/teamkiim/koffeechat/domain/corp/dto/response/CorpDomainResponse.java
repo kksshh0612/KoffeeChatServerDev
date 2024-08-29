@@ -1,8 +1,6 @@
-package teamkiim.koffeechat.domain.corp.service.dto.response;
+package teamkiim.koffeechat.domain.corp.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,10 +21,9 @@ public class CorpDomainResponse {
     private String corpEmailDomain;        //회사 이메일 도메인
 
     public static CorpDomainResponse of(Corp corp) {
-        CorpDomainResponse response= CorpDomainResponse.builder()
-                .corpName(corp.getCorpName())
-                .corpEmailDomain(corp.getCorpEmailDomain())
+        return CorpDomainResponse.builder()
+                .corpName(corp.getName())
+                .corpEmailDomain(corp.getEmailDomain())
                 .build();
-        return response;
     }
 }

@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Corp {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "corp_id")
     private Long id;
 
-    private String corpName;               //회사 이름
+    private String name;               //회사 이름
 
-    private String corpEmailDomain;        //회사 이메일 도메인
+    private String emailDomain;        //회사 이메일 도메인
 
     @Enumerated(EnumType.STRING)
     private Verified verified;               //이메일 도메인 검증 상태
@@ -23,10 +24,10 @@ public class Corp {
     /**
      * 생성자
      */
-    public Corp(String corpName, String corpEmailDomain, Verified verified) {
-        this.corpName=corpName;
-        this.corpEmailDomain=corpEmailDomain;
-        this.verified=verified;
+    public Corp(String name, String emailDomain, Verified verified) {
+        this.name = name;
+        this.emailDomain = emailDomain;
+        this.verified = verified;
     }
 
     //== 비즈니스 로직 ==//
