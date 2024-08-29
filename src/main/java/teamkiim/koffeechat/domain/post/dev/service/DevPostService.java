@@ -11,6 +11,7 @@ import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -98,15 +99,16 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(saveDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (!devPost.isEditing()) throw new CustomException(ErrorCode.POST_ALREADY_EXIST);
+        if (!devPost.isEditing()) {
+            throw new CustomException(ErrorCode.POST_ALREADY_EXIST);
+        }
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
                 saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
-        //팔로워들에게 알림 발송
-        notificationService.createPostNotification(member, devPost);
+        notificationService.createPostNotification(member, devPost, PostCategory.DEV);  //팔로워들에게 알림 발송
 
         return DevPostResponse.of(devPost, new ArrayList<>(), false, false, true);
     }
@@ -118,7 +120,7 @@ public class DevPostService {
      * @param size 페이지 당 조회할 데이터 수
      * @return List<DevPostListResponse>
      */
-    public List<DevPostListResponse> findDevPostList(int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
+    public List<DevPostListResponse> getDevPostList(int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
@@ -143,7 +145,9 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (devPost.isEditing()) throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        if (devPost.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
                 .map(comment -> CommentInfoDto.of(comment, memberId)).toList();
@@ -153,7 +157,9 @@ public class DevPostService {
         boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
 
         //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
-        if (!isMemberWritten) postService.viewPost(devPost, request);
+        if (!isMemberWritten) {
+            postService.viewPost(devPost, request);
+        }
 
         return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
@@ -173,7 +179,9 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (devPost.isEditing()) throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        if (devPost.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
                 modifyDevPostServiceRequest.combineSkillCategory());

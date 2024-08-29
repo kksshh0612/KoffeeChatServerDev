@@ -1,8 +1,7 @@
-package teamkiim.koffeechat.domain.notification.service.dto.response;
+package teamkiim.koffeechat.domain.notification.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 
@@ -14,8 +13,8 @@ public class NotificationListResponse {
 
     private Long id;
 
-    private Long memberId;  //알림 내용에 포함될 회원
-    private String memberNickname;
+    private Long senderId;  //알림 내용에 포함될 회원
+    private String senderNickname;
     private String profileImagePath;
     private String profileImageName;
 
@@ -34,10 +33,10 @@ public class NotificationListResponse {
     public static NotificationListResponse of(Notification notification) {
         return NotificationListResponse.builder()
                 .id(notification.getId())
-                .memberId(notification.getMember().getId())
-                .memberNickname(notification.getMember().getNickname())
-                .profileImagePath(notification.getMember().getProfileImagePath())
-                .profileImageName(notification.getMember().getProfileImageName())
+                .senderId(notification.getSender().getId())
+                .senderNickname(notification.getSender().getNickname())
+                .profileImagePath(notification.getSender().getProfileImagePath())
+                .profileImageName(notification.getSender().getProfileImageName())
                 .title(notification.getTitle())
                 .content(notification.getContent())
                 .url(notification.getUrl())

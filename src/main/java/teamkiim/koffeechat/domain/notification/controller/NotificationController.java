@@ -7,8 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.notification.controller.dto.NotificationApiDocument;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListResponse;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,20 +44,24 @@ public class NotificationController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.getUnreadNotificationCount(memberId));
+        int count = notificationService.getUnreadNotificationCount(memberId);
+
+        return ResponseEntity.ok(count);
     }
 
     /**
      * 알림 목록 조회
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/list")
+    @GetMapping("/")
     @NotificationApiDocument.ShowListApiDoc
     public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.list(memberId, page, size));
+        List<NotificationListResponse> response = notificationService.getNotificationList(memberId, page, size);
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -62,12 +69,14 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{notificationId}")
-    @NotificationApiDocument.ReadApiDoc
-    public ResponseEntity<?> read(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    @NotificationApiDocument.UpdateIsReadApiDoc
+    public ResponseEntity<?> updateIsRead(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.readUpdate(memberId, notiId));
+        long count = notificationService.updateIsRead(memberId, notiId);
+
+        return ResponseEntity.ok(count);
     }
 
     /**
@@ -80,6 +89,8 @@ public class NotificationController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.delete(memberId, notiId));
+        long count = notificationService.deleteNotification(memberId, notiId);
+
+        return ResponseEntity.ok(count);
     }
 }

@@ -3,8 +3,6 @@ package teamkiim.koffeechat.domain.comment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.comment.controller.dto.response.MyCommentListResponse;
@@ -14,9 +12,7 @@ import teamkiim.koffeechat.domain.comment.dto.request.ModifyCommentServiceReques
 import teamkiim.koffeechat.domain.comment.repository.CommentRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
-import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
@@ -43,7 +39,7 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public void saveComment(Long postId, CommentServiceRequest commentServiceRequest, Long memberId){
+    public void saveComment(Long postId, CommentServiceRequest commentServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -59,11 +55,7 @@ public class CommentService {
         post.addComment(savedComment);               // 양방향 연관관계 주입
 
         //글쓴이에게 댓글 알림 전송
-        Long writerId = post.getMember().getId();
-        String notiTitle = member.getNickname() + "님이 " + post.getTitle() + "글에 댓글을 남겼습니다.";
-        String notiUrl = String.format("/community-post?postId=%d", post.getId());
-        notificationService.createNotification(CreateNotificationRequest
-                .of(member, notiTitle, savedComment.getContent(), notiUrl, NotificationType.COMMENT), writerId);
+        notificationService.createCommentNotification(post, post.getPostCategory(), member, savedComment.getContent());
 
     }
 
@@ -74,7 +66,7 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public void modifyComment(ModifyCommentServiceRequest modifyCommentServiceRequest){
+    public void modifyComment(ModifyCommentServiceRequest modifyCommentServiceRequest) {
 
         Comment comment = commentRepository.findById(modifyCommentServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -89,7 +81,7 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public void deleteComment(Long commentId){
+    public void deleteComment(Long commentId) {
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));

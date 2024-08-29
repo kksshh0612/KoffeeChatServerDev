@@ -73,13 +73,13 @@ public class DevPostController {
      * 개발 게시글 목록 조회
      */
     @GetMapping("/list")
-    @DevPostApiDocument.ShowListApiDoc
-    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                      @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
+    @DevPostApiDocument.GetDevPostList
+    public ResponseEntity<?> getDevPostList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                            @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
 
         log.info("/dev-post/list 진입");
 
-        List<DevPostListResponse> responseList = devPostService.findDevPostList(page, size, childSkillCategoryList);
+        List<DevPostListResponse> responseList = devPostService.getDevPostList(page, size, childSkillCategoryList);
 
         return ResponseEntity.ok(responseList);
     }

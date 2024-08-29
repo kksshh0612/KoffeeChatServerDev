@@ -11,6 +11,7 @@ import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
@@ -116,7 +117,7 @@ public class CommunityPostService {
                 VoteResponse.of(voteService.saveVote(postRequest.toVoteServiceRequest(), postServiceRequest.getId()), true) : null;
 
         //팔로워들에게 알림 발송
-        notificationService.createPostNotification(member, communityPost);
+        notificationService.createPostNotification(member, communityPost, communityPost.getPostCategory());
 
         return CommunityPostResponse.of(communityPost, new ArrayList<>(), voteResponse, false, false, true);
 
