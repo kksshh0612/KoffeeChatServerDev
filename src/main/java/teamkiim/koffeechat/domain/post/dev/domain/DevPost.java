@@ -30,7 +30,9 @@ public class DevPost extends Post {
     public DevPost(Member member, String title, String bodyContent, boolean isEditing, List<SkillCategory> skillCategoryList) {
 
         super(member, PostCategory.DEV, title, bodyContent, isEditing);
-        if (skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
+        if (skillCategoryList != null) {
+            this.skillCategoryList = List.copyOf(skillCategoryList);
+        }
     }
 
     //== 비지니스 로직==//
@@ -45,7 +47,9 @@ public class DevPost extends Post {
     public void completeDevPost(String title, String bodyContent, List<SkillCategory> skillCategoryList) {
 
         complete(PostCategory.DEV, title, bodyContent);
-        if (skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
+        if (skillCategoryList != null) {
+            this.skillCategoryList.addAll(skillCategoryList);
+        }
     }
 
     /**
@@ -59,7 +63,9 @@ public class DevPost extends Post {
 
         modify(title, bodyContent);
         this.skillCategoryList.clear();
-        if (skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
+        if (skillCategoryList != null) {
+            this.skillCategoryList = List.copyOf(skillCategoryList);
+        }
     }
 
 }

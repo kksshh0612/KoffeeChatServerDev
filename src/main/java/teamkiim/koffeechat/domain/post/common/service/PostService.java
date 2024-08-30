@@ -61,7 +61,9 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (post.isDeleted() || post.isEditing()) throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        if (post.isDeleted() || post.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -90,7 +92,9 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (post.isDeleted() || post.isEditing()) throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        if (post.isDeleted() || post.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));

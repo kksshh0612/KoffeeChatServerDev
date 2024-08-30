@@ -23,12 +23,13 @@ public class ModifyCommunityPostRequest {
     }
 
     public ModifyVoteServiceRequest toVoteServiceRequest() {
-        if (this.modifyVoteRequest == null) return null;
+        if (this.modifyVoteRequest == null) {
+            return null;
+        }
 
         return ModifyVoteServiceRequest.builder()
                 .items(this.modifyVoteRequest.getItems())
                 .build();
-
 
     }
 }
