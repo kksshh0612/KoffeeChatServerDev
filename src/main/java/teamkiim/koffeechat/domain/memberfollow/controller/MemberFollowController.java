@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.memberfollow.dto.MemberFollowListResponse;
-import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.domain.memberfollow.service.MemberFollowService;
+import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.util.List;
@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/member-follow")
+@Tag(name = "팔로우 API")
 public class MemberFollowController {
 
     private final MemberFollowService memberFollowService;
@@ -35,26 +36,9 @@ public class MemberFollowController {
     }
 
     /**
-     * 본인의 follower list 확인
+     * follower list 확인
      */
-    @Auth(role={})
-    @GetMapping("/follower-list")
-    @MemberFollowApiDocument.FollowerList
-    public ResponseEntity<?> followerList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                          HttpServletRequest request) {
-
-        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        List<MemberFollowListResponse> memberFollowListResponseList =
-                memberFollowService.findFollowerList(null, loginMemberId, page, size);
-
-        return ResponseEntity.ok(memberFollowListResponseList);
-    }
-
-    /**
-     * 타회원의 follower list 확인
-     */
-    @Auth(role={})
+    @Auth(role = {})
     @GetMapping("/follower-list/{memberId}")
     @MemberFollowApiDocument.FollowerList
     public ResponseEntity<?> followerList(@PathVariable("memberId") Long memberId,
@@ -70,26 +54,9 @@ public class MemberFollowController {
     }
 
     /**
-     * 본인의 following list 확인
+     * following list 확인
      */
-    @Auth(role={})
-    @GetMapping("/following-list")
-    @MemberFollowApiDocument.FollowingList
-    public ResponseEntity<?> followingList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                           HttpServletRequest request) {
-
-        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        List<MemberFollowListResponse> memberFollowListResponseList =
-                memberFollowService.findFollowingList(null, loginMemberId, page, size);
-
-        return ResponseEntity.ok(memberFollowListResponseList);
-    }
-
-    /**
-     * 타회원의 following list 확인
-     */
-    @Auth(role={})
+    @Auth(role = {})
     @GetMapping("/following-list/{memberId}")
     @MemberFollowApiDocument.FollowingList
     public ResponseEntity<?> followingList(@PathVariable("memberId") Long memberId,
