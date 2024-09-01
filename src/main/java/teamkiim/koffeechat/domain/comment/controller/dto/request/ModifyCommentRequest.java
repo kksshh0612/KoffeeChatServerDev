@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.comment.dto.request.ModifyCommentServiceRequest;
 
-import java.time.LocalDateTime;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +20,7 @@ public class ModifyCommentRequest {
     @NotBlank(message = "댓글을 작성해주세요.")
     private String content;
 
-    public ModifyCommentServiceRequest toServiceRequest(){
+    public ModifyCommentServiceRequest toServiceRequest() {
         return ModifyCommentServiceRequest.builder()
                 .id(this.id)
                 .content(this.content)

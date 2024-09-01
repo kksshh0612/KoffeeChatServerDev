@@ -13,22 +13,14 @@ import teamkiim.koffeechat.domain.vote.domain.VoteItem;
 public class VoteItemResponse {
 
     private Long voteItemId;                    //투표 항목 pk
-    private String voteItem;                    //투표 항목
-    private Long voteCount;                     //투표 횟수
+    private String voteItemText;                    //투표 항목
+    private long voteCount;                     //투표 횟수
 
     public static VoteItemResponse of(VoteItem voteItem, boolean isMemberVoted) {
-        if (isMemberVoted) {  // 로그인한 사용자가 투표한 경우 : 투표 결과 보여줌
-            return VoteItemResponse.builder()
-                    .voteItemId(voteItem.getId())
-                    .voteItem(voteItem.getItemText())
-                    .voteCount(voteItem.getVoteCount())
-                    .build();
-        } else {              // 투표 안 한 경우 : 투표 결과 숨김
-            return VoteItemResponse.builder()
-                    .voteItemId(voteItem.getId())
-                    .voteItem(voteItem.getItemText())
-                    .voteCount(0L)
-                    .build();
-        }
+        return VoteItemResponse.builder()
+                .voteItemId(voteItem.getId())
+                .voteItemText(voteItem.getItemText())
+                .voteCount(isMemberVoted ? voteItem.getVoteCount() : 0)
+                .build();
     }
 }

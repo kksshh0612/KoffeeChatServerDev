@@ -10,12 +10,12 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
 import teamkiim.koffeechat.domain.auth.dto.TokenDto;
+import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
-import teamkiim.koffeechat.domain.member.domain.Member;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +34,8 @@ public class Authenticator {
 
     /**
      * HttpServletRequest 객체에서 JWT 토큰을 이용하여 인증을 진행하고 유효한 토큰을 리턴
-     * @param request HttpServletRequest
+     *
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @return accessToken
      */
@@ -44,20 +45,23 @@ public class Authenticator {
 
         String validAccessToken = null;
 
-        if(accessToken == null){
+        if (accessToken == null) {
             String refreshToken = cookieProvider.getRefreshToken(request);
 
-            if(!jwtTokenProvider.validateRefreshToken(refreshToken)) throw new CustomException(ErrorCode.UNAUTHORIZED);
+            if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED);
+            }
 
             validAccessToken = jwtTokenProvider.createAccessTokenFromRefreshToken(refreshToken);
 
             cookieProvider.setCookie("Authorization", validAccessToken, false, response);
 
-        }
-        else{
+        } else {
             validAccessToken = jwtTokenProvider.validateAccessToken(accessToken, request);
 
-            if(validAccessToken == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+            if (validAccessToken == null) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED);
+            }
         }
 
         return validAccessToken;
@@ -65,7 +69,8 @@ public class Authenticator {
 
     /**
      * ServerHttpRequest 객체에서 JWT 토큰을 이용하여 인증을 진행하고 유효한 토큰을 리턴
-     * @param request ServerHttpRequest
+     *
+     * @param request  ServerHttpRequest
      * @param response ServerHttpResponse
      * @return accessToken
      */
@@ -77,20 +82,23 @@ public class Authenticator {
 
         String validAccessToken = null;
 
-        if(accessToken == null){
+        if (accessToken == null) {
             String refreshToken = cookieProvider.getRefreshToken(httpServletRequest);
 
-            if(!jwtTokenProvider.validateRefreshToken(refreshToken)) throw new CustomException(ErrorCode.UNAUTHORIZED);
+            if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED);
+            }
 
             validAccessToken = jwtTokenProvider.createAccessTokenFromRefreshToken(refreshToken);
 
             cookieProvider.setCookie("Authorization", validAccessToken, false, response);
 
-        }
-        else{
+        } else {
             validAccessToken = jwtTokenProvider.validateAccessToken(accessToken, httpServletRequest);
 
-            if(validAccessToken == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+            if (validAccessToken == null) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED);
+            }
         }
 
         return validAccessToken;
@@ -98,6 +106,7 @@ public class Authenticator {
 
     /**
      * 회원 정보로 JWT 토큰을 생성하여 HttpServletResponse 객체에 set
+     *
      * @param member Domain Member
      */
     public TokenDto authenticate(Member member) {
@@ -116,7 +125,8 @@ public class Authenticator {
 
     /**
      * accessToken, refreshToken을 만료시킴
-     * @param request HttpServletRequest
+     *
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      */
     public void invalidate(HttpServletRequest request, HttpServletResponse response) {
@@ -124,10 +134,10 @@ public class Authenticator {
         String accessToken = cookieProvider.getAccessToken(request);
         String refreshToken = cookieProvider.getRefreshToken(request);
 
-        if(accessToken != null){
+        if (accessToken != null) {
             jwtTokenProvider.invalidateAccessToken(accessToken);
         }
-        if(refreshToken != null){
+        if (refreshToken != null) {
             jwtTokenProvider.invalidateRefreshToken(refreshToken);
         }
 
@@ -137,10 +147,11 @@ public class Authenticator {
 
     /**
      * 인증이 완료된 유효한 accessToken에서 memberId를 추출
+     *
      * @param validAccessToken
      * @return memberId(PK)
      */
-    public Long getMemberIdFromValidAccessToken(String validAccessToken){
+    public Long getMemberIdFromValidAccessToken(String validAccessToken) {
 
         return jwtTokenProvider.getMemberPK(jwtTokenProvider.getTokenClaims(validAccessToken));
     }

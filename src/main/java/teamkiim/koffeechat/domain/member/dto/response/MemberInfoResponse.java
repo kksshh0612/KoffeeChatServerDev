@@ -21,14 +21,14 @@ public class MemberInfoResponse {
     private String nickname;
     private MemberRole memberRole;
     List<SkillCategory> interestSkillCategoryList;
-    private Long followerCount;
-    private Long followingCount;
+    private long followerCount;
+    private long followingCount;
     private Boolean isLoginMember;
     private Boolean isFollowingMember;
     private String profileImagePath;
     private String profileImageName;
 
-    public static MemberInfoResponse of(Member member, boolean isLoginMember, Boolean isFollowingMember){
+    public static MemberInfoResponse of(Member member, boolean isLoginMember, Boolean isFollowingMember) {
 
         return MemberInfoResponse.builder()
                 .memberId(member.getId())

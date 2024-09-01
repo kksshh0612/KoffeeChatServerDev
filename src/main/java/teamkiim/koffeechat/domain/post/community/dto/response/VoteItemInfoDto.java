@@ -14,7 +14,7 @@ public class VoteItemInfoDto {
 
     private Long id;
     private String itemText;
-    private Long voteCount;
+    private long voteCount;
 
     public static VoteItemInfoDto of(VoteItem voteItem) {
         return VoteItemInfoDto.builder()

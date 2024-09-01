@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
@@ -35,7 +36,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.saveInitDevPost(memberId);
+        Long postId = devPostService.saveInitDevPost(memberId);
+
+        return ResponseEntity.ok(postId);
     }
 
     /**
@@ -46,7 +49,9 @@ public class DevPostController {
     @DevPostApiDocument.CancelPostApiDoc
     public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
 
-        return devPostService.cancelWriteDevPost(postId);
+        devPostService.cancelWriteDevPost(postId);
+
+        return ResponseEntity.ok("게시글 작성 취소 완료");
     }
 
     /**
@@ -59,20 +64,24 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
+        DevPostResponse response = devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
+
+        return ResponseEntity.ok(response);
     }
 
     /**
      * 개발 게시글 목록 조회
      */
     @GetMapping("/list")
-    @DevPostApiDocument.ShowListApiDoc
-    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                      @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
+    @DevPostApiDocument.GetDevPostList
+    public ResponseEntity<?> getDevPostList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                            @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
 
         log.info("/dev-post/list 진입");
 
-        return devPostService.findDevPostList(page, size, childSkillCategoryList);
+        List<DevPostListResponse> responseList = devPostService.getDevPostList(page, size, childSkillCategoryList);
+
+        return ResponseEntity.ok(responseList);
     }
 
     /**
@@ -85,9 +94,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        DevPostResponse postResponse = devPostService.findPost(postId, memberId, request);
+        DevPostResponse response = devPostService.findPost(postId, memberId, request);
 
-        return ResponseEntity.ok(postResponse);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -100,7 +109,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
+        DevPostResponse response = devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
+
+        return ResponseEntity.ok(response);
     }
 
 }
