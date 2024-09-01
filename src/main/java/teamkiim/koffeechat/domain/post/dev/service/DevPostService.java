@@ -4,19 +4,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
-import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
-import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
 import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceRequest;
@@ -28,6 +25,7 @@ import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +42,6 @@ public class DevPostService {
     private final FileService fileService;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
-    private final MemberFollowRepository memberFollowRepository;
     private final NotificationService notificationService;
     private final PostService postService;
 
@@ -55,7 +52,7 @@ public class DevPostService {
      * @return Long 게시글 PK
      */
     @Transactional
-    public ResponseEntity<?> saveInitDevPost(Long memberId) {
+    public Long saveInitDevPost(Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -67,7 +64,7 @@ public class DevPostService {
 
         DevPost saveDevPost = devPostRepository.save(devPost);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(saveDevPost.getId());
+        return saveDevPost.getId();
     }
 
     /**
@@ -77,7 +74,7 @@ public class DevPostService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> cancelWriteDevPost(Long postId) {
+    public void cancelWriteDevPost(Long postId) {
 
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -85,8 +82,6 @@ public class DevPostService {
         fileService.deleteImageFiles(devPost);
 
         devPostRepository.delete(devPost);
-
-        return ResponseEntity.ok("게시글 삭제 완료");
     }
 
     /**
@@ -96,7 +91,7 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public ResponseEntity<?> saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
+    public DevPostResponse saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -104,21 +99,18 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(saveDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if (!devPost.isEditing()) {
+            throw new CustomException(ErrorCode.POST_ALREADY_EXIST);
+        }
+
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
                 saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
-        //팔로워들에게 알림 발송
-        List<Long> followerList = memberFollowRepository.findFollowerIdListByFollowing(member);
-        String notiTitle = member.getNickname() + "님의 새 글";
-        String notiUrl = String.format("/dev-post?postId=%d", devPost.getId());
-        followerList.forEach(followerId ->
-                notificationService.createNotification(CreateNotificationRequest
-                        .of(member, notiTitle, devPost.getTitle(), notiUrl, NotificationType.POST), followerId)
-        );
+        notificationService.createPostNotification(member, devPost, PostCategory.DEV);  //팔로워들에게 알림 발송
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, false, false, true));
+        return DevPostResponse.of(devPost, new ArrayList<>(), false, false, true);
     }
 
     /**
@@ -128,22 +120,14 @@ public class DevPostService {
      * @param size 페이지 당 조회할 데이터 수
      * @return List<DevPostListResponse>
      */
-    public ResponseEntity<?> findDevPostList(int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
+    public List<DevPostListResponse> getDevPostList(int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        List<DevPost> devPostList;
+        List<DevPost> devPostList = childSkillCategoryList == null ?
+                devPostRepository.findAllCompletePostBySkillCategory(pageRequest).getContent() : devPostRepository.findAllCompletePostBySkillCategory(childSkillCategoryList, pageRequest).getContent();
 
-        if (childSkillCategoryList == null) {
-            devPostList = devPostRepository.findAllCompletePostBySkillCategory(pageRequest).getContent();
-        } else {
-            devPostList = devPostRepository.findAllCompletePostBySkillCategory(childSkillCategoryList, pageRequest).getContent();
-        }
-
-        List<DevPostListResponse> devPostListResponseList = devPostList.stream()
-                .map(DevPostListResponse::of).collect(Collectors.toList());
-
-        return ResponseEntity.ok(devPostListResponseList);
+        return devPostList.stream().map(DevPostListResponse::of).toList();
     }
 
     /**
@@ -161,15 +145,23 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if (devPost.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
+                .map(comment -> CommentInfoDto.of(comment, memberId)).toList();
+
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
         boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
 
-        if (!isMemberWritten) {  //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
+        //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
+        if (!isMemberWritten) {
             postService.viewPost(devPost, request);
         }
 
-        return DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
@@ -179,7 +171,7 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public ResponseEntity<?> modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
+    public DevPostResponse modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -187,12 +179,19 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if (devPost.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
                 modifyDevPostServiceRequest.combineSkillCategory());
+
+        List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
+                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, true));
+        return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, true);
     }
 }

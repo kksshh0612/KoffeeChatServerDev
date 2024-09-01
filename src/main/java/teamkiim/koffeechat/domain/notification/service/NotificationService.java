@@ -9,12 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
+import teamkiim.koffeechat.domain.notification.domain.NotificationType;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationResponse;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
-import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationListResponse;
-import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationResponse;
+import teamkiim.koffeechat.domain.post.common.domain.Post;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
@@ -34,6 +38,7 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
+    private final MemberFollowRepository memberFollowRepository;
 
     /**
      * 로그인한 회원과 서버의 SSE 연결 생성
@@ -43,7 +48,7 @@ public class NotificationService {
      */
     public SseEmitter connectNotification(Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);   //연결 유지를 위한 적절한 타임 아웃 설정 필요
@@ -65,23 +70,60 @@ public class NotificationService {
 
         //연결 후 첫 메시지 전송 : 503 에러 방지
         String eventId = memberId + "_" + System.currentTimeMillis();
-        sendNotification(emitterId, sseEmitter, eventId, member.getNickname() + " SSE connected");
+        sendNotification(emitterId, sseEmitter, eventId, "connected");
 
         return sseEmitter;
     }
 
     /**
-     * 알림 생성
-     *
-     * @param createNotificationRequest 알림 내용을 담은 DTO
-     * @param memberId                  알림을 받는 회원 pk
+     * 글 알림 생성
      */
-    public void createNotification(CreateNotificationRequest createNotificationRequest, Long memberId) {
-        Member receiver = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    public void createPostNotification(Member writer, Post post, PostCategory postType) {
+
+        List<Member> followerList = memberFollowRepository.findFollowerListByFollowing(writer);
+
+        String notiTitle = writer.getNickname();
+
+        String postTypeString = postType.equals(PostCategory.DEV) ? "dev-post" : "community-post";
+        String notiUrl = "/" + postTypeString + "?postId=" + post.getId();
+
+        followerList.forEach(follower ->
+                createNotification(CreateNotificationRequest.of(writer, notiTitle, post.getTitle(), notiUrl, NotificationType.POST), follower)
+        );
+    }
+
+    /**
+     * 댓글 알림 생성
+     */
+    public void createCommentNotification(Post post, PostCategory postType, Member sender, String content) {
+
+        Member receiver = post.getMember();
+        String notiTitle = sender.getNickname() + "님이 " + post.getTitle() + "글에 댓글을 남겼습니다.";
+        String postTypeString = postType.equals(PostCategory.DEV) ? "dev-post" : "community-post";
+        String notiUrl = "/" + postTypeString + "?postId=" + post.getId();
+
+        createNotification(CreateNotificationRequest.of(sender, notiTitle, content, notiUrl, NotificationType.COMMENT), receiver);
+    }
+
+    /**
+     * 팔로우 알림 생성
+     */
+    public void createFollowNotification(Member follower, Member following) {
+
+        Member receiver = following;
+        String notiTitle = follower.getNickname();
+        String notiUrl = "/member/profile?profileMemberId=" + follower.getId();  //팔로우 건 회원의 프로필 링크
+
+        createNotification(CreateNotificationRequest.of(follower, notiTitle, null, notiUrl, NotificationType.FOLLOW), receiver);
+    }
+
+    /**
+     * 알림 생성
+     */
+    private void createNotification(CreateNotificationRequest createNotificationRequest, Member receiver) {
 
         String eventId = receiver.getId() + "_" + System.currentTimeMillis();   //eventId 생성
-        Notification savedNotification = notificationRepository.save(new Notification(createNotificationRequest, receiver, eventId));
+        Notification savedNotification = notificationRepository.save(createNotificationRequest.toEntity(eventId, receiver));
 
         receiver.addUnreadNotifications();  //읽지 않은 알림 개수 +1
 
@@ -136,7 +178,7 @@ public class NotificationService {
      * @param memberId 로그인 한 회원
      * @return List<NotificationListResponse>
      */
-    public List<NotificationListResponse> list(Long memberId, int page, int size) {
+    public List<NotificationListResponse> getNotificationList(Long memberId, int page, int size) {
         memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -154,7 +196,7 @@ public class NotificationService {
      * @Return 읽지 않은 알림 개수
      */
     @Transactional
-    public long readUpdate(Long memberId, Long notiId) {
+    public long updateIsRead(Long memberId, Long notiId) {
         Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         Notification notification = notificationRepository.findByIdAndReceiverId(notiId, memberId)
@@ -176,13 +218,15 @@ public class NotificationService {
      * @Return 읽지 않은 알림 개수
      */
     @Transactional
-    public long delete(Long memberId, Long notiId) {
+    public long deleteNotification(Long memberId, Long notiId) {
         Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         Notification notification = notificationRepository.findByIdAndReceiverId(notiId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
-        if (!notification.isRead()) receiver.removeUnreadNotifications();  // 읽지 않은 알림 개수 -1
+        if (!notification.isRead()) {
+            receiver.removeUnreadNotifications();  // 읽지 않은 알림 개수 -1
+        }
         notificationRepository.delete(notification);
 
         return receiver.getUnreadNotifications();

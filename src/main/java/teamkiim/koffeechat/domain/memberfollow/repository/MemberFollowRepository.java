@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.memberfollow.domain.MemberFollow;
 
@@ -19,8 +20,12 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
     Page<MemberFollow> findByFollowing(Member following, Pageable pageable);
 
     Page<MemberFollow> findByFollower(Member follower, Pageable pageable);
+
     @Query("SELECT f.follower.id FROM MemberFollow f WHERE f.following = :member")
     List<Long> findFollowerIdListByFollowing(Member member);
+
+    @Query("SELECT f.follower FROM MemberFollow f WHERE f.following = :member")
+    List<Member> findFollowerListByFollowing(@Param("member") Member member);
 
     //팔로잉 리스트 조회
     @Query("SELECT f.following FROM MemberFollow f WHERE f.follower = :member")
