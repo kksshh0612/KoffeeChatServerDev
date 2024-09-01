@@ -7,13 +7,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.vote.controller.dto.SaveVoteRecordRequest;
+import teamkiim.koffeechat.domain.vote.dto.SaveVoteRecordServiceDto;
 import teamkiim.koffeechat.domain.vote.service.VoteService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/vote")
-@Tag(name="투표 API")
+@Tag(name = "투표 API")
 public class VoteController {
 
     private final VoteService voteService;
@@ -25,10 +28,12 @@ public class VoteController {
     @PostMapping("/{postId}/votes")
     @VoteApiDocument.SaveVoteRecord
     public ResponseEntity<?> saveVoteRecord(@PathVariable("postId") Long postId,
-                                            @Valid @RequestBody SaveVoteRecordRequest saveVoteRecordRequest, HttpServletRequest request){
+                                            @Valid @RequestBody SaveVoteRecordRequest saveVoteRecordRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return voteService.saveVoteRecord(postId, saveVoteRecordRequest, memberId);
+        List<SaveVoteRecordServiceDto> responses = voteService.saveVoteRecord(postId, saveVoteRecordRequest, memberId);
+
+        return ResponseEntity.ok(responses);
     }
 }

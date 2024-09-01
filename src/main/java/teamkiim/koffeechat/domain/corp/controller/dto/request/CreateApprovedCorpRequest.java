@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.corp.controller.admindto.request;
+package teamkiim.koffeechat.domain.corp.controller.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "회사 도메인 등록 Request")
-public class EnrollCorpDomainRequest {
+public class CreateApprovedCorpRequest {
 
     @Schema(description = "회사 이름", example = "커피챗")
     @NotBlank(message = "회사 이름을 입력해주세요")

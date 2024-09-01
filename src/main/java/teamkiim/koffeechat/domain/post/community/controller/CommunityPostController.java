@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
-import teamkiim.koffeechat.domain.vote.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +33,9 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return communityPostService.saveInitCommunityPost(memberId);
+        Long postId = communityPostService.saveInitCommunityPost(memberId);
+
+        return ResponseEntity.ok(postId);
     }
 
     /**
@@ -42,7 +46,9 @@ public class CommunityPostController {
     @CommunityPostApiDocument.CancelPostApiDoc
     public ResponseEntity<?> CancelPostApiDoc(@PathVariable("postId") Long postId) {
 
-        return communityPostService.cancelWriteCommunityPost(postId);
+        communityPostService.cancelWriteCommunityPost(postId);
+
+        return ResponseEntity.ok("게시글 작성 취소 완료");
     }
 
     /**
@@ -56,12 +62,9 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        //커뮤니티 게시물에 투표 기능이 포함된 경우/ 아닌 경우
-        SaveVoteServiceRequest saveVoteServiceRequest = saveCommunityPostRequest.getSaveVoteRequest() != null ?
-                saveCommunityPostRequest.toVoteServiceRequest() : null;
+        CommunityPostResponse response = communityPostService.saveCommunityPost(saveCommunityPostRequest, memberId);
 
-        return communityPostService.saveCommunityPost(saveCommunityPostRequest.toPostServiceRequest(), saveVoteServiceRequest, memberId);
-
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -71,7 +74,9 @@ public class CommunityPostController {
     @CommunityPostApiDocument.ShowListApiDoc
     public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size) {
 
-        return communityPostService.findCommunityPostList(page, size);
+        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(page, size);
+
+        return ResponseEntity.ok(responses);
     }
 
     /**
@@ -100,7 +105,9 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
+        CommunityPostResponse response = communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
+
+        return ResponseEntity.ok(response);
     }
 
 }
