@@ -12,13 +12,14 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
-import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationListResponse;
-import teamkiim.koffeechat.domain.notification.service.dto.response.NotificationResponse;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationResponse;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,12 +77,14 @@ public class NotificationService {
      * @param createNotificationRequest 알림 내용을 담은 DTO
      * @param memberId                  알림을 받는 회원 pk
      */
-    public void createNotification(CreateNotificationRequest createNotificationRequest, Long memberId) {
+    public void createNotification(CreateNotificationRequest createNotificationRequest, Long memberId, LocalDateTime currTime) {
+
         Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         String eventId = receiver.getId() + "_" + System.currentTimeMillis();   //eventId 생성
-        Notification savedNotification = notificationRepository.save(new Notification(createNotificationRequest, receiver, eventId));
+
+        Notification savedNotification = notificationRepository.save(createNotificationRequest.toEntity(receiver, eventId, currTime));
 
         receiver.addUnreadNotifications();  //읽지 않은 알림 개수 +1
 
