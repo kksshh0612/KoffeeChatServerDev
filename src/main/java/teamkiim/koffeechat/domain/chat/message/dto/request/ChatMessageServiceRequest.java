@@ -1,11 +1,11 @@
-package teamkiim.koffeechat.domain.chat.dto.request;
+package teamkiim.koffeechat.domain.chat.message.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.domain.chat.domain.message.ChatMessage;
-import teamkiim.koffeechat.domain.chat.domain.message.MessageType;
+import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
+import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
 
 import java.time.LocalDateTime;
 
@@ -16,18 +16,14 @@ import java.time.LocalDateTime;
 public class ChatMessageServiceRequest {
 
     private MessageType messageType;
-    private Long chatRoomId;
-    private Long senderId;
-    private String senderNickname;
     private String content;
     private LocalDateTime createdTime;
 
-    public ChatMessage toEntity(){
+    public ChatMessage toEntity(Long chatRoomId, Long senderId){
         return ChatMessage.builder()
-                .chatRoomId(this.chatRoomId)
+                .chatRoomId(chatRoomId)
                 .content(this.content)
-                .senderId(this.senderId)
-                .senderNickname(this.senderNickname)
+                .senderId(senderId)
                 .messageType(this.messageType)
                 .createdTime(this.createdTime)
                 .build();
