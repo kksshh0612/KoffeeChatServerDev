@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentServiceRequest {
 
+    private Long postId;
     private String content;
     private LocalDateTime currDateTime;
 
