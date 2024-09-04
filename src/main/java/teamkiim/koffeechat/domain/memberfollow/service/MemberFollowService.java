@@ -3,8 +3,6 @@ package teamkiim.koffeechat.domain.memberfollow.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.member.domain.Member;
@@ -12,14 +10,12 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.domain.MemberFollow;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.memberfollow.dto.MemberFollowListResponse;
-import teamkiim.koffeechat.domain.memberfollow.service.dto.MemberFollowListResponse;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,12 +55,12 @@ public class MemberFollowService {
         } else {
             follow(follower, following);                        // 팔로우//회원이 구독한 회원의 팔로워 수 ++
 
-            //팔로우 알림
-            Long receiverId = followingMember.getId();
-            String notiTitle = member.getNickname() + "님이 팔로우 신청을 했습니다.";
-            String notiUrl = String.format("/member/profile?profileMemberId=%d", member.getId());
-            notificationService.createNotification(CreateNotificationRequest
-                    .of(member, notiTitle, null, notiUrl, NotificationType.FOLLOW), receiverId);
+//            //팔로우 알림
+//            Long receiverId = following.getId();
+//            String notiTitle = follower.getNickname() + "님이 팔로우 신청을 했습니다.";
+//            String notiUrl = String.format("/member/profile?profileMemberId=%d", follower.getId());
+//            notificationService.createNotification(CreateNotificationRequest
+//                    .of(follower, notiTitle, null, notiUrl, NotificationType.FOLLOW), receiverId);
 
         }
     }
