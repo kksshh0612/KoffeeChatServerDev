@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.chat.domain.room;
+package teamkiim.koffeechat.domain.chat.room.common.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,11 +20,8 @@ public abstract class ChatRoom {
 
     private String name;                                            // 채팅방 이름
 
-    private boolean activeStatus;                                   // 활성화 상태
-
-    protected ChatRoom(ChatRoomType chatRoomType, String name, boolean activeStatus) {
+    protected ChatRoom(ChatRoomType chatRoomType, String name) {
         this.chatRoomType = chatRoomType;
         this.name = name;
-        this.activeStatus = activeStatus;
     }
 }
