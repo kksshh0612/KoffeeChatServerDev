@@ -2,7 +2,6 @@ package teamkiim.koffeechat.domain.post.community.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,7 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.domain.post.community.dto.request.ModifyCommunityPostServiceRequest;
@@ -127,13 +126,13 @@ public class CommunityPostService {
         Vote savedVote = voteService.saveVote(saveVoteServiceRequest, saveCommunityPostServiceRequest.getId());  //투표 저장
 
         //팔로워들에게 알림 발송
-        List<Long> followerList = memberFollowRepository.findFollowerIdListByFollowing(member);
-        String notiTitle = member.getNickname() + "님의 새 글";
-        String notiUrl = String.format("/community-post?postId=%d", communityPost.getId());
-        followerList.forEach(followerId ->
-                notificationService.createNotification(CreateNotificationRequest
-                        .of(member, notiTitle, communityPost.getTitle(), notiUrl, NotificationType.POST), followerId)
-        );
+//        List<Long> followerList = memberFollowRepository.findFollowerIdListByFollowing(member);
+//        String notiTitle = member.getNickname() + "님의 새 글";
+//        String notiUrl = String.format("/community-post?postId=%d", communityPost.getId());
+//        followerList.forEach(followerId ->
+//                notificationService.createNotification(CreateNotificationRequest
+//                        .of(member, notiTitle, communityPost.getTitle(), notiUrl, NotificationType.POST), followerId)
+//        );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostResponse.of(communityPost, commentInfoDtoList, VoteResponse.of(savedVote, true), false, false, true));
 
