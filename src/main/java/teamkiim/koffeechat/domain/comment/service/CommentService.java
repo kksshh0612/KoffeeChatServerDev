@@ -3,8 +3,6 @@ package teamkiim.koffeechat.domain.comment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.comment.controller.dto.response.MyCommentListResponse;
@@ -16,7 +14,7 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
@@ -37,18 +35,19 @@ public class CommentService {
     /**
      * 댓글 저장
      *
-     * @param postId                연관된 게시물 PK
      * @param commentServiceRequest 댓글 저장 dto
      * @param memberId              댓글 작성자 PK
      * @return ok
      */
     @Transactional
-    public void saveComment(Long postId, CommentServiceRequest commentServiceRequest, Long memberId){
+    public void saveComment(CommentServiceRequest commentServiceRequest, Long memberId){
+
+        System.out.println("여기 ::  " + commentServiceRequest.getPostId());
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(commentServiceRequest.getPostId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         Comment comment = commentServiceRequest.toEntity(post, member);
@@ -58,12 +57,12 @@ public class CommentService {
         // 양방향 연관관계 주입
         post.addComment(savedComment);               // 양방향 연관관계 주입
 
-        //글쓴이에게 댓글 알림 전송
-        Long writerId = post.getMember().getId();
-        String notiTitle = member.getNickname() + "님이 " + post.getTitle() + "글에 댓글을 남겼습니다.";
-        String notiUrl = String.format("/community-post?postId=%d", post.getId());
-        notificationService.createNotification(CreateNotificationRequest
-                .of(member, notiTitle, savedComment.getContent(), notiUrl, NotificationType.COMMENT), writerId);
+//        //글쓴이에게 댓글 알림 전송
+//        Long writerId = post.getMember().getId();
+//        String notiTitle = member.getNickname() + "님이 " + post.getTitle() + "글에 댓글을 남겼습니다.";
+//        String notiUrl = String.format("/community-post?postId=%d", post.getId());
+//        notificationService.createNotification(CreateNotificationRequest
+//                .of(member, notiTitle, savedComment.getContent(), notiUrl, NotificationType.COMMENT), writerId);
 
     }
 
