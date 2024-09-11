@@ -94,7 +94,7 @@ public @interface CorpAdminApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface List {
+    @interface FindCorpDomainList {
     }
 
     /**

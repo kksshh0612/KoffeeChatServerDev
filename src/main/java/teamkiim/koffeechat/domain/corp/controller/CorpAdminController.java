@@ -65,8 +65,8 @@ public class CorpAdminController {
      */
     @Auth(role = ADMIN)
     @GetMapping("/list")
-    @CorpAdminApiDocument.List
-    public ResponseEntity<?> list() {
+    @CorpAdminApiDocument.FindCorpDomainList
+    public ResponseEntity<?> findCorpDomainList() {
         List<AdminCorpDomainListResponse> responseList = corpAdminService.list();
 
         return ResponseEntity.ok().body(responseList);

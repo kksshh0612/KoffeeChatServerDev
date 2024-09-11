@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.corp.service.dto.response.CorpDomainResponse;
+import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.*;
 import teamkiim.koffeechat.domain.corp.service.CorpService;
-import teamkiim.koffeechat.domain.corp.service.dto.response.CorpDomainResponse;
+import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.util.List;
