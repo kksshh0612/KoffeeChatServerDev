@@ -27,16 +27,15 @@ public class CommentController {
      * 댓글 작성
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/{postId}/comments")
+    @PostMapping("")
     @CommentApiDocument.SaveCommentApiDoc
-    public ResponseEntity<?> saveComment(@PathVariable("postId") Long postId,
-                                         @Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request) {
+    public ResponseEntity<?> saveComment(@Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime currDateTime = LocalDateTime.now();
 
-        commentService.saveComment(postId, commentRequest.toServiceRequest(currDateTime), memberId);
+        commentService.saveComment(commentRequest.toServiceRequest(currDateTime), memberId);
 
         return ResponseEntity.ok("댓글 저장 완료");
     }
@@ -45,7 +44,7 @@ public class CommentController {
      * 댓글 수정
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/modify")
+    @PatchMapping("")
     @CommentApiDocument.ModifyCommentApiDoc
     public ResponseEntity<?> modifyComment(@Valid @RequestBody ModifyCommentRequest modifyCommentRequest) {
 
@@ -58,7 +57,7 @@ public class CommentController {
      * 댓글 삭제
      */
     @AuthenticatedMemberPrincipal
-    @DeleteMapping("/delete/{commentId}")
+    @DeleteMapping("/{commentId}")
     @CommentApiDocument.DeleteCommentApiDoc
     public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId) {
 
