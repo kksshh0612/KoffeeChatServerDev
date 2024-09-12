@@ -193,7 +193,7 @@ public class NotificationService {
      * @Return 읽지 않은 알림 개수
      */
     @Transactional
-    public long updateIsRead(Long memberId, Long notiId) {
+    public long updateNotificationIsRead(Long memberId, Long notiId) {
         Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         Notification notification = notificationRepository.findByIdAndReceiverId(notiId, memberId)
@@ -227,6 +227,36 @@ public class NotificationService {
         notificationRepository.delete(notification);
 
         return receiver.getUnreadNotifications();
+    }
+
+    /**
+     * 알림 전체 삭제
+     *
+     * @param memberId member pk
+     * @Return 읽지 않은 알림 개수 : 0
+     */
+    @Transactional
+    public void deleteAllNotifications(Long memberId) {
+        Member receiver = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        notificationRepository.deleteAllByReceiver(receiver);     //알림 전체 삭제
+        receiver.updateUnreadNotificationCount(0); //읽지 않은 알림 개수 업데이트
+    }
+
+    /**
+     * 알림 전체 읽기
+     *
+     * @param memberId member pk
+     * @Return 읽지 않은 알림 개수 : 0
+     */
+    @Transactional
+    public void updateAllNotificationsIsRead(Long memberId) {
+        Member receiver = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        notificationRepository.updateAllIsRead(receiver);     //알림 전체 읽음
+        receiver.updateUnreadNotificationCount(0); //읽지 않은 알림 개수 업데이트
     }
 
 }

@@ -54,8 +54,8 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/")
-    @NotificationApiDocument.ShowListApiDoc
-    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    @NotificationApiDocument.ShowNotificationListApiDoc
+    public ResponseEntity<?> showNotificationList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -69,12 +69,12 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{notificationId}")
-    @NotificationApiDocument.UpdateIsReadApiDoc
-    public ResponseEntity<?> updateIsRead(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    @NotificationApiDocument.UpdateNotificationIsReadApiDoc
+    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        long count = notificationService.updateIsRead(memberId, notiId);
+        long count = notificationService.updateNotificationIsRead(memberId, notiId);
 
         return ResponseEntity.ok(count);
     }
@@ -84,8 +84,8 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{notificationId}")
-    @NotificationApiDocument.DeleteApiDoc
-    public ResponseEntity<?> delete(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    @NotificationApiDocument.DeleteNotificationApiDoc
+    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -95,13 +95,30 @@ public class NotificationController {
     }
 
     /**
-     * 알림 전체 읽음 처리
+     * 알림 전체 삭제
      */
     @AuthenticatedMemberPrincipal
     @DeleteMapping("")
-    public ResponseEntity<?> readAll(HttpServletRequest request) {
+    @NotificationApiDocument.DeleteAllNotificationsApiDoc
+    public ResponseEntity<?> deleteAllNotifications(HttpServletRequest request) {
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok("전체 읽음 완료");
+        notificationService.deleteAllNotifications(memberId);
+
+        return ResponseEntity.ok("전체 알림 삭제 완료");
+    }
+
+    /**
+     * 알림 전체 읽음
+     */
+    @AuthenticatedMemberPrincipal
+    @PatchMapping("")
+    @NotificationApiDocument.ReadAllNotificationsApiDoc
+    public ResponseEntity<?> readAllNotifications(HttpServletRequest request) {
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        notificationService.updateAllNotificationsIsRead(memberId);
+
+        return ResponseEntity.ok("전체 알림 읽음 완료");
     }
 }
