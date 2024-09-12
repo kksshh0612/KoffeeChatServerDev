@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import teamkiim.koffeechat.domain.email.dto.request.EmailAuthRequest;
 import teamkiim.koffeechat.domain.member.controller.dto.EnrollSkillCategoryRequest;
 import teamkiim.koffeechat.domain.member.controller.dto.ModifyProfileRequest;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
@@ -14,7 +15,6 @@ import teamkiim.koffeechat.domain.member.service.MemberService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -99,6 +99,36 @@ public class MemberController {
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         return ResponseEntity.ok(memberService.findMemberInfo(profileMemberId, memberId));
+    }
+
+    /**
+     * 사용자 이메일 변경 시 인증 메시지 전송
+     */
+    @AuthenticatedMemberPrincipal
+    @PostMapping("/new-email")
+    @MemberApiDocument.SendNewAuthEmail
+    public ResponseEntity<?> sendNewAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        memberService.sendNewAuthEmail(memberId, emailAuthRequest.getEmail());
+
+        return ResponseEntity.ok("이메일 전송 완료, 이메일을 확인해 주세요.");
+    }
+
+    /**
+     * 이메일 변경
+     */
+    @AuthenticatedMemberPrincipal
+    @PatchMapping("/new-email")
+    @MemberApiDocument.UpdateNewEmailApiDoc
+    public ResponseEntity<?> updateNewAuthEmail(@RequestBody String email, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        memberService.updateNewAuthEmail(memberId, email);
+
+        return ResponseEntity.ok("이메일 변경되었습니다.");
     }
 
 
