@@ -38,7 +38,8 @@ public @interface MemberFollowApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FollowMember { }
+    @interface FollowMember {
+    }
 
     /**
      * 사용자 follower list 확인
@@ -54,7 +55,8 @@ public @interface MemberFollowApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FollowerList { }
+    @interface FollowerList {
+    }
 
     /**
      * 사용자 following list 확인
@@ -70,5 +72,23 @@ public @interface MemberFollowApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FollowingList { }
+    @interface FollowingList {
+    }
+
+    /**
+     * 사용자 follower list 검색
+     */
+    @Operation(summary = "회원 팔로워 목록에서 사용자 검색", description = "사용자가 팔로워 목록에서 검색을 한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "팔로워 리스트에서 검색 결과를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = MemberFollowListResponse.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface SearchFollowerList {
+    }
 }

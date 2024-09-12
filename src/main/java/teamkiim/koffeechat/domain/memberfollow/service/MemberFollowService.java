@@ -149,4 +149,29 @@ public class MemberFollowService {
                     return MemberFollowListResponse.of(following, isFollowedByLoginMember, isLoginMember);
                 }).toList();
     }
+
+    /**
+     * 팔로워 리스트에서 사용자 검색
+     *
+     * @param memberId      팔로워 리스트 주인
+     * @param loginMemberId 로그인 사용자
+     * @param page          페이지 번호
+     * @param size          페이지 당 조회할 데이터 수
+     * @return List<MemberFollowListResponse>
+     */
+    public List<MemberFollowListResponse> searchFollowers(Long memberId, Long loginMemberId, String keyword, int page, int size) {
+
+        MemberAndLoginMemberDto dto = findMemberInfo(memberId, loginMemberId);
+        Member member = dto.getMember();  // 팔로워 리스트 주인
+        Member loginMember = dto.getLoginMember();
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        List<Member> searchList = memberFollowRepository.findByFollowingAndKeyword(member, keyword, pageRequest).stream().toList();
+
+        return searchList.stream().map(follower -> {
+            boolean isFollowedByLoginMember = (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
+            boolean isLoginMember = follower.equals(loginMember);
+            return MemberFollowListResponse.of(follower, isFollowedByLoginMember, isLoginMember);
+        }).toList();
+    }
 }
