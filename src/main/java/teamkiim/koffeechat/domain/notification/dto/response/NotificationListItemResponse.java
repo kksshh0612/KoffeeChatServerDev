@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class NotificationListResponse {
+public class NotificationListItemResponse {
 
     private Long id;
 
@@ -22,7 +22,7 @@ public class NotificationListResponse {
 
     private String content;
 
-    private String url;
+    private Long url;
 
     private boolean isRead;
 
@@ -30,8 +30,8 @@ public class NotificationListResponse {
 
     private LocalDateTime createdTime;
 
-    public static NotificationListResponse of(Notification notification) {
-        return NotificationListResponse.builder()
+    public static NotificationListItemResponse of(Notification notification) {
+        return NotificationListItemResponse.builder()
                 .id(notification.getId())
                 .senderId(notification.getSender().getId())
                 .senderNickname(notification.getSender().getNickname())

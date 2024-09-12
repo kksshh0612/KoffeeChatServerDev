@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.notification.controller.dto.NotificationApiDocument;
-import teamkiim.koffeechat.domain.notification.dto.response.NotificationListResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -59,7 +59,7 @@ public class NotificationController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<NotificationListResponse> response = notificationService.getNotificationList(memberId, page, size);
+        List<NotificationListItemResponse> response = notificationService.getNotificationList(memberId, page, size);
 
         return ResponseEntity.ok(response);
     }
@@ -92,5 +92,16 @@ public class NotificationController {
         long count = notificationService.deleteNotification(memberId, notiId);
 
         return ResponseEntity.ok(count);
+    }
+
+    /**
+     * 알림 전체 읽음 처리
+     */
+    @AuthenticatedMemberPrincipal
+    @DeleteMapping("")
+    public ResponseEntity<?> readAll(HttpServletRequest request) {
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok("전체 읽음 완료");
     }
 }

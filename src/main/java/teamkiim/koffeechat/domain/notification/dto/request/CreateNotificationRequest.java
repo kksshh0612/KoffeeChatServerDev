@@ -20,18 +20,18 @@ public class CreateNotificationRequest {
 
     private String content;
 
-    private String url;
+    private Long url;
 
     private boolean isRead;
 
     private NotificationType notificationType;
 
-    public static CreateNotificationRequest of(Member sender, String title, String content, String url, NotificationType notificationType) {
+    public static CreateNotificationRequest of(Member sender, String title, String content, Long pk, NotificationType notificationType) {
         return CreateNotificationRequest.builder()
                 .sender(sender)
                 .title(title)
                 .content(content)
-                .url(url)
+                .url(pk)
                 .isRead(false)
                 .notificationType(notificationType)
                 .build();

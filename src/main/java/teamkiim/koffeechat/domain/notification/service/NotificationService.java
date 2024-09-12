@@ -13,7 +13,7 @@ import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
-import teamkiim.koffeechat.domain.notification.dto.response.NotificationListResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 import teamkiim.koffeechat.domain.notification.dto.response.NotificationResponse;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
@@ -25,7 +25,6 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -85,7 +84,7 @@ public class NotificationService {
         String notiTitle = writer.getNickname();
 
         String postTypeString = postType.equals(PostCategory.DEV) ? "dev-post" : "community-post";
-        String notiUrl = "/" + postTypeString + "?postId=" + post.getId();
+        Long notiUrl = post.getId();
 
         followerList.forEach(follower ->
                 createNotification(CreateNotificationRequest.of(writer, notiTitle, post.getTitle(), notiUrl, NotificationType.POST), follower)
@@ -95,14 +94,13 @@ public class NotificationService {
     /**
      * 댓글 알림 생성
      */
-    public void createCommentNotification(Post post, PostCategory postType, Member sender, String content) {
+    public void createCommentNotification(Post post, PostCategory postType, Member sender, Long commentId, String content) {
 
         Member receiver = post.getMember();
-        String notiTitle = sender.getNickname() + "님이 " + post.getTitle() + "글에 댓글을 남겼습니다.";
         String postTypeString = postType.equals(PostCategory.DEV) ? "dev-post" : "community-post";
-        String notiUrl = "/" + postTypeString + "?postId=" + post.getId();
+        Long notiUrl = post.getId();
 
-        createNotification(CreateNotificationRequest.of(sender, notiTitle, content, notiUrl, NotificationType.COMMENT), receiver);
+        createNotification(CreateNotificationRequest.of(sender, post.getTitle(), content, notiUrl, NotificationType.COMMENT), receiver);
     }
 
     /**
@@ -112,7 +110,7 @@ public class NotificationService {
 
         Member receiver = following;
         String notiTitle = follower.getNickname();
-        String notiUrl = "/member/profile?profileMemberId=" + follower.getId();  //팔로우 건 회원의 프로필 링크
+        Long notiUrl = follower.getId();  //팔로우 건 회원의 프로필 링크
 
         createNotification(CreateNotificationRequest.of(follower, notiTitle, null, notiUrl, NotificationType.FOLLOW), receiver);
     }
@@ -178,14 +176,13 @@ public class NotificationService {
      * @param memberId 로그인 한 회원
      * @return List<NotificationListResponse>
      */
-    public List<NotificationListResponse> getNotificationList(Long memberId, int page, int size) {
+    public List<NotificationListItemResponse> getNotificationList(Long memberId, int page, int size) {
         memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         List<Notification> notificationList = notificationRepository.findAllByReceiverId(memberId, pageRequest).getContent();
-
-        return notificationList.stream().map(NotificationListResponse::of).collect(Collectors.toList());
+        return notificationList.stream().map(NotificationListItemResponse::of).toList();
     }
 
     /**
@@ -221,7 +218,7 @@ public class NotificationService {
     public long deleteNotification(Long memberId, Long notiId) {
         Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        Notification notification = notificationRepository.findByIdAndReceiverId(notiId, memberId)
+        Notification notification = notificationRepository.findById(notiId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.isRead()) {

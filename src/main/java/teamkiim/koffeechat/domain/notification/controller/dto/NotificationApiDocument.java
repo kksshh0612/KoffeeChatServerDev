@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.notification.dto.response.NotificationListResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -65,7 +65,7 @@ public @interface NotificationApiDocument {
     @Operation(summary = "알림 목록 조회", description = "사용자의 알림 목록을 조회해온다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "알림 리스트를 반환한다.",
-                    content = @Content(schema = @Schema(implementation = NotificationListResponse.class))),
+                    content = @Content(schema = @Schema(implementation = NotificationListItemResponse.class))),
             @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "로그인하지 않은 사용자가 알림 목록을 조회하려고 하는 경우",
                             value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}

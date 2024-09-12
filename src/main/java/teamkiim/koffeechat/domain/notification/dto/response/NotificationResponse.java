@@ -23,7 +23,7 @@ public class NotificationResponse {
 
     private String content;
 
-    private String url;
+    private Long url;
 
     private boolean isRead;
 
