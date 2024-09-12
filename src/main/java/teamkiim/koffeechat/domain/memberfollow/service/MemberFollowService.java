@@ -151,7 +151,7 @@ public class MemberFollowService {
     }
 
     /**
-     * 팔로워 리스트에서 사용자 검색
+     * 팔로워 / 팔로잉 리스트에서 사용자 검색
      *
      * @param memberId      팔로워 리스트 주인
      * @param loginMemberId 로그인 사용자
@@ -167,6 +167,21 @@ public class MemberFollowService {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         List<Member> searchList = memberFollowRepository.findByFollowingAndKeyword(member, keyword, pageRequest).stream().toList();
+
+        return searchList.stream().map(follower -> {
+            boolean isFollowedByLoginMember = (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
+            boolean isLoginMember = follower.equals(loginMember);
+            return MemberFollowListResponse.of(follower, isFollowedByLoginMember, isLoginMember);
+        }).toList();
+    }
+
+    public List<MemberFollowListResponse> searchFollowings(Long memberId, Long loginMemberId, String keyword, int page, int size) {
+        MemberAndLoginMemberDto dto = findMemberInfo(memberId, loginMemberId);
+        Member member = dto.getMember();  // 팔로잉 리스트 주인
+        Member loginMember = dto.getLoginMember();
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        List<Member> searchList = memberFollowRepository.findByFollowerAndKeyword(member, keyword, pageRequest).stream().toList();
 
         return searchList.stream().map(follower -> {
             boolean isFollowedByLoginMember = (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);

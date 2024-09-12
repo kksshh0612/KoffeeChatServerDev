@@ -28,4 +28,7 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
     //member의 팔로워 리스트에서 검색
     @Query("SELECT f.follower FROM MemberFollow f WHERE f.following= :member AND (f.follower.email LIKE %:keyword% OR f.follower.nickname LIKE %:keyword%)")
     Page<Member> findByFollowingAndKeyword(@Param("member") Member member, @Param("keyword") String keyword, PageRequest pageRequest);
+
+    @Query("SELECT f.following FROM MemberFollow f WHERE f.follower= :member AND (f.following.email LIKE %:keyword% OR f.following.nickname LIKE %:keyword%)")
+    Page<Member> findByFollowerAndKeyword(@Param("member") Member member, @Param("keyword") String keyword, PageRequest pageRequest);
 }

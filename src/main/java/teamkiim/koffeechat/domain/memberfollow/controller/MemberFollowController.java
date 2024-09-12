@@ -88,4 +88,21 @@ public class MemberFollowController {
         return ResponseEntity.ok(memberFollowListResponseList);
     }
 
+    /**
+     * following 목록에서 사용자 검색
+     */
+    @Auth(role = {})
+    @GetMapping("/followings/{memberId}/search")
+    @MemberFollowApiDocument.SearchFollowingList
+    public ResponseEntity<?> searchFollowings(@PathVariable("memberId") Long memberId,
+                                              @RequestParam("keyword") String keyword, @RequestParam("page") int page, @RequestParam("size") int size,
+                                              HttpServletRequest request) {
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.searchFollowings(memberId, loginMemberId, keyword, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
 }
