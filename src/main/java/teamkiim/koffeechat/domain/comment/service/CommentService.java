@@ -55,7 +55,7 @@ public class CommentService {
         post.addComment(savedComment);               // 양방향 연관관계 주입
 
         //글쓴이에게 댓글 알림 전송
-        notificationService.createCommentNotification(post, post.getPostCategory(), member, savedComment.getId(), savedComment.getContent());
+        notificationService.createCommentNotification(post, member, comment);
 
     }
 

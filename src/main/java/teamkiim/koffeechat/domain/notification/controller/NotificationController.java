@@ -53,7 +53,7 @@ public class NotificationController {
      * 알림 목록 조회
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/")
+    @GetMapping("")
     @NotificationApiDocument.ShowNotificationListApiDoc
     public ResponseEntity<?> showNotificationList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
