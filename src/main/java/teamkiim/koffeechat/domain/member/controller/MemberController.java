@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/member")
-@Tag(name = "회원 API")
 public class MemberController {
 
     private final MemberService memberService;

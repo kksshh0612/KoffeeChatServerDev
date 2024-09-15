@@ -11,6 +11,7 @@ import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -90,7 +91,7 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public DevPostResponse saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
+    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -98,18 +99,12 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(saveDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (!devPost.isEditing()) {
-            throw new CustomException(ErrorCode.POST_ALREADY_EXIST);
-        }
-
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getSkillCategoryList());
+                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
         notificationService.createPostNotification(member, devPost);  //팔로워들에게 알림 발송
-
-        return DevPostResponse.of(devPost, new ArrayList<>(), false, false, true);
     }
 
     /**
@@ -144,12 +139,8 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (devPost.isEditing()) {
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
-        }
-
         List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
-                .map(comment -> CommentInfoDto.of(comment, memberId)).toList();
+                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
@@ -170,7 +161,7 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public DevPostResponse modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
+    public void modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -178,19 +169,10 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if (devPost.isEditing()) {
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
-        }
-
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
-                modifyDevPostServiceRequest.combineSkillCategory());
-
-        List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
-                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
+                modifyDevPostServiceRequest.getVisualData(), modifyDevPostServiceRequest.combineSkillCategory());
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
-
-        return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, true);
     }
 }

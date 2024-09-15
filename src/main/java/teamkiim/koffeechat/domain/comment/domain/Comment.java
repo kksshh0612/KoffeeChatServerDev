@@ -29,6 +29,7 @@ public class Comment extends BaseEntity {
     @JoinColumn(name="member_id")
     private Member member;                              // 작성자
 
+    @Column(columnDefinition = "TEXT")
     private String content;                             // 댓글 내용
 
     @Builder

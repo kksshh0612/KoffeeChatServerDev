@@ -45,16 +45,17 @@ class CommentServiceTest extends TestSupport {
     @Test
     void saveComment() {
         // given
+        Member saveMember = memberRepository.save(createMember("test@test.com"));
+        CommunityPost savePost = postRepository.save(createPost(saveMember));
+
         CommentServiceRequest commentServiceRequest = CommentServiceRequest.builder()
+                .postId(savePost.getId())
                 .content("testContent")
                 .currDateTime(LocalDateTime.of(2024, 06, 12, 11, 0, 0))
                 .build();
 
-        Member saveMember = memberRepository.save(createMember("test@test.com"));
-        CommunityPost savePost = postRepository.save(createPost(saveMember));
-
         // when
-        commentService.saveComment(savePost.getId(), commentServiceRequest, saveMember.getId());
+        commentService.saveComment(commentServiceRequest, saveMember.getId());
 
         // then
         Post post = postRepository.findByIdWithComments(savePost.getId()).get();
@@ -72,18 +73,19 @@ class CommentServiceTest extends TestSupport {
     @Test
     void saveCommentWithNoExistingMember() {
         // given
+        Member saveMember = memberRepository.save(createMember("test@test.com"));
+        CommunityPost savePost = postRepository.save(createPost(saveMember));
+
         CommentServiceRequest commentServiceRequest = CommentServiceRequest.builder()
+                .postId(savePost.getId())
                 .content("testContent")
                 .currDateTime(LocalDateTime.of(2024, 06, 12, 11, 0, 0))
                 .build();
 
-        Member saveMember = memberRepository.save(createMember("test@test.com"));
-        CommunityPost savePost = postRepository.save(createPost(saveMember));
-
         Long notExistMemberId = Long.MAX_VALUE; // 존재하지 않는 ID
 
         // when & then
-        Assertions.assertThatThrownBy(() -> commentService.saveComment(savePost.getId(), commentServiceRequest, notExistMemberId))
+        Assertions.assertThatThrownBy(() -> commentService.saveComment(commentServiceRequest, notExistMemberId))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBER_NOT_FOUND);
     }
@@ -92,17 +94,20 @@ class CommentServiceTest extends TestSupport {
     @Test
     void saveCommentWithNoExistingPost() {
         // given
+        Long notExistPostId = Long.MAX_VALUE; // 존재하지 않는 ID
+
         CommentServiceRequest commentServiceRequest = CommentServiceRequest.builder()
+                .postId(notExistPostId)
                 .content("testContent")
                 .currDateTime(LocalDateTime.of(2024, 06, 12, 11, 0, 0))
                 .build();
 
         Member saveMember = memberRepository.save(createMember("test@test.com"));
 
-        Long notExistPostId = Long.MAX_VALUE; // 존재하지 않는 ID
+
 
         // when & then
-        Assertions.assertThatThrownBy(() -> commentService.saveComment(notExistPostId, commentServiceRequest, saveMember.getId()))
+        Assertions.assertThatThrownBy(() -> commentService.saveComment(commentServiceRequest, saveMember.getId()))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.POST_NOT_FOUND);
     }

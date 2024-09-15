@@ -11,7 +11,9 @@ import teamkiim.koffeechat.domain.memberfollow.domain.MemberFollow;
 import teamkiim.koffeechat.domain.memberfollow.dto.MemberAndLoginMemberDto;
 import teamkiim.koffeechat.domain.memberfollow.dto.MemberFollowListResponse;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
+import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 

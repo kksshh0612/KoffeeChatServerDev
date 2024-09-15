@@ -28,6 +28,9 @@ public class ModifyDevPostRequest {
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 
+    @Schema(description = "시각 자료", example="")      // 필수 아님
+    private String visualData;
+
     @Schema(description = "개발 게시글 연관 카테고리")
     private List<ParentSkillCategory> parentSkillCategoryList;
     private List<ChildSkillCategory> childSkillCategoryList;
@@ -37,6 +40,7 @@ public class ModifyDevPostRequest {
                 .id(this.id)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
+                .visualData(this.visualData)
                 .parentSkillCategoryList(this.parentSkillCategoryList)
                 .childSkillCategoryList(this.childSkillCategoryList)
                 .build();

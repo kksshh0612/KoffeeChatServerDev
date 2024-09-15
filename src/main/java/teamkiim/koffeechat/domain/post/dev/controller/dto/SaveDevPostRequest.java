@@ -27,6 +27,9 @@ public class SaveDevPostRequest {
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 
+    @Schema(description = "시각 자료", example="")      // 필수 아님
+    private String visualData;
+
     @Schema(description = "게시글 관련 기술 카테고리")
     private List<SkillCategory> skillCategoryList;
     private List<Long> fileIdList;
@@ -36,6 +39,7 @@ public class SaveDevPostRequest {
                 .id(this.id)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
+                .visualData(this.visualData)
                 .skillCategoryList(this.skillCategoryList)
                 .fileIdList(this.fileIdList)
                 .build();

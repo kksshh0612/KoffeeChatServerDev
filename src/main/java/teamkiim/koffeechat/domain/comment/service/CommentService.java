@@ -13,6 +13,7 @@ import teamkiim.koffeechat.domain.comment.repository.CommentRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
@@ -33,18 +34,19 @@ public class CommentService {
     /**
      * 댓글 저장
      *
-     * @param postId                연관된 게시물 PK
      * @param commentServiceRequest 댓글 저장 dto
      * @param memberId              댓글 작성자 PK
      * @return ok
      */
     @Transactional
-    public void saveComment(Long postId, CommentServiceRequest commentServiceRequest, Long memberId) {
+    public void saveComment(CommentServiceRequest commentServiceRequest, Long memberId){
+
+        System.out.println("여기 ::  " + commentServiceRequest.getPostId());
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(commentServiceRequest.getPostId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         Comment comment = commentServiceRequest.toEntity(post, member);

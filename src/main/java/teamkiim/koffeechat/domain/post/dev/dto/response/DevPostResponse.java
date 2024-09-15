@@ -27,15 +27,17 @@ public class DevPostResponse {
     private boolean isMemberWritten;
     private boolean isMemberLiked;
     private boolean isMemberBookmarked;
-    private long viewCount;
-    private long likeCount;
-    private long bookmarkCount;
+    private Long viewCount;
+    private Long likeCount;
+    private Long bookmarkCount;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
+    private String visualData;
     private List<SkillCategory> skillCategoryList;
     private List<CommentInfoDto> commentInfoDtoList;
 
-    public static DevPostResponse of(DevPost devPost, List<CommentInfoDto> commentInfoDtoList, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
+    public static DevPostResponse of(DevPost devPost, List<CommentInfoDto> commentInfoDtoList,
+                                     boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return DevPostResponse.builder()
                 .id(devPost.getId())
@@ -53,6 +55,7 @@ public class DevPostResponse {
                 .bookmarkCount(devPost.getBookmarkCount())
                 .createdTime(devPost.getCreatedTime())
                 .modifiedTime(devPost.getModifiedTime())
+                .visualData(devPost.getVisualData())
                 .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))
                 .commentInfoDtoList(commentInfoDtoList)
                 .build();
