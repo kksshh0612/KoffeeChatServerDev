@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.global.web.interceptor;
+package teamkiim.koffeechat.domain.chat.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,10 @@ public class WebSocketConnectionHandshakeInterceptor implements HandshakeInterce
         String validAccessToken = authenticator.verify(request, response);
         Long memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);
 
-        attributes.put("memberId", memberId);
+        log.info("MemberPK : " + memberId + " 의 web socket HandShake started");
+
+        // 클라이언트마다 웹소켓 세션 생성
+        attributes.put("memberId", memberId);       // WebSocketSession의 attributes에 저장
 
         return true;
     }
@@ -35,5 +38,6 @@ public class WebSocketConnectionHandshakeInterceptor implements HandshakeInterce
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                WebSocketHandler wsHandler, Exception exception) {
 
+        log.info("web socket HandShake end");
     }
 }
