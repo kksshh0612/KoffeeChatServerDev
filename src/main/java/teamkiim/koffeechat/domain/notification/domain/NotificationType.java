@@ -7,11 +7,12 @@ public enum NotificationType {
 
     POST("글"),
     COMMENT("댓글"),
-    FOLLOW("팔로우");
+    FOLLOW("팔로우"),
+    CHATTING("채팅");
 
     private String type;
 
     NotificationType(String type) {
-        this.type=type;
+        this.type = type;
     }
 }
