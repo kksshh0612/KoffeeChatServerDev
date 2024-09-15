@@ -47,7 +47,6 @@ public class CommunityPostService {
     private final BookmarkService bookmarkService;
     private final VoteRepository voteRepository;
     private final VoteService voteService;
-    private final MemberFollowRepository memberFollowRepository;
     private final NotificationService notificationService;
     private final PostService postService;
 

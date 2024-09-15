@@ -107,13 +107,11 @@ public class TechChatRoomService {
 
         ChatMessageServiceRequest messageRequest = ChatMessageServiceRequest.builder()
                 .messageType(MessageType.EXIT)
-                .chatRoomId(techChatRoom.getId())
-                .senderId(member.getId())
                 .content(member.getNickname() + " 님이 퇴장했습니다.")
                 .createdTime(exitTechChatRoomServiceRequest.getExitTime())
                 .build();
 
-        chatMessageService.save(messageRequest);
-        chatMessageService.send(messageRequest);
+        chatMessageService.save(messageRequest, techChatRoom.getId(), member.getId());
+        chatMessageService.send(messageRequest, techChatRoom.getId(), member.getId());
     }
 }
