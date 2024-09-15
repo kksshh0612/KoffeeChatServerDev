@@ -36,7 +36,24 @@ public class MemberFollowController {
     }
 
     /**
-     * follower list 확인
+     * 본인 follower list 확인
+     */
+    @Auth(role = {})
+    @GetMapping("/follower-list")
+    @MemberFollowApiDocument.MyFollowerList
+    public ResponseEntity<?> myFollowerList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                            HttpServletRequest request) {
+
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.findMyFollowerList(loginMemberId, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 다른 사용자의 follower list 확인
      */
     @Auth(role = {})
     @GetMapping("/follower-list/{memberId}")
@@ -54,7 +71,22 @@ public class MemberFollowController {
     }
 
     /**
-     * following list 확인
+     * 본인 following list 확인
+     */
+    @Auth(role = {})
+    @GetMapping("/following-list")
+    @MemberFollowApiDocument.MyFollowingList
+    public ResponseEntity<?> myFollowingList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList = memberFollowService.findMyFollowingList(loginMemberId, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 다른 사용자의 following list 확인
      */
     @Auth(role = {})
     @GetMapping("/following-list/{memberId}")
