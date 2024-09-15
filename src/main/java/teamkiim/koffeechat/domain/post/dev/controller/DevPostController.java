@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
@@ -35,7 +36,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.saveInitDevPost(memberId);
+        Long postId = devPostService.saveInitDevPost(memberId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(postId);
     }
 
     /**
@@ -46,7 +49,9 @@ public class DevPostController {
     @DevPostApiDocument.CancelPostApiDoc
     public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
 
-        return devPostService.cancelWriteDevPost(postId);
+        devPostService.cancelWriteDevPost(postId);
+
+        return ResponseEntity.ok("게시글 삭제 완료");
     }
 
     /**
@@ -59,7 +64,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
+        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
+
+        return ResponseEntity.ok("게시글 작성 완료");
     }
 
     /**
@@ -69,8 +76,6 @@ public class DevPostController {
     @DevPostApiDocument.ShowListApiDoc
     public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size,
                                       @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
-
-        log.info("/dev-post/list 진입");
 
         return devPostService.findDevPostList(page, size, childSkillCategoryList);
     }
@@ -100,7 +105,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
+        devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
+
+        return ResponseEntity.ok("게시물 수정 완료");
     }
 
 }

@@ -65,8 +65,7 @@ public @interface DevPostApiDocument {
      */
     @Operation(summary = "게시글 저장", description = "사용자가 개발 게시판에 게시글을 저장한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "생성된 게시글을 반환한다.",
-                    content = @Content(schema = @Schema(implementation = DevPostResponse.class))),
+            @ApiResponse(responseCode = "200", description = "생성된 게시글을 반환한다."),
             @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "로그인하지 않은 사용자가 게시글을 쓰려고 하는 경우",
                             value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}

@@ -15,8 +15,9 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.service.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
 import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceRequest;
@@ -44,8 +45,6 @@ public class DevPostService {
     private final FileService fileService;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
-    private final MemberFollowRepository memberFollowRepository;
-    private final NotificationService notificationService;
     private final PostService postService;
 
     /**
@@ -55,7 +54,7 @@ public class DevPostService {
      * @return Long 게시글 PK
      */
     @Transactional
-    public ResponseEntity<?> saveInitDevPost(Long memberId) {
+    public Long saveInitDevPost(Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -67,7 +66,7 @@ public class DevPostService {
 
         DevPost saveDevPost = devPostRepository.save(devPost);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(saveDevPost.getId());
+        return saveDevPost.getId();
     }
 
     /**
@@ -77,7 +76,7 @@ public class DevPostService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> cancelWriteDevPost(Long postId) {
+    public void cancelWriteDevPost(Long postId) {
 
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -85,8 +84,6 @@ public class DevPostService {
         fileService.deleteImageFiles(devPost);
 
         devPostRepository.delete(devPost);
-
-        return ResponseEntity.ok("게시글 삭제 완료");
     }
 
     /**
@@ -96,7 +93,7 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public ResponseEntity<?> saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
+    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -105,20 +102,9 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getSkillCategoryList());
+                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
-
-        //팔로워들에게 알림 발송
-        List<Long> followerList = memberFollowRepository.findFollowerIdListByFollowing(member);
-        String notiTitle = member.getNickname() + "님의 새 글";
-        String notiUrl = String.format("/dev-post?postId=%d", devPost.getId());
-        followerList.forEach(followerId ->
-                notificationService.createNotification(CreateNotificationRequest
-                        .of(member, notiTitle, devPost.getTitle(), notiUrl, NotificationType.POST), followerId)
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, false, false, true));
     }
 
     /**
@@ -161,6 +147,9 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
+                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
+
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
         boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
@@ -169,7 +158,7 @@ public class DevPostService {
             postService.viewPost(devPost, request);
         }
 
-        return DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
@@ -179,7 +168,7 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public ResponseEntity<?> modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
+    public void modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -188,11 +177,9 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
-                modifyDevPostServiceRequest.combineSkillCategory());
+                modifyDevPostServiceRequest.getVisualData(), modifyDevPostServiceRequest.combineSkillCategory());
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(DevPostResponse.of(devPost, isMemberLiked, isMemberBookmarked, true));
     }
 }
