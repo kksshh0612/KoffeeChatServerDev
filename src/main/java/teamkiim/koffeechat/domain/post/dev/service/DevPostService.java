@@ -105,8 +105,6 @@ public class DevPostService {
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
         notificationService.createPostNotification(member, devPost);  //팔로워들에게 알림 발송
-
-        return DevPostResponse.of(devPost, new ArrayList<>(), false, false, true);
     }
 
     /**
