@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
-import teamkiim.koffeechat.domain.corp.service.dto.response.CorpDomainResponse;
+import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
 import teamkiim.koffeechat.domain.email.domain.EmailAuth;
 import teamkiim.koffeechat.domain.email.repository.EmailAuthRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;

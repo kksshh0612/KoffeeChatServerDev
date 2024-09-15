@@ -1,8 +1,6 @@
-package teamkiim.koffeechat.domain.corp.service.dto.response;
+package teamkiim.koffeechat.domain.corp.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
