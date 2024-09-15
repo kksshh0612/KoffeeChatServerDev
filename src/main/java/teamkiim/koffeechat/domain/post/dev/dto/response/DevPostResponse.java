@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 
@@ -31,9 +32,12 @@ public class DevPostResponse {
     private Long bookmarkCount;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
+    private String visualData;
     private List<SkillCategory> skillCategoryList;
+    private List<CommentInfoDto> commentInfoDtoList;
 
-    public static DevPostResponse of(DevPost devPost, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
+    public static DevPostResponse of(DevPost devPost, List<CommentInfoDto> commentInfoDtoList,
+                                     boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return DevPostResponse.builder()
                 .id(devPost.getId())
@@ -51,7 +55,9 @@ public class DevPostResponse {
                 .bookmarkCount(devPost.getBookmarkCount())
                 .createdTime(devPost.getCreatedTime())
                 .modifiedTime(devPost.getModifiedTime())
+                .visualData(devPost.getVisualData())
                 .skillCategoryList(List.copyOf(devPost.getSkillCategoryList()))
+                .commentInfoDtoList(commentInfoDtoList)
                 .build();
     }
 }
