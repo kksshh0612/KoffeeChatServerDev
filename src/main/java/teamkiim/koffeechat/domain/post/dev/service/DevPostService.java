@@ -4,16 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
-import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
-import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
@@ -29,6 +25,7 @@ import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +42,7 @@ public class DevPostService {
     private final FileService fileService;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
+    private final NotificationService notificationService;
     private final PostService postService;
 
     /**
@@ -105,6 +103,10 @@ public class DevPostService {
                 saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList());
 
         fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
+
+        notificationService.createPostNotification(member, devPost);  //팔로워들에게 알림 발송
+
+        return DevPostResponse.of(devPost, new ArrayList<>(), false, false, true);
     }
 
     /**
@@ -114,22 +116,14 @@ public class DevPostService {
      * @param size 페이지 당 조회할 데이터 수
      * @return List<DevPostListResponse>
      */
-    public ResponseEntity<?> findDevPostList(int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
+    public List<DevPostListResponse> getDevPostList(int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        List<DevPost> devPostList;
+        List<DevPost> devPostList = childSkillCategoryList == null ?
+                devPostRepository.findAllCompletePostBySkillCategory(pageRequest).getContent() : devPostRepository.findAllCompletePostBySkillCategory(childSkillCategoryList, pageRequest).getContent();
 
-        if (childSkillCategoryList == null) {
-            devPostList = devPostRepository.findAllCompletePostBySkillCategory(pageRequest).getContent();
-        } else {
-            devPostList = devPostRepository.findAllCompletePostBySkillCategory(childSkillCategoryList, pageRequest).getContent();
-        }
-
-        List<DevPostListResponse> devPostListResponseList = devPostList.stream()
-                .map(DevPostListResponse::of).collect(Collectors.toList());
-
-        return ResponseEntity.ok(devPostListResponseList);
+        return devPostList.stream().map(DevPostListResponse::of).toList();
     }
 
     /**
@@ -154,7 +148,8 @@ public class DevPostService {
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
         boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
 
-        if (!isMemberWritten) {  //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
+        //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
+        if (!isMemberWritten) {
             postService.viewPost(devPost, request);
         }
 

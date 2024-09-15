@@ -2,7 +2,6 @@ package teamkiim.koffeechat.domain.email.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.email.domain.EmailAuth;
@@ -24,7 +23,6 @@ public class EmailService {
      * 회원가입 시 인증 코드 이메일 전송
      *
      * @param email 전송할 이메일
-     * @return ok
      */
     @Transactional
     public void sendEmailAuthCode(String email) {
@@ -33,13 +31,14 @@ public class EmailService {
 
         emailAuthRepository.save(emailAuth);
         emailSendService.sendEmail(emailAuth);
+
+        log.info("Returning response to client on thread {}", Thread.currentThread().getName());
     }
 
     /**
      * 회원가입 시 이메일 인증
      *
      * @param authCodeCheckServiceRequest 이메일 인증 dto
-     * @return ok
      */
     @Transactional
     public void checkEmailAuthCode(AuthCodeCheckServiceRequest authCodeCheckServiceRequest) {

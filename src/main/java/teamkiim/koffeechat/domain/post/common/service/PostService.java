@@ -4,8 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.domain.Bookmark;
@@ -18,8 +16,6 @@ import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostList
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
-import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
-import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -44,14 +40,12 @@ public class PostService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> softDelete(Long postId) {
+    public void softDelete(Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         post.delete();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(post.getId());
     }
 
     /**
@@ -62,10 +56,14 @@ public class PostService {
      * @return Long -> 게시물 좋아요 수
      */
     @Transactional
-    public ResponseEntity<?> like(Long postId, Long memberId) {
+    public long like(Long postId, Long memberId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.isDeleted() || post.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -78,24 +76,28 @@ public class PostService {
             post.addLike();
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(post.getLikeCount());
+        return post.getLikeCount();
     }
 
     /**
      * 게시물 북마크
      *
-     * @param memberId 회원 PK
      * @param postId   게시물 PK
+     * @param memberId 회원 PK
      * @return Long -> 게시물 북마크 수
      */
     @Transactional
-    public ResponseEntity<?> bookmark(Long memberId, Long postId) {
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    public long bookmark(Long postId, Long memberId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.isDeleted() || post.isEditing()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (bookmarkService.isMemberBookmarked(member, post)) {     // 이미 북마크 했으면
             bookmarkService.cancelBookmark(member, post);
@@ -105,20 +107,8 @@ public class PostService {
             post.addBookmark();
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(post.getBookmarkCount());
+        return post.getBookmarkCount();
     }
-
-//    public Class<? extends Post> postClass(PostCategory postType) {
-//        switch (postType) {
-//            case DEV -> {
-//                return DevPost.class;
-//            }
-//            case COMMUNITY -> {
-//                return CommunityPost.class;
-//            }
-//            default -> throw new IllegalArgumentException("post type이 올바르지 않습니다.");
-//        }
-//    }
 
     /**
      * 로그인한 회원이 북마크한 게시글 목록 조회
@@ -136,11 +126,9 @@ public class PostService {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 북마크한 글부터
 
-//        Class<? extends Post> postTypeClass = postClass(postType);
-        List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndDType(member, postCategory, pageRequest).getContent();
+        List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
 
-        List<Post> bookmarkPostList = bookmarkList.stream()
-                .map(Bookmark::getPost).toList();
+        List<Post> bookmarkPostList = bookmarkList.stream().map(Bookmark::getPost).toList();
 
         return bookmarkPostList.stream().map(BookmarkPostListResponse::of).toList();
 
@@ -162,8 +150,7 @@ public class PostService {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 작성한 글부터
 
-//        Class<? extends Post> postTypeClass = postClass(postType);
-        List<Post> postList = postRepository.findAllByMemberAndDType(member, postCategory, pageRequest).getContent();
+        List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
 
         return postList.stream().map(MyPostListResponse::of).toList();
 
@@ -182,5 +169,4 @@ public class PostService {
             request.getSession().setAttribute(uniqueViewKey, true);
         }
     }
-
 }

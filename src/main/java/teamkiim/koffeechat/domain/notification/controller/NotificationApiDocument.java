@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.notification.controller;
+package teamkiim.koffeechat.domain.notification.controller.dto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.notification.dto.response.NotificationListResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -65,7 +65,7 @@ public @interface NotificationApiDocument {
     @Operation(summary = "알림 목록 조회", description = "사용자의 알림 목록을 조회해온다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "알림 리스트를 반환한다.",
-                    content = @Content(schema = @Schema(implementation = NotificationListResponse.class))),
+                    content = @Content(schema = @Schema(implementation = NotificationListItemResponse.class))),
             @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "로그인하지 않은 사용자가 알림 목록을 조회하려고 하는 경우",
                             value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
@@ -77,7 +77,7 @@ public @interface NotificationApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ShowListApiDoc {
+    @interface ShowNotificationListApiDoc {
     }
 
     /**
@@ -102,7 +102,7 @@ public @interface NotificationApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ReadApiDoc {
+    @interface UpdateNotificationIsReadApiDoc {
     }
 
     /**
@@ -121,12 +121,51 @@ public @interface NotificationApiDocument {
                             value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다.\"}"),
                             @ExampleObject(name = "notificationId에 해당하는 알림이 없는 경우",
                                     value = "{\"code\":404, \"message\":\"해당 알림이 존재하지 않습니다.\"}")}
-
             ))
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface DeleteApiDoc {
+    @interface DeleteNotificationApiDoc {
+    }
+
+    /**
+     * 알림 전체 삭제
+     */
+    @Operation(summary = "알림 전체 삭제", description = "사용자가 알림을 모두 삭제한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "알림 전체 삭제 완료"),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 알림을 삭제하려고 하는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "memberId에 해당하는 회원이 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다.\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface DeleteAllNotificationsApiDoc {
+    }
+
+    /**
+     * 알림 전체 읽음
+     */
+    @Operation(summary = "알림 전체 읽음", description = "사용자가 알림을 모두 읽음 처리 한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "알림 전체 읽음 완료"),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 알림 전체 읽기 하려고 하는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "memberId에 해당하는 회원이 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다.\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface ReadAllNotificationsApiDoc {
     }
 
 }

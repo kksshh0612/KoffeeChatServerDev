@@ -32,7 +32,7 @@ public @interface CorpApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface RequestCorpDomain {
+    @interface CreateWaitingCorp {
     }
 
     /**
@@ -69,7 +69,7 @@ public @interface CorpApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface SendCorpEmail {
+    @interface CreateEmailAuth {
     }
 
     /**
@@ -89,6 +89,6 @@ public @interface CorpApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface CheckCorpCode {
+    @interface CheckEmailAuthCode {
     }
 }

@@ -42,7 +42,8 @@ public @interface MemberApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface SaveProfileImage { }
+    @interface SaveProfileImage {
+    }
 
     /**
      * 관심 기술 카테고리 등록
@@ -62,7 +63,8 @@ public @interface MemberApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface EnrollSkills { }
+    @interface EnrollSkills {
+    }
 
     /**
      * 본인 프로필 조회
@@ -82,12 +84,13 @@ public @interface MemberApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FindProfile { }
+    @interface FindProfile {
+    }
 
     /**
-     * 타회원 프로필 조회
+     * 회원 프로필 조회
      */
-    @Operation(summary = "타회원 프로필 조회", description = "사용자가 타회원의 프로필을 조회한다.")
+    @Operation(summary = "회원 프로필 조회", description = "사용자가 회원의 프로필을 조회한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청한 회원 프로필 정보를 반환한다.",
                     content = @Content(schema = @Schema(implementation = MemberInfoResponse.class))),
@@ -102,7 +105,8 @@ public @interface MemberApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FindMemberProfile { }
+    @interface FindMemberProfile {
+    }
 
     /**
      * 프로필 수정
@@ -117,5 +121,54 @@ public @interface MemberApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ModifyProfile { }
+    @interface ModifyProfile {
+    }
+
+    /**
+     * 사용자 이메일 변경 시 인증 메시지 전송
+     */
+    @Operation(summary = "사용자 이메일 변경 시 인증 메시지 전송", description = "사용자가 새로운 이메일 인증 메시지를 받는다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "새로운 이메일로 인증 메시지를 받는다."),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 이메일을 변경하려고 하는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            )),
+            @ApiResponse(responseCode = "409", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "요청한 이메일과 동일한 이메일이 이미 존재하는 경우",
+                            value = "{\"code\": 409, \"message\": \"이미 사용중인 이메일입니다.\"}")}
+            )),
+            @ApiResponse(responseCode = "500", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "이메일이 정상적으로 전송되지 않은 경우",
+                            value = "{\"code\": 500, \"message\": \"이메일 전송에 실패했습니다. 이메일이 올바른지 확인해주세요.\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface SendNewAuthEmail {
+    }
+
+    /**
+     * 이메일 변경
+     */
+    @Operation(summary = "인증된 이메일로 사용자 이메일을 변경", description = "새로운 인증된 이메일로 사용자 이메일을 변경한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이메일 변경 완료"),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 이메일을 변경하려고 하는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface UpdateNewEmailApiDoc {
+    }
 }

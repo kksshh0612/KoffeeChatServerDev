@@ -14,7 +14,7 @@ public class CorpAuthCodeCheckRequest {
 
     @Schema(description = "회사 이름", example = "커피챗")
     @NotBlank(message = "회사 이름을 입력해주세요.")
-    private String corpName;
+    private String name;
 
     @Schema(description = "회사 이메일", example = "koffeechat@naver.com")
     @NotBlank(message = "회사 이메일을 입력해주세요")

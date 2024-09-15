@@ -25,9 +25,9 @@ public class CommunityPostResponse {
     private boolean isMemberWritten;
     private boolean isMemberLiked;
     private boolean isMemberBookmarked;
-    private Long viewCount;
-    private Long likeCount;
-    private Long bookmarkCount;
+    private long viewCount;
+    private long likeCount;
+    private long bookmarkCount;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
     private List<CommentInfoDto> commentInfoDtoList;

@@ -1,6 +1,5 @@
 package teamkiim.koffeechat.domain.post.community.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,9 +18,9 @@ public class CommunityPostListResponse {
     private Long id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
-    private Long viewCount;                         // 조회수
-    private Long likeCount;                         // 좋아요 수
-    private Long bookmarkCount;                     // 북마크 수
+    private long viewCount;                         // 조회수
+    private long likeCount;                         // 좋아요 수
+    private long bookmarkCount;                     // 북마크 수
     private LocalDateTime createdTime;              // 작성 시간
     private LocalDateTime modifiedTime;             // 수정 시간
     private String nickname;                        // 작성자 닉네임
@@ -31,7 +30,7 @@ public class CommunityPostListResponse {
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
 
-    public static CommunityPostListResponse of(CommunityPost communityPost){
+    public static CommunityPostListResponse of(CommunityPost communityPost) {
 
         CommunityPostListResponse response = CommunityPostListResponse.builder()
                 .id(communityPost.getId())
@@ -49,14 +48,14 @@ public class CommunityPostListResponse {
                 .imageName(null)
                 .build();
 
-        if(!communityPost.getFileList().isEmpty()){
+        if (!communityPost.getFileList().isEmpty()) {
             response.setImageInfo(communityPost.getFileList().get(0));
         }
 
         return response;
     }
 
-    private void setImageInfo(File file){
+    private void setImageInfo(File file) {
 
         this.imagePath = file.getPath();
         this.imageName = file.getName();

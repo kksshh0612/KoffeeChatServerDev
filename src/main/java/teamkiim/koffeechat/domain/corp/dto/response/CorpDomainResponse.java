@@ -21,10 +21,9 @@ public class CorpDomainResponse {
     private String corpEmailDomain;        //회사 이메일 도메인
 
     public static CorpDomainResponse of(Corp corp) {
-        CorpDomainResponse response= CorpDomainResponse.builder()
-                .corpName(corp.getCorpName())
-                .corpEmailDomain(corp.getCorpEmailDomain())
+        return CorpDomainResponse.builder()
+                .corpName(corp.getName())
+                .corpEmailDomain(corp.getEmailDomain())
                 .build();
-        return response;
     }
 }

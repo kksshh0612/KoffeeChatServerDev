@@ -3,6 +3,9 @@ package teamkiim.koffeechat.domain.notification.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 
@@ -19,4 +22,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     int countByReceiverAndIsReadFalse(Member member);
 
+    void deleteAllByReceiver(Member receiver);  //알림 전체 삭제
+
+    @Modifying
+    @Query("UPDATE Notification n SET n.isRead = true WHERE n.isRead = false AND n.receiver = :receiver ")
+    void updateAllIsRead(@Param("receiver") Member receiver);      //알림 전체 읽음
 }

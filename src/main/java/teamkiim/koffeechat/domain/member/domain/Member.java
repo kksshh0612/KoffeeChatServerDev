@@ -1,7 +1,6 @@
 package teamkiim.koffeechat.domain.member.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,8 @@ import java.util.List;
 @Slf4j
 public class Member {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
@@ -85,6 +85,13 @@ public class Member {
         if (skillCategoryList != null) {
             this.interestSkillCategoryList.addAll(skillCategoryList);
         }
+    }
+
+    /**
+     * 이메일 업데이트
+     */
+    public void updateEmail(String email) {
+        this.email = email;
     }
 
     public void enrollProfileImage(String profileImageName) {

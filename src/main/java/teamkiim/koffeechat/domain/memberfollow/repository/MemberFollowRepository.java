@@ -1,6 +1,7 @@
 package teamkiim.koffeechat.domain.memberfollow.repository;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,11 +22,17 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
 
     Page<MemberFollow> findByFollower(Member follower, Pageable pageable);
 
-    @Query("SELECT f.follower.id FROM MemberFollow f WHERE f.following = :member")
-    List<Long> findFollowerIdListByFollowing(@Param("member") Member member);
-
     //팔로잉 리스트 조회
     @Query("SELECT f.following FROM MemberFollow f WHERE f.follower = :member")
     Page<Member> findFollowingsByFollowerId(@Param("member") Member member, Pageable pageable);
 
+    @Query("SELECT f.follower FROM MemberFollow f WHERE f.following = :member")
+    List<Member> findFollowerListByFollowing(@Param("member") Member member);
+
+    //member의 팔로워 리스트에서 검색
+    @Query("SELECT f.follower FROM MemberFollow f WHERE f.following= :member AND (f.follower.email LIKE %:keyword% OR f.follower.nickname LIKE %:keyword%)")
+    Page<Member> findByFollowingAndKeyword(@Param("member") Member member, @Param("keyword") String keyword, PageRequest pageRequest);
+
+    @Query("SELECT f.following FROM MemberFollow f WHERE f.follower= :member AND (f.following.email LIKE %:keyword% OR f.following.nickname LIKE %:keyword%)")
+    Page<Member> findByFollowerAndKeyword(@Param("member") Member member, @Param("keyword") String keyword, PageRequest pageRequest);
 }

@@ -11,16 +11,16 @@ import java.util.Optional;
 
 public interface CorpRepository extends JpaRepository<Corp, Long> {
 
-    Optional<Corp> findByCorpNameAndCorpEmailDomain(String corpName, String corpEmailDomain);
+    Optional<Corp> findByNameAndEmailDomain(String name, String emailDomain);
 
-    List<Corp> findAllByCorpNameContainingIgnoreCaseAndVerified(String corpName, Verified verified);
+    @Query("SELECT c FROM Corp c WHERE c.name LIKE %:name% AND c.verified = :verified")
+    List<Corp> findApprovedCorpByName(@Param("name") String name, @Param("verified") Verified verified);
 
-    List<Corp> findAllByCorpEmailDomainContainingIgnoreCaseAndVerified(String corpDomain, Verified verified);
+    @Query("SELECT c FROM Corp c WHERE c.emailDomain LIKE %:domain% AND c.verified = :verified")
+    List<Corp> findApprovedCorpByDomain(@Param("domain") String emailDomain, @Param("verified") Verified verified);
 
-    Boolean existsByCorpEmailDomainAndVerified(String domain, Verified verified);
+    Optional<Corp> findByEmailDomain(String domain);
 
-    Optional<Corp> findByCorpEmailDomain(String domain);
-
-    @Query("SELECT c FROM Corp c WHERE c.corpName LIKE %:keyword% OR c.corpEmailDomain LIKE %:keyword%")
+    @Query("SELECT c FROM Corp c WHERE c.name LIKE %:keyword% OR c.emailDomain LIKE %:keyword%")
     List<Corp> findByKeyword(@Param("keyword") String keyword);
 }

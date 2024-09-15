@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import teamkiim.koffeechat.domain.file.dto.response.ImagePathResponse;
 import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -28,7 +29,9 @@ public class FileController {
     public ResponseEntity<?> saveImageFile(@RequestPart(value = "file") MultipartFile multipartFile,
                                            @RequestPart(value = "postId") Long postId) {
 
-        return fileService.saveImageFile(multipartFile, postId);
+        ImagePathResponse response = fileService.saveImageFile(multipartFile, postId);
+
+        return ResponseEntity.ok(response);
     }
 
 }

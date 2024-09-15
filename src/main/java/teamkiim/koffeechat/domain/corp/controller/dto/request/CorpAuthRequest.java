@@ -15,7 +15,7 @@ public class CorpAuthRequest {
 
     @Schema(description = "회사 이름", example = "커피챗")
     @NotBlank(message = "회사 이름을 입력해주세요.")
-    private String corpName;
+    private String name;
 
     @Schema(description = "사용자 이메일", example = "koffeechat@naver.com")
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "이메일 형식에 맞지 않습니다.")

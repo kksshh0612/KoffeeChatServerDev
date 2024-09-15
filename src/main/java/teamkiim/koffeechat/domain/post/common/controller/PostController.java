@@ -29,7 +29,9 @@ public class PostController {
     @PostApiDocument.DeletePostApiDoc
     public ResponseEntity<?> delete(@PathVariable("postId") Long postId) {
 
-        return postService.softDelete(postId);
+        postService.softDelete(postId);
+
+        return ResponseEntity.ok("게시글이 휴지통으로 이동했습니다.");
     }
 
     /**
@@ -42,7 +44,9 @@ public class PostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return postService.like(postId, memberId);
+        long likeCount = postService.like(postId, memberId);
+
+        return ResponseEntity.ok(likeCount);
     }
 
     /**
@@ -55,14 +59,16 @@ public class PostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return postService.bookmark(memberId, postId);
+        long bookmarkCount = postService.bookmark(postId, memberId);
+
+        return ResponseEntity.ok(bookmarkCount);
     }
 
     /**
      * 마이페이지 북마크 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/my/bookmark/{postType}")
+    @GetMapping("/bookmark/{postType}")
     @PostApiDocument.BookmarkedPostListApiDoc
     public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType,
                                                     @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
@@ -78,14 +84,14 @@ public class PostController {
      * 마이페이지 내가 쓴 게시글 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/my/{postType}")
+    @GetMapping("/{postType}")
     @PostApiDocument.MyPostListApiDoc
     public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType,
-                                                    @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+                                            @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<MyPostListResponse> myPostListResponseList= postService.findMyPostList(memberId, postType, page, size);
+        List<MyPostListResponse> myPostListResponseList = postService.findMyPostList(memberId, postType, page, size);
 
         return ResponseEntity.ok(myPostListResponseList);
     }

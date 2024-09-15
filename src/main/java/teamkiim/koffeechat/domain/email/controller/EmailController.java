@@ -25,7 +25,7 @@ public class EmailController {
      */
     @PostMapping("/send-auth-code")
     @EmailApiDocument.SendAuthEmail
-    public ResponseEntity<?> sendAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest){
+    public ResponseEntity<?> sendAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest) {
 
         emailService.sendEmailAuthCode(emailAuthRequest.getEmail());
 
@@ -37,7 +37,7 @@ public class EmailController {
      */
     @PostMapping("/check-auth-code")
     @EmailApiDocument.CheckAuthCode
-    public ResponseEntity<?> checkAuthCode(@Valid @RequestBody AuthCodeCheckRequest authCodeCheckRequest){
+    public ResponseEntity<?> checkAuthCode(@Valid @RequestBody AuthCodeCheckRequest authCodeCheckRequest) {
 
         emailService.checkEmailAuthCode(authCodeCheckRequest.toServiceRequest());
 

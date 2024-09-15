@@ -3,7 +3,7 @@ package teamkiim.koffeechat.domain.corp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.domain.corp.controller.admindto.response.AdminCorpDomainListResponse;
+import teamkiim.koffeechat.domain.corp.controller.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
@@ -12,7 +12,6 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,44 +20,71 @@ public class CorpAdminService {
 
     private final CorpRepository corpRepository;
 
+    /**
+     * 관리자가 인증된 회사 도메인 등록
+     *
+     * @param corpName   회사
+     * @param corpDomain 회사 도메인
+     */
     @Transactional
-    public void saveCorpDomain(String corpName, String corpDomain) {
-        Optional<Corp> corp = corpRepository.findByCorpNameAndCorpEmailDomain(corpName, corpDomain);
+    public void createApprovedCorp(String corpName, String corpDomain) {
+        Optional<Corp> corp = corpRepository.findByNameAndEmailDomain(corpName, corpDomain);
         if (corp.isPresent()) {
             throw new CustomException(ErrorCode.CORP_ALREADY_EXIST);
         }
-        Corp corpRequest = new Corp(corpName, corpDomain, Verified.APPROVED);
-        corpRepository.save(corpRequest);
+
+        corpRepository.save(new Corp(corpName, corpDomain, Verified.APPROVED));
     }
 
+    /**
+     * 관리자가 회원이 승인 요청한 도메인들에 대해 상태 변경
+     *
+     * @param corpId   등록된 회사 pk
+     * @param verified 인증 상태 변경 WAITING -> APPROVED|REJECTED
+     * @return
+     */
     @Transactional
-    public Verified modifyCorpDomain(Long corpId, Verified verified) {
+    public Verified updateCorpVerified(Long corpId, Verified verified) {
         Corp corp = corpRepository.findById(corpId)
-                .orElseThrow(()-> new CustomException(ErrorCode.CORP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
 
         corp.statusModify(verified);
 
         return corp.getVerified();
     }
 
+    /**
+     * 회사 도메인 삭제
+     *
+     * @param corpId
+     */
     @Transactional
-    public void deleteCorpDomain(Long corpId) {
+    public void deleteCorp(Long corpId) {
         Corp corp = corpRepository.findById(corpId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
+
         corpRepository.delete(corp);
     }
 
-    public List<AdminCorpDomainListResponse> list() {
+    /**
+     * 전체 도메인 리스트 확인
+     *
+     * @return List<AdminCorpDomainListResponse> 도메인 리스트 response
+     */
+    public List<AdminCorpDomainListResponse> listCorp() {
         List<Corp> corpList = corpRepository.findAll();
 
-        List<AdminCorpDomainListResponse> responseList= corpList.stream().map(AdminCorpDomainListResponse::of).toList();
-        return responseList;
+        return corpList.stream().map(AdminCorpDomainListResponse::of).toList();
     }
 
-    public List<AdminCorpDomainListResponse> search(String keyword) {
+    /**
+     * 도메인 키워드로 검색
+     *
+     * @return List<AdminCorpDomainListResponse> 도메인 리스트 response
+     */
+    public List<AdminCorpDomainListResponse> findCorpByKeyword(String keyword) {
         List<Corp> corpList = corpRepository.findByKeyword(keyword);
 
-        List<AdminCorpDomainListResponse> responseList= corpList.stream().map(AdminCorpDomainListResponse::of).toList();
-        return responseList;
+        return corpList.stream().map(AdminCorpDomainListResponse::of).toList();
     }
 }

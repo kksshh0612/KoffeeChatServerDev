@@ -15,10 +15,10 @@ public class CorpDomainRequest {
 
     @Schema(description = "회사 이름", example = "커피챗")
     @NotBlank(message = "회사 이름을 입력해주세요")
-    private String corpName;               //회사 이름
+    private String name;               //회사 이름
 
     @Schema(description = "회사 도메인", example = "koffeechat.com")
     @Pattern(regexp = "[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "도메인 형식에 맞게 검색해주세요. \n ex) koffeechat.com, koffeechat.co.kr")
     @NotBlank(message = "회사 도메인을 입력해주세요")
-    private String corpEmailDomain;        //회사 이메일 도메인
+    private String emailDomain;        //회사 이메일 도메인
 }

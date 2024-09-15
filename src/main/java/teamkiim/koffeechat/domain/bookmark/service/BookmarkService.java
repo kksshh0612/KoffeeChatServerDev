@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.domain.Bookmark;
 import teamkiim.koffeechat.domain.bookmark.repository.BookmarkRepository;
-import teamkiim.koffeechat.global.exception.CustomException;
-import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
+import teamkiim.koffeechat.global.exception.CustomException;
+import teamkiim.koffeechat.global.exception.ErrorCode;
 
 @Service
 @Transactional(readOnly = true)
@@ -19,21 +19,20 @@ public class BookmarkService {
 
     /**
      * 회원이 해당 글에 대해 이미 북마크를 눌렀는지 확인
+     *
      * @param member
      * @param post
      * @return
      */
     public boolean isMemberBookmarked(Member member, Post post) {
-
-        if(bookmarkRepository.findByPostAndMember(post, member).isPresent()) return true;
-
-        return false;
+        return bookmarkRepository.findByPostAndMember(post, member).isPresent();
     }
 
     /**
      * 게시물 북마크 생성
+     *
      * @param member 북마크한 멤버
-     * @param post 북마크한 게시글
+     * @param post   북마크한 게시글
      */
     @Transactional
     public void bookmark(Member member, Post post) {
@@ -44,8 +43,9 @@ public class BookmarkService {
 
     /**
      * 게시글 북마크 취소
+     *
      * @param member 북마크한 멤버
-     * @param post 북마크를 취소할 게시글
+     * @param post   북마크를 취소할 게시글
      */
     @Transactional
     public void cancelBookmark(Member member, Post post) {

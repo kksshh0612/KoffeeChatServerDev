@@ -6,8 +6,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import teamkiim.koffeechat.domain.notification.controller.dto.NotificationApiDocument;
+import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,20 +44,24 @@ public class NotificationController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.getUnreadNotificationCount(memberId));
+        int count = notificationService.getUnreadNotificationCount(memberId);
+
+        return ResponseEntity.ok(count);
     }
 
     /**
      * 알림 목록 조회
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/list")
-    @NotificationApiDocument.ShowListApiDoc
-    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    @GetMapping("")
+    @NotificationApiDocument.ShowNotificationListApiDoc
+    public ResponseEntity<?> showNotificationList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.list(memberId, page, size));
+        List<NotificationListItemResponse> response = notificationService.getNotificationList(memberId, page, size);
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -61,12 +69,14 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{notificationId}")
-    @NotificationApiDocument.ReadApiDoc
-    public ResponseEntity<?> read(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    @NotificationApiDocument.UpdateNotificationIsReadApiDoc
+    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.readUpdate(memberId, notiId));
+        long count = notificationService.updateNotificationIsRead(memberId, notiId);
+
+        return ResponseEntity.ok(count);
     }
 
     /**
@@ -74,11 +84,41 @@ public class NotificationController {
      */
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{notificationId}")
-    @NotificationApiDocument.DeleteApiDoc
-    public ResponseEntity<?> delete(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    @NotificationApiDocument.DeleteNotificationApiDoc
+    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(notificationService.delete(memberId, notiId));
+        long count = notificationService.deleteNotification(memberId, notiId);
+
+        return ResponseEntity.ok(count);
+    }
+
+    /**
+     * 알림 전체 삭제
+     */
+    @AuthenticatedMemberPrincipal
+    @DeleteMapping("")
+    @NotificationApiDocument.DeleteAllNotificationsApiDoc
+    public ResponseEntity<?> deleteAllNotifications(HttpServletRequest request) {
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        notificationService.deleteAllNotifications(memberId);
+
+        return ResponseEntity.ok("전체 알림 삭제 완료");
+    }
+
+    /**
+     * 알림 전체 읽음
+     */
+    @AuthenticatedMemberPrincipal
+    @PatchMapping("")
+    @NotificationApiDocument.ReadAllNotificationsApiDoc
+    public ResponseEntity<?> readAllNotifications(HttpServletRequest request) {
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        notificationService.updateAllNotificationsIsRead(memberId);
+
+        return ResponseEntity.ok("전체 알림 읽음 완료");
     }
 }

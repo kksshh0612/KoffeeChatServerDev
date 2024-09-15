@@ -14,7 +14,7 @@ public class ModifyCommunityPostRequest {
     ModifyCommunityPostInfoRequest modifyCommunityPostInfoRequest;
     ModifyVoteRequest modifyVoteRequest;
 
-    public ModifyCommunityPostServiceRequest toPostServiceRequest(){
+    public ModifyCommunityPostServiceRequest toPostServiceRequest() {
         return ModifyCommunityPostServiceRequest.builder()
                 .id(this.modifyCommunityPostInfoRequest.getId())
                 .title(this.modifyCommunityPostInfoRequest.getTitle())
@@ -23,12 +23,13 @@ public class ModifyCommunityPostRequest {
     }
 
     public ModifyVoteServiceRequest toVoteServiceRequest() {
-        if (this.modifyVoteRequest != null) {
-            return ModifyVoteServiceRequest.builder()
-                    .title(this.modifyVoteRequest.getTitle())
-                    .items(this.modifyVoteRequest.getItems())
-                    .build();
+        if (this.modifyVoteRequest == null) {
+            return null;
         }
-        return null;
+
+        return ModifyVoteServiceRequest.builder()
+                .items(this.modifyVoteRequest.getItems())
+                .build();
+
     }
 }

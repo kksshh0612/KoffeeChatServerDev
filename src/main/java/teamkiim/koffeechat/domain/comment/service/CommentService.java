@@ -12,7 +12,6 @@ import teamkiim.koffeechat.domain.comment.dto.request.ModifyCommentServiceReques
 import teamkiim.koffeechat.domain.comment.repository.CommentRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
-import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
@@ -57,12 +56,8 @@ public class CommentService {
         // 양방향 연관관계 주입
         post.addComment(savedComment);               // 양방향 연관관계 주입
 
-//        //글쓴이에게 댓글 알림 전송
-//        Long writerId = post.getMember().getId();
-//        String notiTitle = member.getNickname() + "님이 " + post.getTitle() + "글에 댓글을 남겼습니다.";
-//        String notiUrl = String.format("/community-post?postId=%d", post.getId());
-//        notificationService.createNotification(CreateNotificationRequest
-//                .of(member, notiTitle, savedComment.getContent(), notiUrl, NotificationType.COMMENT), writerId);
+        //글쓴이에게 댓글 알림 전송
+        notificationService.createCommentNotification(post, member, comment);
 
     }
 
@@ -73,7 +68,7 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public void modifyComment(ModifyCommentServiceRequest modifyCommentServiceRequest){
+    public void modifyComment(ModifyCommentServiceRequest modifyCommentServiceRequest) {
 
         Comment comment = commentRepository.findById(modifyCommentServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -88,7 +83,7 @@ public class CommentService {
      * @return ok
      */
     @Transactional
-    public void deleteComment(Long commentId){
+    public void deleteComment(Long commentId) {
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
