@@ -18,6 +18,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p join fetch p.commentList where p.id = :id")
     Optional<Post> findByIdWithComments(@Param("id") Long id);
 
-    @Query("SELECT p FROM Post p WHERE p.member=:member AND p.postCategory =:postType")
+    @Query("SELECT p FROM Post p WHERE p.member = :member AND p.postCategory = :postType AND p.isEditing = false AND p.deleted = false")
     Page<Post> findAllByMemberAndPostCategory(@Param("member") Member member, @Param("postType") PostCategory postType, PageRequest pageRequest);
 }

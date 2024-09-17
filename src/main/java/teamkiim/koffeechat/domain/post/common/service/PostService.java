@@ -15,12 +15,15 @@ import teamkiim.koffeechat.domain.post.common.controller.dto.response.BookmarkPo
 import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
+import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @Transactional(readOnly = true)
@@ -115,16 +118,21 @@ public class PostService {
      *
      * @param memberId 로그인한 회원
      * @param postType 게시글 종류 (개발 / 커뮤니티)
+     * @param sortType 정렬 순서 (최신순, 좋아요순, 조회순)
      * @param page     페이지 번호 ( ex) 0, 1,,,, )
      * @param size     페이지 당 조회할 데이터 수
      * @return List<BookmarkPostListResponse>
      */
-    public List<BookmarkPostListResponse> findBookmarkPostList(Long memberId, PostCategory postType, int page, int size) {
+    public List<BookmarkPostListResponse> findBookmarkPostList(Long memberId, PostCategory postType, SortCategory sortType, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 북마크한 글부터
+        PageRequest pageRequest = switch (sortType) {
+            case NEW -> PageRequest.of(page, size, Sort.by(DESC, "id"));
+            case LIKE -> PageRequest.of(page, size, Sort.by(DESC, "post.likeCount").and(Sort.by(DESC, "id")));
+            case VIEW -> PageRequest.of(page, size, Sort.by(DESC, "post.viewCount").and(Sort.by(DESC, "id")));
+        };
 
         List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
 
@@ -139,16 +147,21 @@ public class PostService {
      *
      * @param memberId 로그인한 회원
      * @param postType 게시글 종류 (개발 / 커뮤니티)
+     * @param sortType 정렬 순서 (최신순, 좋아요순, 조회순)
      * @param page     페이지 번호 ( ex) 0, 1,,,, )
      * @param size     페이지 당 조회할 데이터 수
      * @return List<BookmarkPostListResponse>
      */
-    public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postType, int page, int size) {
+    public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postType, SortCategory sortType, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 작성한 글부터
+        PageRequest pageRequest = switch (sortType) {
+            case NEW -> PageRequest.of(page, size, Sort.by(DESC, "id"));
+            case LIKE -> PageRequest.of(page, size, Sort.by(DESC, "likeCount").and(Sort.by(DESC, "id")));
+            case VIEW -> PageRequest.of(page, size, Sort.by(DESC, "viewCount").and(Sort.by(DESC, "id")));
+        };
 
         List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
 

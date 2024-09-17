@@ -106,6 +106,6 @@ public class CommentService {
 
         List<Comment> commentList = commentRepository.findAllByMember(member, pageRequest).getContent();
 
-        return commentList.stream().map(MyCommentListResponse::of).toList();
+        return commentList.stream().map(comment -> MyCommentListResponse.of(comment, !(comment.getPost().isEditing() || comment.getPost().isDeleted()))).toList();
     }
 }
