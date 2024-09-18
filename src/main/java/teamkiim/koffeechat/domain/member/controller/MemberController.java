@@ -2,15 +2,18 @@ package teamkiim.koffeechat.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import teamkiim.koffeechat.domain.auth.service.AuthService;
 import teamkiim.koffeechat.domain.email.dto.request.EmailAuthRequest;
 import teamkiim.koffeechat.domain.member.controller.dto.EnrollSkillCategoryRequest;
 import teamkiim.koffeechat.domain.member.controller.dto.ModifyProfileRequest;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
+import teamkiim.koffeechat.domain.member.dto.request.UpdatePasswordRequest;
 import teamkiim.koffeechat.domain.member.service.MemberService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 public class MemberController {
 
     private final MemberService memberService;
+    private final AuthService authService;
 
     /**
      * 프로필 사진 등록
@@ -105,7 +109,7 @@ public class MemberController {
      * 사용자 이메일 변경 시 인증 메시지 전송
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/new-email")
+    @PostMapping("/email")
     @MemberApiDocument.SendNewAuthEmail
     public ResponseEntity<?> sendNewAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest, HttpServletRequest request) {
 
@@ -117,10 +121,10 @@ public class MemberController {
     }
 
     /**
-     * 이메일 변경
+     * 인증 코드 확인 후 이메일 변경
      */
     @AuthenticatedMemberPrincipal
-    @PatchMapping("/new-email")
+    @PatchMapping("/email")
     @MemberApiDocument.UpdateNewEmailApiDoc
     public ResponseEntity<?> updateNewAuthEmail(@RequestBody String email, HttpServletRequest request) {
 
@@ -131,5 +135,38 @@ public class MemberController {
         return ResponseEntity.ok("이메일 변경되었습니다.");
     }
 
+    /**
+     * 비밀번호 변경
+     */
 
+    /**
+     * 현재 비밀번호 인증
+     */
+    @AuthenticatedMemberPrincipal
+    @PostMapping("/password")
+    @MemberApiDocument.CheckCurrentPasswordApiDoc
+    public ResponseEntity<?> checkCurrentPassword(@RequestBody String password, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        memberService.checkCurrentPassword(memberId, password);
+
+        return ResponseEntity.ok("비밀번호 확인 완료");
+    }
+
+    /**
+     * 비밀번호 변경
+     */
+    @AuthenticatedMemberPrincipal
+    @PatchMapping("/password")
+    @MemberApiDocument.UpdatePasswordApiDoc
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest passwordRequest, HttpServletRequest request, HttpServletResponse response) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        memberService.updatePassword(memberId, passwordRequest);
+        authService.logout(request, response);
+
+        return ResponseEntity.ok("비밀번호 변경 완료. 다시 로그인해주세요.");
+    }
 }

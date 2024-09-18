@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // 400 BAD REQUEST
+    PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    PASSWORD_EQUAL(HttpStatus.BAD_REQUEST, "기존 비밀번호와 동일한 비밀번호입니다."),
     EMAIL_PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "이메일, 비밀번호가 일치하지 않습니다"),
     AUTH_CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다."),
 

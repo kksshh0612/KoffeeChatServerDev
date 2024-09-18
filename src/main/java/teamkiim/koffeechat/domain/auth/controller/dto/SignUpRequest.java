@@ -22,6 +22,7 @@ public class SignUpRequest {
 
     @Schema(description = "회원가입용 비밀번호", example = "1234asdf!@")
     @NotBlank(message = "비밀번호를 입력해주세요")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?])[A-Za-z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]{7,20}$")
     private String password;
 
     @Schema(description = "회원가입용 닉네임", example = "커피챗")
@@ -31,7 +32,7 @@ public class SignUpRequest {
     @Schema(description = "회원가입용 직업", defaultValue = "COMPANY_EMPLOYEE")
     private MemberRole memberRole;
 
-    public SignUpServiceRequest toServiceRequest(){
+    public SignUpServiceRequest toServiceRequest() {
         return SignUpServiceRequest.builder()
                 .email(this.email)
                 .password(this.password)
