@@ -32,7 +32,7 @@ public class AuthController {
      */
     @PostMapping("/signup")
     @AuthApiDocument.SignUpApiDoc
-    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
 
         authService.signUp(signUpRequest.toServiceRequest());
 
@@ -44,7 +44,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     @AuthApiDocument.loginApiDoc
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response){
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         TokenDto jwtTokenDto = authService.login(loginRequest.toServiceRequest());
 
@@ -60,9 +60,11 @@ public class AuthController {
      */
     @GetMapping("/logout")
     @AuthApiDocument.logoutApiDoc
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
 
-        return authService.logout(request, response);
+        authService.logout(request, response);
+
+        return ResponseEntity.ok("로그아웃 성공");
     }
 
 }
