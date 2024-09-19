@@ -29,6 +29,15 @@ public class ChatRoomController {
     }
 
     @AuthenticatedMemberPrincipal
+    @GetMapping("/{chatRoomId}")
+    public ResponseEntity<?> findChatRoomByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok(chatRoomService.findChatRoom(chatRoomId, memberId));
+    }
+
+    @AuthenticatedMemberPrincipal
     @GetMapping("/close/{chatRoomId}")
     public ResponseEntity<?> closeChatRoom(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
 

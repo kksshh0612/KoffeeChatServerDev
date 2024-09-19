@@ -50,7 +50,7 @@ public class ChatRoomService {
 
         List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByMember(member, pageRequest).getContent();
 
-        List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.findCount(memberChatRoomList);
+        List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 
         List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
 
@@ -63,11 +63,37 @@ public class ChatRoomService {
         return chatRoomListResponseList;
     }
 
-//    public ChatRoomListResponse findChatRoom(Long chatRoomId){
-//
-//    }
+    /**
+     * 참여중인 채팅방 chatRoomId (PK) 로 단건 조회
+     * @param chatRoomId
+     * @param memberId
+     * @return
+     */
+    public ChatRoomListResponse findChatRoom(Long chatRoomId, Long memberId){
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndChatRoom(member, chatRoom)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
+
+        long unreadMessageCount = chatMessageService.countUnreadMessageCount(memberChatRoom);
+
+        ChatRoomInfoDto chatRoomInfoDto = new ChatRoomInfoDto(memberChatRoom, unreadMessageCount);
+
+        return ChatRoomListResponse.of(chatRoomInfoDto);
+    }
 
 
+    /**
+     * 채팅방 퇴장 처리
+     * @param chatRoomId
+     * @param memberId
+     * @param closeTime
+     */
     @Transactional
     public void close(Long chatRoomId, Long memberId, LocalDateTime closeTime){
 

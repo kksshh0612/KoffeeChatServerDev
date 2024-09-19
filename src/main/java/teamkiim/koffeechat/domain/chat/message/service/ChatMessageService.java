@@ -54,7 +54,7 @@ public class ChatMessageService {
         messagingTemplate.convertAndSend("/sub/chat/" + chatRoomId, chatMessageResponse);
     }
 
-    public List<ChatRoomInfoDto> findCount(List<MemberChatRoom> memberChatRoomList) {
+    public List<ChatRoomInfoDto> countUnreadMessageCount(List<MemberChatRoom> memberChatRoomList) {
 
         List<ChatRoomInfoDto> dtoList = new ArrayList<>();
 
@@ -65,5 +65,10 @@ public class ChatMessageService {
         }
 
         return dtoList;
+    }
+
+    public long countUnreadMessageCount(MemberChatRoom memberChatRoom) {
+
+        return chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(), memberChatRoom.getCloseTime());
     }
 }

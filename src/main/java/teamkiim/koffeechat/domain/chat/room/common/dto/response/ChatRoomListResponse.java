@@ -20,7 +20,7 @@ public class ChatRoomListResponse {
     private ChatRoomType chatRoomType;
     private String chatRoomName;
 //    private String lastMessage;
-    private LocalDateTime lastMessageTime;
+//    private LocalDateTime lastMessageTime;
     private Long unreadMessageCount;
 
     public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo){
@@ -35,7 +35,7 @@ public class ChatRoomListResponse {
                 .chatRoomId(chatRoomInfo.getMemberChatRoom().getChatRoom().getId())
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
                 .chatRoomName(roomName)
-                .lastMessageTime(chatRoomInfo.getMemberChatRoom().getCloseTime())
+//                .lastMessageTime(chatRoomInfo.getMemberChatRoom().getCloseTime())
                 .unreadMessageCount(chatRoomInfo.getUnreadCount())
                 .build();
     }
