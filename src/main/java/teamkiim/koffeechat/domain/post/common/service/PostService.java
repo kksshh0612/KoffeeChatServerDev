@@ -126,7 +126,7 @@ public class PostService {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 북마크한 글부터
 
-        List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
+        List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndPostCategory(member, postCategory, pageRequest).getContent();
 
         List<Post> bookmarkPostList = bookmarkList.stream().map(Bookmark::getPost).toList();
 
@@ -150,7 +150,7 @@ public class PostService {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 작성한 글부터
 
-        List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
+        List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postCategory, pageRequest).getContent();
 
         return postList.stream().map(MyPostListResponse::of).toList();
 
