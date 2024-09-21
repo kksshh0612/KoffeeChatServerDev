@@ -41,21 +41,26 @@ public class ChatRoomService {
      * @param size
      * @return
      */
-    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size){
+    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size, ChatRoomType chatRoomType){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "closeTime"));
 
-        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByMember(member, pageRequest).getContent();
+        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, pageRequest).getContent();
 
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 
         List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
 
         for(ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList){
-            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(chatRoomInfoDto);
+            MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
+
+            MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(memberChatRoom.getChatRoom(), memberChatRoom.getMember())
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
+
+            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(chatRoomInfoDto, oppositeMemberChatRoom.getMember());
 
             chatRoomListResponseList.add(chatRoomListResponse);
         }
@@ -69,23 +74,23 @@ public class ChatRoomService {
      * @param memberId
      * @return
      */
-    public ChatRoomListResponse findChatRoom(Long chatRoomId, Long memberId){
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
-
-        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndChatRoom(member, chatRoom)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
-
-        long unreadMessageCount = chatMessageService.countUnreadMessageCount(memberChatRoom);
-
-        ChatRoomInfoDto chatRoomInfoDto = new ChatRoomInfoDto(memberChatRoom, unreadMessageCount);
-
-        return ChatRoomListResponse.of(chatRoomInfoDto);
-    }
+//    public ChatRoomListResponse findChatRoom(Long chatRoomId, Long memberId){
+//
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+//
+//        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+//
+//        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndChatRoom(member, chatRoom)
+//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
+//
+//        long unreadMessageCount = chatMessageService.countUnreadMessageCount(memberChatRoom);
+//
+//        ChatRoomInfoDto chatRoomInfoDto = new ChatRoomInfoDto(memberChatRoom, unreadMessageCount);
+//
+//        return ChatRoomListResponse.of(chatRoomInfoDto);
+//    }
 
 
     /**

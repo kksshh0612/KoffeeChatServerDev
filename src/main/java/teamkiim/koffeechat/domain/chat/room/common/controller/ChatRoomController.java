@@ -18,24 +18,35 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
+    /**
+     * 회원이 속한
+     * @param page
+     * @param size
+     * @param chatRoomType
+     * @param request
+     * @return
+     */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/")
-    public ResponseEntity<?> findChatRoomByType(@RequestParam("page") int page, @RequestParam("size") int size,
+    @GetMapping("")
+    @ChatRoomApiDocument.FindChatRoomsByTypeApiDoc
+    public ResponseEntity<?> findChatRoomsByType(@RequestParam("page") int page, @RequestParam("size") int size,
+                                                @RequestParam(value = "chatRoomType", required = false) ChatRoomType chatRoomType,
                                                 HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(chatRoomService.findChatRoomList(memberId, page, size));
+        return ResponseEntity.ok(chatRoomService.findChatRoomList(memberId, page, size, chatRoomType));
     }
 
-    @AuthenticatedMemberPrincipal
-    @GetMapping("/{chatRoomId}")
-    public ResponseEntity<?> findChatRoomByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return ResponseEntity.ok(chatRoomService.findChatRoom(chatRoomId, memberId));
-    }
+//    @AuthenticatedMemberPrincipal
+//    @GetMapping("/{chatRoomId}")
+//    @ChatRoomApiDocument.FindChatRoomByChatRoomIdApiDoc
+//    public ResponseEntity<?> findChatRoomByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
+//
+//        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+//
+////        return ResponseEntity.ok(chatRoomService.findChatRoom(chatRoomId, memberId));
+//    }
 
     @AuthenticatedMemberPrincipal
     @GetMapping("/close/{chatRoomId}")
