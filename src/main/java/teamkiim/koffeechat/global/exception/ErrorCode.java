@@ -27,6 +27,7 @@ public enum ErrorCode {
     // 403 FORBIDDEN
     FORBIDDEN(HttpStatus.FORBIDDEN, "해당 회원에 권한이 없습니다."),
     VOTE_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 회원에 투표 생성 권한이 없습니다."),
+    CORP_DOMAIN_FORBIDDEN(HttpStatus.FORBIDDEN, "승인 거절된 도메인입니다. 이메일 확인 후 문의해주세요."),
 
     // 404 NOT FOUND
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
@@ -48,6 +49,7 @@ public enum ErrorCode {
     POST_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 작성된 게시글입니다."),
     VOTE_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 투표되었습니다."),
     CORP_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 회사 도메인입니다."),
+    CORP_DOMAIN_WAITING(HttpStatus.CONFLICT, "등록 요청이 되어있는 도메인입니다. 도메인 승인이 되면 다시 인증해주세요."),
 
     // 500 INTERNAL_SERVER_ERROR
     JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "소셜 로그인 사용자 정보 json 파싱 에러"),
