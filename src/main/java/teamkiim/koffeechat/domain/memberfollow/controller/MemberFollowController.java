@@ -36,10 +36,27 @@ public class MemberFollowController {
     }
 
     /**
-     * follower list 확인
+     * 본인 follower list 확인
      */
     @Auth(role = {})
-    @GetMapping("/follower-list/{memberId}")
+    @GetMapping("/followers")
+    @MemberFollowApiDocument.MyFollowerList
+    public ResponseEntity<?> myFollowerList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                            HttpServletRequest request) {
+
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.findMyFollowerList(loginMemberId, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 다른 사용자의 follower list 확인
+     */
+    @Auth(role = {})
+    @GetMapping("/followers/{memberId}")
     @MemberFollowApiDocument.FollowerList
     public ResponseEntity<?> followerList(@PathVariable("memberId") Long memberId,
                                           @RequestParam("page") int page, @RequestParam("size") int size,
@@ -54,10 +71,25 @@ public class MemberFollowController {
     }
 
     /**
-     * following list 확인
+     * 본인 following list 확인
      */
     @Auth(role = {})
-    @GetMapping("/following-list/{memberId}")
+    @GetMapping("/followings")
+    @MemberFollowApiDocument.MyFollowingList
+    public ResponseEntity<?> myFollowingList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList = memberFollowService.findMyFollowingList(loginMemberId, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 다른 사용자의 following list 확인
+     */
+    @Auth(role = {})
+    @GetMapping("/followings/{memberId}")
     @MemberFollowApiDocument.FollowingList
     public ResponseEntity<?> followingList(@PathVariable("memberId") Long memberId,
                                            @RequestParam("page") int page, @RequestParam("size") int size,
@@ -67,6 +99,72 @@ public class MemberFollowController {
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.findFollowingList(memberId, loginMemberId, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 본인 follower 목록에서 사용자 검색
+     */
+    @Auth(role = {})
+    @GetMapping("/followers/search")
+    @MemberFollowApiDocument.SearchFollowerList
+    public ResponseEntity<?> searchMyFollowers(@RequestParam("keyword") String keyword, @RequestParam("page") int page, @RequestParam("size") int size,
+                                               HttpServletRequest request) {
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.searchMyFollowers(loginMemberId, keyword, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * follower 목록에서 사용자 검색
+     */
+    @Auth(role = {})
+    @GetMapping("/followers/{memberId}/search")
+    @MemberFollowApiDocument.SearchFollowerList
+    public ResponseEntity<?> searchFollowers(@PathVariable("memberId") Long memberId,
+                                             @RequestParam("keyword") String keyword, @RequestParam("page") int page, @RequestParam("size") int size,
+                                             HttpServletRequest request) {
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.searchFollowers(memberId, loginMemberId, keyword, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * 본인 following 목록에서 사용자 검색
+     */
+    @Auth(role = {})
+    @GetMapping("/followings/search")
+    @MemberFollowApiDocument.SearchFollowingList
+    public ResponseEntity<?> searchMyFollowings(@RequestParam("keyword") String keyword, @RequestParam("page") int page, @RequestParam("size") int size,
+                                                HttpServletRequest request) {
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.searchMyFollowings(loginMemberId, keyword, page, size);
+
+        return ResponseEntity.ok(memberFollowListResponseList);
+    }
+
+    /**
+     * following 목록에서 사용자 검색
+     */
+    @Auth(role = {})
+    @GetMapping("/followings/{memberId}/search")
+    @MemberFollowApiDocument.SearchFollowingList
+    public ResponseEntity<?> searchFollowings(@PathVariable("memberId") Long memberId,
+                                              @RequestParam("keyword") String keyword, @RequestParam("page") int page, @RequestParam("size") int size,
+                                              HttpServletRequest request) {
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        List<MemberFollowListResponse> memberFollowListResponseList =
+                memberFollowService.searchFollowings(memberId, loginMemberId, keyword, page, size);
 
         return ResponseEntity.ok(memberFollowListResponseList);
     }

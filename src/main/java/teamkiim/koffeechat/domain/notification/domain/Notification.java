@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.member.domain.Member;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 
 import java.time.LocalDateTime;
 
@@ -20,11 +21,11 @@ public class Notification {
     @Column(name = "notification_id")
     private Long id;
 
-    private String eventId;            //알림 이벤트 id
+    private String eventId;             // 알림 이벤트 id
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "receiver_id")
-    private Member receiver;            //알림을 받는 회원
+    private Member receiver;            // 알림을 받는 회원
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "sender_id")
@@ -34,26 +35,32 @@ public class Notification {
 
     private String content;             // 알림 내용
 
-    private String url;                 // 알림 클릭 시 연결할 주소
+    private Long urlPK;                 // 알림 클릭 시 연결할 주소 연관 post pk, 채팅방 pk
+
+    private Long commentId;             // commentId
+
+    private PostCategory postType;      // postType
 
     private boolean isRead;             // 읽은 메시지 표시
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    private LocalDateTime createdTime;   //알림 생성 날짜
+    private LocalDateTime createdTime;   // 알림 생성 날짜
 
     /**
      * 생성자
      */
     @Builder
-    public Notification(String eventId, Member receiver, Member sender, String title, String content, String url, NotificationType notificationType, LocalDateTime createdTime) {
+    public Notification(String eventId, Member receiver, Member sender, String title, String content, Long urlPK, Long commentId, PostCategory postType, NotificationType notificationType, LocalDateTime createdTime) {
         this.eventId = eventId;
         this.receiver = receiver;
         this.sender = sender;
         this.title = title;
         this.content = content;
-        this.url = url;
+        this.urlPK = urlPK;
+        this.commentId = commentId;
+        this.postType = postType;
         this.isRead = false;
         this.notificationType = notificationType;
         this.createdTime = createdTime;

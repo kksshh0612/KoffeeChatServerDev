@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
+import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 
 import java.time.LocalDateTime;
 
@@ -23,7 +24,11 @@ public class NotificationResponse {
 
     private String content;
 
-    private String url;
+    private Long url;
+
+    private Long commentId;
+
+    private PostCategory postType;
 
     private boolean isRead;
 
@@ -32,6 +37,7 @@ public class NotificationResponse {
     private LocalDateTime createdTime;
 
     public static NotificationResponse of(Notification notification, long unreadNotifications) {
+
         return NotificationResponse.builder()
                 .receiverId(notification.getReceiver().getId())
                 .unreadNotifications(unreadNotifications)
@@ -41,10 +47,13 @@ public class NotificationResponse {
                 .profileImageName(notification.getSender().getProfileImageName())
                 .title(notification.getTitle())
                 .content(notification.getContent())
-                .url(notification.getUrl())
+                .url(notification.getUrlPK())
+                .postType(notification.getPostType())
+                .commentId(notification.getCommentId())
                 .isRead(false)
                 .notificationType(notification.getNotificationType())
                 .createdTime(notification.getCreatedTime())
                 .build();
+
     }
 }

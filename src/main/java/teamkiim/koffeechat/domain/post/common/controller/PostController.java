@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.common.controller.dto.response.BookmarkPostListResponse;
 import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
+import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -68,14 +69,14 @@ public class PostController {
      * 마이페이지 북마크 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/bookmark/{postType}")
+    @GetMapping("/bookmark/{postType}/{sortType}")
     @PostApiDocument.BookmarkedPostListApiDoc
-    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType,
+    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
                                                     @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<BookmarkPostListResponse> bookmarkPostResponseList = postService.findBookmarkPostList(memberId, postType, page, size);
+        List<BookmarkPostListResponse> bookmarkPostResponseList = postService.findBookmarkPostList(memberId, postType, sortType, page, size);
 
         return ResponseEntity.ok(bookmarkPostResponseList);
     }
@@ -84,14 +85,14 @@ public class PostController {
      * 마이페이지 내가 쓴 게시글 리스트 확인
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("/{postType}")
+    @GetMapping("/{postType}/{sortType}")
     @PostApiDocument.MyPostListApiDoc
-    public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType,
+    public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
                                             @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<MyPostListResponse> myPostListResponseList = postService.findMyPostList(memberId, postType, page, size);
+        List<MyPostListResponse> myPostListResponseList = postService.findMyPostList(memberId, postType, sortType, page, size);
 
         return ResponseEntity.ok(myPostListResponseList);
     }

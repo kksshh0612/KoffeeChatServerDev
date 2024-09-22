@@ -38,7 +38,25 @@ public @interface MemberFollowApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FollowMember { }
+    @interface FollowMember {
+    }
+
+    /**
+     * 본인 follower list 확인
+     */
+    @Operation(summary = "본인 팔로워 목록 확인", description = "사용자가 본인의 팔로워 목록을 확인한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원 본인의 팔로워 리스트를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = MemberFollowListResponse.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MyFollowerList {
+    }
 
     /**
      * 사용자 follower list 확인
@@ -54,7 +72,25 @@ public @interface MemberFollowApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FollowerList { }
+    @interface FollowerList {
+    }
+
+    /**
+     * 본인 following list 확인
+     */
+    @Operation(summary = "본인 팔로잉 목록 확인", description = "사용자가 본인의 팔로잉 목록을 확인한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원 본인의 팔로잉 리스트를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = MemberFollowListResponse.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MyFollowingList {
+    }
 
     /**
      * 사용자 following list 확인
@@ -70,5 +106,40 @@ public @interface MemberFollowApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FollowingList { }
+    @interface FollowingList {
+    }
+
+    /**
+     * 사용자 follower list 검색
+     */
+    @Operation(summary = "회원 팔로워 목록에서 사용자 검색", description = "사용자가 팔로워 목록에서 검색을 한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "팔로워 리스트에서 검색 결과를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = MemberFollowListResponse.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface SearchFollowerList {
+    }
+
+    /**
+     * 사용자 following list 검색
+     */
+    @Operation(summary = "회원 팔로잉 목록에서 사용자 검색", description = "사용자가 팔로잉 목록에서 검색을 한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "팔로잉 리스트에서 검색 결과를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = MemberFollowListResponse.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface SearchFollowingList {
+    }
 }

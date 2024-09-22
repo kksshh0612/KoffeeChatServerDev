@@ -3,7 +3,6 @@ package teamkiim.koffeechat.domain.post.community.service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
@@ -11,7 +10,7 @@ import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
+import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
@@ -117,7 +116,7 @@ public class CommunityPostService {
                 VoteResponse.of(voteService.saveVote(postRequest.toVoteServiceRequest(), postServiceRequest.getId()), true) : null;
 
         //팔로워들에게 알림 발송
-        notificationService.createPostNotification(member, communityPost, communityPost.getPostCategory());
+        notificationService.createPostNotification(member, communityPost);
 
         return CommunityPostResponse.of(communityPost, new ArrayList<>(), voteResponse, false, false, true);
 
@@ -126,13 +125,14 @@ public class CommunityPostService {
     /**
      * 게시글 목록 조회
      *
-     * @param page 페이지 번호 ( ex) 0, 1,,,, )
-     * @param size 페이지 당 조회할 데이터 수
+     * @param sortType 정렬 기준 (최신 | 좋아요순 | 조회순)
+     * @param page     페이지 번호 ( ex) 0, 1,,,, )
+     * @param size     페이지 당 조회할 데이터 수
      * @return List<CommunityPostListResponse>
      */
-    public List<CommunityPostListResponse> findCommunityPostList(int page, int size) {
+    public List<CommunityPostListResponse> findCommunityPostList(SortCategory sortType, int page, int size) {
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         List<CommunityPost> communityPostList = communityPostRepository.findAllCompletePost(pageRequest).getContent();
 

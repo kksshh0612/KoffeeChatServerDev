@@ -16,6 +16,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
     Optional<Bookmark> findByPostAndMember(Post post, Member member);
 
-    @Query("SELECT b FROM Bookmark b WHERE b.member=:member AND b.post.postCategory =:postType")
+    @Query("SELECT b FROM Bookmark b WHERE b.member=:member AND b.post.postCategory =:postType AND b.post.isEditing = false AND b.post.deleted = false")
     Page<Bookmark> findAllByMemberAndPostCategory(@Param("member") Member member, @Param("postType") PostCategory postType, PageRequest pageRequest);
 }
