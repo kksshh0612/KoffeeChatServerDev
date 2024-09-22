@@ -22,6 +22,9 @@ public class MyCommentListResponse {
     @Schema(description = "댓글 pk")
     Long comment_id;
 
+    @Schema(description = "게시글 제목")
+    String title;
+
     @Schema(description = "댓글 내용")
     String content;
 
@@ -32,6 +35,7 @@ public class MyCommentListResponse {
         return MyCommentListResponse.builder()
                 .post_id(isPostExist ? comment.getPost().getId() : null)
                 .comment_id(comment.getId())
+                .title(isPostExist ? comment.getPost().getTitle() : null)
                 .content(comment.getContent())
                 .createdTime(comment.getCreatedTime())
                 .build();
