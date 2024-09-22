@@ -26,6 +26,10 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
 
     Page<MemberFollow> findByFollower(Member follower, Pageable pageable);
 
+    //팔로잉 리스트 조회
+    @Query("SELECT f.following FROM MemberFollow f WHERE f.follower = :member")
+    Page<Member> findFollowingsByFollowerId(@Param("member") Member member, Pageable pageable);
+
     @Query("SELECT f.follower FROM MemberFollow f WHERE f.following = :member")
     List<Member> findFollowerListByFollowing(@Param("member") Member member);
 

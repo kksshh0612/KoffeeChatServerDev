@@ -35,6 +35,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 파일입니다."),
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다"),
+    MEMBER_CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방에 해당하는 회원이 존재하지 않습니다."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요가 존재하지 않습니다."),
     BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "북마크가 존재하지 않습니다."),
     MEMBER_FOLLOW_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER FOLLOW가 존재하지 않습니다."),

@@ -117,20 +117,20 @@ public class PostService {
      * 로그인한 회원이 북마크한 게시글 목록 조회
      *
      * @param memberId 로그인한 회원
-     * @param postType 게시글 종류 (개발 / 커뮤니티)
+     * @param postCategory 게시글 종류 (개발 / 커뮤니티)
      * @param sortType 정렬 순서 (최신순, 좋아요순, 조회순)
      * @param page     페이지 번호 ( ex) 0, 1,,,, )
      * @param size     페이지 당 조회할 데이터 수
      * @return List<BookmarkPostListResponse>
      */
-    public List<BookmarkPostListResponse> findBookmarkPostList(Long memberId, PostCategory postType, SortCategory sortType, int page, int size) {
+    public List<BookmarkPostListResponse> findBookmarkPostList(Long memberId, PostCategory postCategory, SortCategory sortType, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = sortBySortCategory(sortType, "id", "post.likeCount", "post.viewCount", page, size);
 
-        List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
+        List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndPostCategory(member, postCategory, pageRequest).getContent();
 
         List<Post> bookmarkPostList = bookmarkList.stream().map(Bookmark::getPost).toList();
 
@@ -142,20 +142,20 @@ public class PostService {
      * 로그인한 회원이 작성한 게시글 목록 조회
      *
      * @param memberId 로그인한 회원
-     * @param postType 게시글 종류 (개발 / 커뮤니티)
+     * @param postCategory 게시글 종류 (개발 / 커뮤니티)
      * @param sortType 정렬 순서 (최신순, 좋아요순, 조회순)
      * @param page     페이지 번호 ( ex) 0, 1,,,, )
      * @param size     페이지 당 조회할 데이터 수
      * @return List<BookmarkPostListResponse>
      */
-    public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postType, SortCategory sortType, int page, int size) {
+    public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postCategory, SortCategory sortType, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
-        List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
+        List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postCategory, pageRequest).getContent();
 
         return postList.stream().map(MyPostListResponse::of).toList();
 
@@ -165,6 +165,7 @@ public class PostService {
      * 게시글 조회수
      */
     public void viewPost(Post post, HttpServletRequest request) {
+
         String clientIp = request.getRemoteAddr();
         String uniqueViewKey = "viewedPost_" + post.getId() + "_" + clientIp;
 

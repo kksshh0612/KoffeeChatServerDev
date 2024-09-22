@@ -15,12 +15,15 @@ import java.time.LocalDateTime;
 @Schema(description = "댓글 저장 Request")
 public class CommentRequest {
 
+    private Long postId;
+
     @Schema(description = "댓글 내용", example = "댓글 내용입니다.")
     @NotBlank(message = "댓글을 작성해주세요.")
-    String content;
+    private String content;
 
     public CommentServiceRequest toServiceRequest(LocalDateTime currDateTime) {
         return CommentServiceRequest.builder()
+                .postId(postId)
                 .content(this.content)
                 .currDateTime(currDateTime)
                 .build();
