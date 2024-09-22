@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -72,14 +73,14 @@ public class DevPostController {
     /**
      * 개발 게시글 목록 조회
      */
-    @GetMapping("/list")
+    @GetMapping("")
     @DevPostApiDocument.GetDevPostList
-    public ResponseEntity<?> getDevPostList(@RequestParam("page") int page, @RequestParam("size") int size,
+    public ResponseEntity<?> getDevPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
                                             @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
 
         log.info("/dev-post/list 진입");
 
-        List<DevPostListResponse> responseList = devPostService.getDevPostList(page, size, childSkillCategoryList);
+        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, childSkillCategoryList);
 
         return ResponseEntity.ok(responseList);
     }

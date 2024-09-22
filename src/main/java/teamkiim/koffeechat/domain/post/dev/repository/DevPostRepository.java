@@ -18,10 +18,10 @@ public interface DevPostRepository extends JpaRepository<DevPost, Long> {
 
     Optional<DevPost> findById(Long id);
 
-    @Query("select p from DevPost p where p.isEditing = false")
+    @Query("select p from DevPost p where p.isEditing = false and p.deleted = false")
     Page<DevPost> findAllCompletePostBySkillCategory(Pageable pageable);
 
-    @Query("select p from DevPost p join fetch p.skillCategoryList sc where p.isEditing = false and sc.childSkillCategory in :childSkillCategoryList")
+    @Query("select p from DevPost p join fetch p.skillCategoryList sc where p.isEditing = false and p.deleted = false and sc.childSkillCategory in :childSkillCategoryList")
     Page<DevPost> findAllCompletePostBySkillCategory(@Param("childSkillCategoryList") List<ChildSkillCategory> childSkillCategoryList, Pageable pageable);
 
 }

@@ -12,6 +12,6 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     Optional<CommunityPost> findById(Long id);
 
-    @Query("select p from CommunityPost p where p.isEditing = false")
+    @Query("select p from CommunityPost p where p.isEditing = false and p.deleted = false")
     Page<CommunityPost> findAllCompletePost(Pageable pageable);
 }

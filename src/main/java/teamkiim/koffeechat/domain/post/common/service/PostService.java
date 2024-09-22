@@ -128,11 +128,7 @@ public class PostService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = switch (sortType) {
-            case NEW -> PageRequest.of(page, size, Sort.by(DESC, "id"));
-            case LIKE -> PageRequest.of(page, size, Sort.by(DESC, "post.likeCount").and(Sort.by(DESC, "id")));
-            case VIEW -> PageRequest.of(page, size, Sort.by(DESC, "post.viewCount").and(Sort.by(DESC, "id")));
-        };
+        PageRequest pageRequest = sortBySortCategory(sortType, "id", "post.likeCount", "post.viewCount", page, size);
 
         List<Bookmark> bookmarkList = bookmarkRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
 
@@ -157,11 +153,7 @@ public class PostService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = switch (sortType) {
-            case NEW -> PageRequest.of(page, size, Sort.by(DESC, "id"));
-            case LIKE -> PageRequest.of(page, size, Sort.by(DESC, "likeCount").and(Sort.by(DESC, "id")));
-            case VIEW -> PageRequest.of(page, size, Sort.by(DESC, "viewCount").and(Sort.by(DESC, "id")));
-        };
+        PageRequest pageRequest = sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postType, pageRequest).getContent();
 
@@ -180,5 +172,16 @@ public class PostService {
             post.addViewCount();
             request.getSession().setAttribute(uniqueViewKey, true);
         }
+    }
+
+    /**
+     * 게시글 정렬 (최신순 | 좋아요순 | 조회순)
+     */
+    public PageRequest sortBySortCategory(SortCategory sortType, String newRequest, String likeRequest, String viewRequest, int page, int size) {
+        return switch (sortType) {
+            case NEW -> PageRequest.of(page, size, Sort.by(DESC, newRequest));
+            case LIKE -> PageRequest.of(page, size, Sort.by(DESC, likeRequest).and(Sort.by(DESC, newRequest)));
+            case VIEW -> PageRequest.of(page, size, Sort.by(DESC, viewRequest).and(Sort.by(DESC, newRequest)));
+        };
     }
 }
