@@ -14,6 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Optional<Comment> findById(Long id);
 
-    @Query("SELECT c FROM Comment c WHERE c.member=:member")
+    @Query("SELECT c FROM Comment c WHERE c.member = :member")
     Page<Comment> findAllByMember(@Param("member") Member member, PageRequest pageRequest);
 }

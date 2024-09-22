@@ -17,7 +17,6 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,8 +38,12 @@ public class CorpService {
         Optional<Corp> corp = corpRepository.findByNameAndEmailDomain(corpName, corpDomain);
 
         if (corp.isPresent()) {  // 이미 있는 요청
-            if (corp.get().getVerified().equals(Verified.REJECTED)) return "승인 거절된 도메인입니다. 이메일 확인 후 문의해주세요.";
-            if (corp.get().getVerified().equals(Verified.APPROVED)) return "이미 존재하는 도메인입니다.";
+            if (corp.get().getVerified().equals(Verified.REJECTED)) {
+                throw new CustomException(ErrorCode.CORP_DOMAIN_FORBIDDEN);
+            }
+            if (corp.get().getVerified().equals(Verified.APPROVED)) {
+                throw new CustomException(ErrorCode.CORP_ALREADY_EXIST);
+            }
         }
 
         // 새로운 요청 -> 요청 생성
@@ -58,7 +61,7 @@ public class CorpService {
 
         List<Corp> corpList = corpRepository.findApprovedCorpByName(corpName, Verified.APPROVED);
 
-        return corpList.stream().map(CorpDomainResponse::of).collect(Collectors.toList());
+        return corpList.stream().map(CorpDomainResponse::of).toList();
     }
 
     /**
@@ -68,7 +71,7 @@ public class CorpService {
 
         List<Corp> corpList = corpRepository.findApprovedCorpByDomain(corpDomain, Verified.APPROVED);
 
-        return corpList.stream().map(CorpDomainResponse::of).collect(Collectors.toList());
+        return corpList.stream().map(CorpDomainResponse::of).toList();
     }
 
     /**
@@ -88,10 +91,7 @@ public class CorpService {
         String domain = email.substring(email.indexOf('@') + 1);
         Optional<Corp> corp = corpRepository.findByEmailDomain(domain);
 
-        String validationMessage = validateDomain(corp, corpName, domain);
-        if (validationMessage != null) {
-            return validationMessage;
-        }
+        validateDomain(corp, corpName, domain);  //유효한 이메일인지 확인
 
         //인증된 도메인인 경우 메일 발송
         EmailAuth emailAuth = new EmailAuth(email);
@@ -105,20 +105,20 @@ public class CorpService {
     /**
      * 유효한 이메일인지 확인
      */
-    private String validateDomain(Optional<Corp> corp, String corpName, String domain) {
+    private void validateDomain(Optional<Corp> corp, String corpName, String domain) {
         if (corp.isEmpty()) {
             corpRepository.save(new Corp(corpName, domain, Verified.WAITING));  //도메인 승인 요청 생성
-            return "등록되어있지 않은 회사입니다. 도메인 승인이 되면 다시 인증해주세요.";
+            throw new CustomException(ErrorCode.CORP_DOMAIN_WAITING);
         }
 
         if (corp.get().getVerified().equals(Verified.WAITING)) {
-            return "등록 요청이 되어있는 도메인입니다. 도메인 승인이 되면 다시 인증해주세요.";
-        }
-        if (corp.get().getVerified().equals(Verified.REJECTED)) {
-            return "인증할 수 없는 이메일입니다. 이메일을 다시 확인해주세요.";
+            throw new CustomException(ErrorCode.CORP_DOMAIN_WAITING);
         }
 
-        return null;
+        if (corp.get().getVerified().equals(Verified.REJECTED)) {
+            throw new CustomException(ErrorCode.CORP_DOMAIN_FORBIDDEN);
+        }
+
     }
 
     /**

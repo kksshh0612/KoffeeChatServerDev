@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.notification.controller.dto.NotificationApiDocument;
+import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
@@ -50,16 +51,17 @@ public class NotificationController {
     }
 
     /**
-     * 알림 목록 조회
+     * 알림 목록 조회 (전체 | 게시글 | 댓글 | 팔로우)
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("")
     @NotificationApiDocument.ShowNotificationListApiDoc
-    public ResponseEntity<?> showNotificationList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    public ResponseEntity<?> showNotificationList(@RequestParam("notificationType") NotificationType notiType,
+                                                  @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<NotificationListItemResponse> response = notificationService.getNotificationList(memberId, page, size);
+        List<NotificationListItemResponse> response = notificationService.getNotificationList(notiType, memberId, page, size);
 
         return ResponseEntity.ok(response);
     }
