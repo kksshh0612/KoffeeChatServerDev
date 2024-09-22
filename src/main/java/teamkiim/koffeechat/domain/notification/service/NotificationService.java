@@ -188,16 +188,21 @@ public class NotificationService {
     /**
      * 알림 목록 조회
      *
-     * @param page     페이지 번호 ( ex) 0, 1,,,, )
-     * @param size     페이지 당 조회할 데이터 수
-     * @param memberId 로그인 한 회원
+     * @param notificationType 조회할 알림 종류 (전체 | 게시글 | 댓글 | 팔로우)
+     * @param page             페이지 번호 ( ex) 0, 1,,,, )
+     * @param size             페이지 당 조회할 데이터 수
+     * @param memberId         로그인 한 회원
      * @return List<NotificationListResponse>
      */
-    public List<NotificationListItemResponse> getNotificationList(Long memberId, int page, int size) {
-        memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    public List<NotificationListItemResponse> getNotificationList(NotificationType notificationType, Long memberId, int page, int size) {
+        Member receiver = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Notification> notificationList = notificationRepository.findAllByReceiverId(memberId, pageRequest).getContent();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  // 최신순 정렬
+
+        List<Notification> notificationList = (notificationType.equals(NotificationType.ALL)) ?
+                notificationRepository.findAllByReceiver(receiver, pageRequest).getContent()
+                : notificationRepository.findALLByReceiverIdAndNotificationType(receiver, notificationType, pageRequest).getContent();
+
         return notificationList.stream().map(NotificationListItemResponse::of).toList();
     }
 
