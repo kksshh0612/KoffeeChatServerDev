@@ -13,7 +13,6 @@ import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 
 import java.util.Optional;
 
-
 /**
  * 알림 메시지 저장 repository
  */

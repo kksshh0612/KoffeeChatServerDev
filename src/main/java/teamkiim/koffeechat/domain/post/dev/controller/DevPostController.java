@@ -5,13 +5,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
@@ -39,7 +39,7 @@ public class DevPostController {
 
         Long postId = devPostService.saveInitDevPost(memberId);
 
-        return ResponseEntity.ok(postId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postId);
     }
 
     /**
@@ -52,7 +52,7 @@ public class DevPostController {
 
         devPostService.cancelWriteDevPost(postId);
 
-        return ResponseEntity.ok("게시글 작성 취소 완료");
+        return ResponseEntity.ok("게시글 삭제 완료");
     }
 
     /**
@@ -65,9 +65,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        DevPostResponse response = devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
+        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("게시글 작성 완료");
     }
 
     /**
@@ -95,9 +95,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        DevPostResponse response = devPostService.findPost(postId, memberId, request);
+        DevPostResponse postResponse = devPostService.findPost(postId, memberId, request);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(postResponse);
     }
 
     /**
@@ -110,9 +110,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        DevPostResponse response = devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
+        devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("게시물 수정 완료");
     }
 
 }

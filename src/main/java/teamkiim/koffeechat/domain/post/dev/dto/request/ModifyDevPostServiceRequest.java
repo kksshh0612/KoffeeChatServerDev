@@ -23,6 +23,7 @@ public class ModifyDevPostServiceRequest {
     private Long id;
     private String title;
     private String bodyContent;
+    private String visualData;
     private List<ParentSkillCategory> parentSkillCategoryList;
     private List<ChildSkillCategory> childSkillCategoryList;
     private LocalDateTime currDateTime;

@@ -11,6 +11,7 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
