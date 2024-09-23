@@ -58,14 +58,14 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/post")
     @CommunityPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(
-            @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> savePost(@Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest,
+                                      HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        CommunityPostResponse response = communityPostService.saveCommunityPost(saveCommunityPostRequest, memberId);
+        communityPostService.saveCommunityPost(saveCommunityPostRequest, memberId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("커뮤니티 게시글 저장 완료");
     }
 
     /**
@@ -106,9 +106,9 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        CommunityPostResponse response = communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
+        communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("게시물 수정 완료");
     }
 
 }

@@ -58,8 +58,7 @@ public @interface CommunityPostApiDocument {
      */
     @Operation(summary = "게시글 저장", description = "사용자가 커뮤니티 게시판에 게시글을 저장한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "생성된 게시글을 반환한다.",
-                    content = @Content(schema = @Schema(implementation = CommunityPostResponse.class))),
+            @ApiResponse(responseCode = "200", description = "커뮤니티 게시글 작성 완료"),
             @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "제목 없이 게시글을 쓰려고 하는 경우",
                             value = "{\"code\":400, \"message\":\"제목을 입력해 주세요.\"}"),
@@ -119,8 +118,7 @@ public @interface CommunityPostApiDocument {
      */
     @Operation(summary = "게시글 수정", description = "사용자가 커뮤니티 게시글을 수정한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "커뮤니티 게시글을 반환한다.",
-                    content = @Content(schema = @Schema(implementation = CommunityPostResponse.class))),
+            @ApiResponse(responseCode = "200", description = "커뮤니티 게시글 수정 완료"),
             @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "제목 없이 게시글을 쓰려고 하는 경우",
                             value = "{\"code\":400, \"message\":\"제목을 입력해 주세요.\"}"),
