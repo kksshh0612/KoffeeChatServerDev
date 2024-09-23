@@ -20,22 +20,25 @@ public class ModifyDevPostRequest {
     @Schema(description = "수정할 개발 게시글 pk")
     private Long id;
 
-    @Schema(description = "개발 게시글 제목", example="개발 게시글 제목 수정입니다.")
+    @Schema(description = "개발 게시글 제목", example = "개발 게시글 제목 수정입니다.")
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
 
-    @Schema(description = "개발 게시글 내용", example="개발 게시글 내용 수정입니다.")
+    @Schema(description = "개발 게시글 내용", example = "개발 게시글 내용 수정입니다.")
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 
-    @Schema(description = "시각 자료", example="")      // 필수 아님
+    @Schema(description = "시각 자료", example = "")      // 필수 아님
     private String visualData;
 
     @Schema(description = "개발 게시글 연관 카테고리")
     private List<ParentSkillCategory> parentSkillCategoryList;
     private List<ChildSkillCategory> childSkillCategoryList;
 
-    public ModifyDevPostServiceRequest toServiceRequest(){
+    @Schema(description = "게시글 관련 태그 리스트")
+    private List<String> tagContentList;
+
+    public ModifyDevPostServiceRequest toServiceRequest() {
         return ModifyDevPostServiceRequest.builder()
                 .id(this.id)
                 .title(this.title)
@@ -43,6 +46,7 @@ public class ModifyDevPostRequest {
                 .visualData(this.visualData)
                 .parentSkillCategoryList(this.parentSkillCategoryList)
                 .childSkillCategoryList(this.childSkillCategoryList)
+                .tagContentList(this.tagContentList)
                 .build();
     }
 }

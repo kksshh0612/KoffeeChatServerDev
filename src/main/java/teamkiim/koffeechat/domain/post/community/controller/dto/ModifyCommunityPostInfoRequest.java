@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,5 +24,8 @@ public class ModifyCommunityPostInfoRequest {
     @Schema(description = "커뮤니티 게시글 내용", example = "커뮤니티 게시글 내용입니다.")
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
+
+    @Schema(description = "커뮤니티 게시글 태그 리스트", example = "[\"태그 1\", \"태그 2\"]")
+    private List<String> tagContentList;
 
 }

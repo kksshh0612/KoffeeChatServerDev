@@ -19,6 +19,7 @@ public class ModifyCommunityPostRequest {
                 .id(this.modifyCommunityPostInfoRequest.getId())
                 .title(this.modifyCommunityPostInfoRequest.getTitle())
                 .bodyContent(this.modifyCommunityPostInfoRequest.getBodyContent())
+                .tagContentList(this.modifyCommunityPostInfoRequest.getTagContentList())
                 .build();
     }
 
@@ -30,6 +31,5 @@ public class ModifyCommunityPostRequest {
         return ModifyVoteServiceRequest.builder()
                 .items(this.modifyVoteRequest.getItems())
                 .build();
-
     }
 }

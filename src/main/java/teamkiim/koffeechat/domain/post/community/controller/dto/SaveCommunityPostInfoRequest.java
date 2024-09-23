@@ -27,5 +27,7 @@ public class SaveCommunityPostInfoRequest {
 
     private List<Long> fileIdList;
 
+    private List<String> tagContentList;
+
 }
 

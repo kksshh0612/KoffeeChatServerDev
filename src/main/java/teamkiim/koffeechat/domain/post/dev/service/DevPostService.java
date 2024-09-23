@@ -11,9 +11,9 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
-import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
+import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
+import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
-import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
 import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceRequest;
@@ -22,12 +22,11 @@ import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.repository.DevPostRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
+import teamkiim.koffeechat.domain.tag.service.TagService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 개발 게시글 관련 서비스
@@ -39,11 +38,13 @@ public class DevPostService {
 
     private final DevPostRepository devPostRepository;
     private final MemberRepository memberRepository;
+
     private final FileService fileService;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
     private final NotificationService notificationService;
     private final PostService postService;
+    private final TagService tagService;
 
     /**
      * 게시글 최초 임시 저장
@@ -71,7 +72,6 @@ public class DevPostService {
      * 개발 게시글 작성 취소
      *
      * @param postId 게시글 PK
-     * @return ok
      */
     @Transactional
     public void cancelWriteDevPost(Long postId) {
@@ -88,7 +88,6 @@ public class DevPostService {
      * 게시글 저장
      *
      * @param saveDevPostServiceRequest 게시글 저장 dto
-     * @return DevPostResponse
      */
     @Transactional
     public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
@@ -98,6 +97,8 @@ public class DevPostService {
 
         DevPost devPost = devPostRepository.findById(saveDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        tagService.addTags(devPost, saveDevPostServiceRequest.getTagContentList());  //해시태그 추가
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
                 saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList());
@@ -142,7 +143,10 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
-                .map(comment -> CommentInfoDto.of(comment, memberId)).collect(Collectors.toList());
+                .map(comment -> CommentInfoDto.of(comment, memberId)).toList();
+
+        List<TagInfoDto> tagInfoDtoList = devPost.getPostTagList().stream()
+                .map(postTag -> TagInfoDto.of(postTag.getTag())).toList();
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
@@ -153,28 +157,27 @@ public class DevPostService {
             postService.viewPost(devPost, request);
         }
 
-        return DevPostResponse.of(devPost, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return DevPostResponse.of(devPost, tagInfoDtoList, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
      * 게시글 수정
      *
      * @param modifyDevPostServiceRequest 게시글 수정 dto
-     * @return DevPostResponse
      */
     @Transactional
     public void modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        tagService.updateTags(devPost, modifyDevPostServiceRequest.getTagContentList());  //해시태그 수정
+
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
                 modifyDevPostServiceRequest.getVisualData(), modifyDevPostServiceRequest.combineSkillCategory());
 
-        boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
-        boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
     }
 }

@@ -7,6 +7,8 @@ import org.hibernate.annotations.SQLRestriction;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.member.domain.Member;
+import teamkiim.koffeechat.domain.tag.domain.PostTag;
+import teamkiim.koffeechat.domain.tag.domain.Tag;
 import teamkiim.koffeechat.global.auditing.BaseEntity;
 
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ public abstract class Post extends BaseEntity {
     private Member member;                                      // 작성자
 
     @Enumerated(EnumType.STRING)
-    PostCategory postCategory;                                  // 관심 기술
+    PostCategory postCategory;                                  // 개발/커뮤니티
 
     private String title;                                       // 제목
 
@@ -47,10 +49,14 @@ public abstract class Post extends BaseEntity {
     private boolean deleted = false;                            // delete 여부 (Default false)
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<File> fileList = new ArrayList<>();
+    private List<File> fileList = new ArrayList<>();             //파일 리스트
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> commentList = new ArrayList<>();
+    private List<Comment> commentList = new ArrayList<>();       //댓글 리스트
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostTag> postTagList = new ArrayList<>();       // 해시태그 리스트
+
 
     protected Post(Member member, PostCategory postCategory, String title, String bodyContent, boolean isEditing) {
 
@@ -71,6 +77,17 @@ public abstract class Post extends BaseEntity {
     public void addComment(Comment comment) {
         commentList.add(comment);
         comment.injectPost(this);
+    }
+
+    public void addTag(Tag tag) {
+        PostTag postTag = new PostTag(this, tag);
+        this.postTagList.add(postTag);
+        tag.getPostTagList().add(postTag);
+    }
+
+    public void removeTag(PostTag postTag) {
+        postTagList.remove(postTag);
+        postTag.getTag().getPostTagList().remove(postTag);
     }
 
     //========================//

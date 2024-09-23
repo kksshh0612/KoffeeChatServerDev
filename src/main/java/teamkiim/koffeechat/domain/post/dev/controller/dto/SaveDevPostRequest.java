@@ -19,22 +19,25 @@ public class SaveDevPostRequest {
     @Schema(description = "최초 저장한 게시글 pk", example = "1")
     private Long id;
 
-    @Schema(description = "개발 게시글 제목" , example = "개발 게시글 제목입니다.")
+    @Schema(description = "개발 게시글 제목", example = "개발 게시글 제목입니다.")
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
 
-    @Schema(description = "개발 게시글 내용" , example = "개발 게시글 내용입니다.")
+    @Schema(description = "개발 게시글 내용", example = "개발 게시글 내용입니다.")
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 
-    @Schema(description = "시각 자료", example="")      // 필수 아님
+    @Schema(description = "시각 자료", example = "")      // 필수 아님
     private String visualData;
 
     @Schema(description = "게시글 관련 기술 카테고리")
     private List<SkillCategory> skillCategoryList;
     private List<Long> fileIdList;
 
-    public SaveDevPostServiceRequest toServiceRequest(){
+    @Schema(description = "게시글 관련 태그 리스트")
+    private List<String> tagContentList;
+
+    public SaveDevPostServiceRequest toServiceRequest() {
         return SaveDevPostServiceRequest.builder()
                 .id(this.id)
                 .title(this.title)
@@ -42,6 +45,7 @@ public class SaveDevPostRequest {
                 .visualData(this.visualData)
                 .skillCategoryList(this.skillCategoryList)
                 .fileIdList(this.fileIdList)
+                .tagContentList(this.tagContentList)
                 .build();
     }
 }
