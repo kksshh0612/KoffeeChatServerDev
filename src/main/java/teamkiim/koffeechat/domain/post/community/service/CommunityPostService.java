@@ -77,7 +77,6 @@ public class CommunityPostService {
      * 커뮤니티 게시글 작성 취소
      *
      * @param postId 게시글 PK
-     * @return ok
      */
     @Transactional
     public void cancelWriteCommunityPost(Long postId) {
@@ -141,6 +140,21 @@ public class CommunityPostService {
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         List<CommunityPost> communityPostList = communityPostRepository.findAllCompletePost(pageRequest).getContent();
+
+        return communityPostList.stream().map(CommunityPostListResponse::of).toList();
+    }
+
+    /**
+     * 태그로 게시글 검색
+     *
+     * @param tagContents 검색된 태그들
+     * @param page        페이지 번호 ( ex) 0, 1,,,, )
+     * @param size        페이지 당 조회할 데이터 수
+     * @return List<CommunityPostListResponse>
+     */
+    public List<CommunityPostListResponse> searchByTag(List<String> tagContents, SortCategory sortType, int page, int size) {
+        PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
+        List<CommunityPost> communityPostList = communityPostRepository.findAllCompletePostByTags(tagContents, pageRequest).getContent();
 
         return communityPostList.stream().map(CommunityPostListResponse::of).toList();
     }

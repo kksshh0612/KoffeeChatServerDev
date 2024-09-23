@@ -25,7 +25,7 @@ public class ModifyCommunityPostInfoRequest {
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 
-    @Schema(description = "커뮤니티 게시글 태그 리스트", example = "[\"태그 1\", \"태그 2\"]")
+    @Schema(description = "커뮤니티 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
 
 }

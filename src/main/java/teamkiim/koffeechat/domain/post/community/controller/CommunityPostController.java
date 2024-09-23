@@ -81,6 +81,20 @@ public class CommunityPostController {
     }
 
     /**
+     * 태그로 게시글 검색
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/search")
+    @CommunityPostApiDocument.SearchByTagApiDoc
+    public ResponseEntity<?> searchByTag(@RequestParam("tagContent") List<String> tagContents, @RequestParam("sortType") SortCategory sortType,
+                                         @RequestParam("page") int page, @RequestParam("size") int size) {
+
+        List<CommunityPostListResponse> responses = communityPostService.searchByTag(tagContents, sortType, page, size);
+
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
      * 커뮤니티 게시글 상세 조회
      */
     @AuthenticatedMemberPrincipal

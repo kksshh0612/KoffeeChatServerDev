@@ -35,7 +35,7 @@ public class ModifyDevPostRequest {
     private List<ParentSkillCategory> parentSkillCategoryList;
     private List<ChildSkillCategory> childSkillCategoryList;
 
-    @Schema(description = "게시글 관련 태그 리스트")
+    @Schema(description = "개발 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
 
     public ModifyDevPostServiceRequest toServiceRequest() {

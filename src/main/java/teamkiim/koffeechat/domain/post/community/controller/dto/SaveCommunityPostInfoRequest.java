@@ -27,6 +27,7 @@ public class SaveCommunityPostInfoRequest {
 
     private List<Long> fileIdList;
 
+    @Schema(description = "커뮤니티 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
 
 }
