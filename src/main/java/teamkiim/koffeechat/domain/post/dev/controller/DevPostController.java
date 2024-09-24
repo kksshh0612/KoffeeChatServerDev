@@ -47,7 +47,7 @@ public class DevPostController {
      * 개발 게시글 작성 취소
      */
     @AuthenticatedMemberPrincipal
-    @DeleteMapping("/cancel/{postId}")
+    @DeleteMapping("/{postId}")
     @DevPostApiDocument.CancelPostApiDoc
     public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
 
@@ -60,13 +60,13 @@ public class DevPostController {
      * 개발 게시글 작성
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/post")
+    @PostMapping("/{postId}")
     @DevPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(@Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> savePost(@PathVariable("postId") Long postId, @Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
+        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(postId), memberId);
 
         return ResponseEntity.ok("게시글 작성 완료");
     }
@@ -119,13 +119,13 @@ public class DevPostController {
      * 개발 게시글 수정
      */
     @AuthenticatedMemberPrincipal
-    @PatchMapping("/modify")
+    @PatchMapping("/{postId}")
     @DevPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") Long postId, @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
+        devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(postId), memberId);
 
         return ResponseEntity.ok("게시물 수정 완료");
     }

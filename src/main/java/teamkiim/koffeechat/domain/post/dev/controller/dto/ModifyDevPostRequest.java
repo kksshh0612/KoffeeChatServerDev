@@ -17,9 +17,6 @@ import java.util.List;
 @Schema(description = "개발 게시글 수정 Request")
 public class ModifyDevPostRequest {
 
-    @Schema(description = "수정할 개발 게시글 pk")
-    private Long id;
-
     @Schema(description = "개발 게시글 제목", example = "개발 게시글 제목 수정입니다.")
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
@@ -38,9 +35,9 @@ public class ModifyDevPostRequest {
     @Schema(description = "개발 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
 
-    public ModifyDevPostServiceRequest toServiceRequest() {
+    public ModifyDevPostServiceRequest toServiceRequest(Long postId) {
         return ModifyDevPostServiceRequest.builder()
-                .id(this.id)
+                .id(postId)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
                 .visualData(this.visualData)

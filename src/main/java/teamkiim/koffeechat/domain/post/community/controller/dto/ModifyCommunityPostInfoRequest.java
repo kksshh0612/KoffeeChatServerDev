@@ -14,9 +14,6 @@ import java.util.List;
 @Schema(description = "커뮤니티 게시글 수정 Request")
 public class ModifyCommunityPostInfoRequest {
 
-    @Schema(description = "커뮤니티 게시글 pk", example = "1")
-    private Long id;
-
     @Schema(description = "커뮤니티 게시글 제목", example = "커뮤니티 게시글 제목입니다.")
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;

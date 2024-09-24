@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/member")
+@Tag(name = "사용자 API")
 public class MemberController {
 
     private final MemberService memberService;
@@ -83,7 +84,7 @@ public class MemberController {
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile")
-    @MemberApiDocument.FindMemberProfile
+    @MemberApiDocument.FindProfile
     public ResponseEntity<?> findProfile(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));

@@ -17,9 +17,9 @@ public class SaveCommunityPostRequest {
     private SaveCommunityPostInfoRequest saveCommunityPostInfoRequest;  //게시물 글 내용 dto
     private SaveVoteRequest saveVoteRequest;                            //게시물 투표 내용 dto
 
-    public SaveCommunityPostServiceRequest toPostServiceRequest() {
+    public SaveCommunityPostServiceRequest toPostServiceRequest(Long postId) {
         return SaveCommunityPostServiceRequest.builder()
-                .id(this.saveCommunityPostInfoRequest.getId())
+                .id(postId)
                 .title(this.saveCommunityPostInfoRequest.getTitle())
                 .bodyContent(this.saveCommunityPostInfoRequest.getBodyContent())
                 .fileIdList(this.saveCommunityPostInfoRequest.getFileIdList())

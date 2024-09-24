@@ -95,12 +95,12 @@ public class CommunityPostService {
      * @param postRequest 게시글 저장 dto
      */
     @Transactional
-    public void saveCommunityPost(SaveCommunityPostRequest postRequest, Long memberId) {
+    public void saveCommunityPost(Long postId, SaveCommunityPostRequest postRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        SaveCommunityPostServiceRequest postServiceRequest = postRequest.toPostServiceRequest();
+        SaveCommunityPostServiceRequest postServiceRequest = postRequest.toPostServiceRequest(postId);
 
         CommunityPost communityPost = communityPostRepository.findById(postServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
