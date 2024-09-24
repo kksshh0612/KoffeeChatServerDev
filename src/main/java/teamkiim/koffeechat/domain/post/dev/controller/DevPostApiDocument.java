@@ -81,6 +81,19 @@ public @interface DevPostApiDocument {
     }
 
     /**
+     * 태그로 게시글 검색
+     */
+    @Operation(summary = "태그를 통해 개발 게시글을 검색한다.", description = "태그를 통해 개발 게시글을 검색한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "검색된 개발 게시물 리스트를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = DevPostListResponse.class)))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface SearchByTagApiDoc {
+    }
+
+    /**
      * 개발 게시글 목록 조회
      */
     @Operation(summary = "게시글 목록 조회", description = "사용자가 개발 게시글 목록을 조회한다.")
@@ -138,4 +151,5 @@ public @interface DevPostApiDocument {
     @Retention(RetentionPolicy.RUNTIME)
     @interface ModifyPostApiDoc {
     }
+
 }

@@ -128,6 +128,21 @@ public class DevPostService {
     }
 
     /**
+     * 태그로 게시글 검색
+     *
+     * @param tagContents 검색된 태그들
+     * @param page        페이지 번호 ( ex) 0, 1,,,, )
+     * @param size        페이지 당 조회할 데이터 수
+     * @return List<DevPostListResponse>
+     */
+    public List<DevPostListResponse> searchByTag(List<String> tagContents, SortCategory sortType, int page, int size) {
+        PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
+        List<DevPost> devPostList = devPostRepository.findAllCompletePostByTags(tagContents, pageRequest).getContent();
+
+        return devPostList.stream().map(DevPostListResponse::of).toList();
+    }
+
+    /**
      * 게시글 상세 조회
      *
      * @param postId 게시글 PK

@@ -82,9 +82,9 @@ public @interface CommunityPostApiDocument {
     /**
      * 태그로 게시글 검색
      */
-    @Operation(summary = "태그를 통해 게시글을 검색한다.", description = "태그를 통해 게시글을 검색한다.")
+    @Operation(summary = "태그를 통해 커뮤니티 게시글을 검색한다.", description = "태그를 통해 커뮤니티 게시글을 검색한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "검색된 게시물 리스트를 반환한다.",
+            @ApiResponse(responseCode = "200", description = "검색된 커뮤니티 게시물 리스트를 반환한다.",
                     content = @Content(schema = @Schema(implementation = CommunityPostListResponse.class)))
     })
     @Target(ElementType.METHOD)

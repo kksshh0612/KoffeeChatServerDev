@@ -87,6 +87,20 @@ public class DevPostController {
     }
 
     /**
+     * 태그로 게빌 게시글 검색
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/search")
+    @DevPostApiDocument.SearchByTagApiDoc
+    public ResponseEntity<?> searchByTag(@RequestParam("tag") List<String> tagContents, @RequestParam("sortType") SortCategory sortType,
+                                         @RequestParam("page") int page, @RequestParam("size") int size) {
+
+        List<DevPostListResponse> responses = devPostService.searchByTag(tagContents, sortType, page, size);
+
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
      * 개발 게시글 상세 조회
      */
     @AuthenticatedMemberPrincipal
