@@ -17,14 +17,14 @@ spring:
   mail:
     host: smtp.naver.com          # 네이버 SMTP 호스트 주소
     port: 465                     # 네이버 SMTP 포트
-    username: ${email-address}
-    password: ${email-pw}
+    username: ${EMAIL_ADDRESS}
+    password: ${EMAIL_PASSWORD}
     properties:
       mail.smtp.auth: true        # SMTP 서버와의 인증
       mail.smtp.ssl.enable: true  # SSL 보안연결(필수)
 
 jwt:
-  secret-key: ${secret-key}
+  secret-key: ${JWT_SECRET_KEY}
   access:
     header: Authorization
     exp: 7200000    # 2시간 7200000

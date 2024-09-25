@@ -1,0 +1,45 @@
+# 로컬 개발 환경에서의 설정
+spring:
+  config:
+    name: application-dev
+    activate:
+      on-profile: dev
+    location: classpath:/application-dev.yml
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: root
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: 6379
+
+    mongodb:
+      host: ${SPRING_DATA_MONGODB_HOST}
+      port: 27017
+      database: ${SPRING_DATA_MONGODB_DATABASE}
+      username: ${SPRING_DATA_MONGODB_USERNAME}
+      password: ${SPRING_DATA_MONGODB_PASSWORD}
+      authentication-database: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true                                    # sout으로 보기에 편안한 sql 출력
+        dialect: org.hibernate.dialect.MySQL8Dialect        # mysql 방언
+    open-in-view: false
+
+logging:
+  level:
+    org.hibernate.SQL: info    # 하이버네이트가 생성하는 sql 로그로 출력
+    org.hibernate.orm.jdbc.bind: info    # 쿼리 파라미터 로그 남김
+#    org.springframework.data.mongodb.core: info
+#    org.mongodb.driver: debug
+
+file-path: ${FILE_PATH}
