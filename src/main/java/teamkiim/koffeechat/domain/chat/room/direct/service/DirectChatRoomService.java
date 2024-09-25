@@ -51,7 +51,9 @@ public class DirectChatRoomService {
 
         Optional<DirectChatRoom> existChatRoom = directChatRoomRepository.findDirectChatRoomByMembers(member1, member2);
 
-        if(existChatRoom.isPresent()) throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_EXIST);
+        if(existChatRoom.isPresent()){
+            return new CreateDirectChatRoomResponse(existChatRoom.get().getId());
+        }
 
         DirectChatRoom directChatRoom = DirectChatRoom.builder()
                 .chatRoomType(ChatRoomType.DIRECT)
@@ -88,15 +90,16 @@ public class DirectChatRoomService {
         DirectChatRoom directChatRoom = directChatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByChatRoom(directChatRoom, pageRequest).getContent();
+        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByChatRoom(directChatRoom);
 
+        // 채팅방에 참여한 멤버들
         List<Member> joinMemberList = memberChatRoomList.stream()
                 .map(MemberChatRoom::getMember)
                 .toList();
 
-        List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(directChatRoom.getId());
+        List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(directChatRoom.getId(), pageRequest).getContent();
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
                 .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList, memberId))
