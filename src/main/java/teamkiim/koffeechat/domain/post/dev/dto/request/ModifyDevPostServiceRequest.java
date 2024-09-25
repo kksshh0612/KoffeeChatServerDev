@@ -28,6 +28,8 @@ public class ModifyDevPostServiceRequest {
     private List<ParentSkillCategory> parentSkillCategoryList;
     private List<ChildSkillCategory> childSkillCategoryList;
 
+    private List<Long> fileIdList;
+
     private LocalDateTime currDateTime;
 
     private List<String> tagContentList;

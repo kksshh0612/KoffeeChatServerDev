@@ -19,6 +19,7 @@ public class ModifyCommunityPostRequest {
                 .id(postId)
                 .title(this.modifyCommunityPostInfoRequest.getTitle())
                 .bodyContent(this.modifyCommunityPostInfoRequest.getBodyContent())
+                .fileIdList(this.getModifyCommunityPostInfoRequest().getFileIdList())
                 .tagContentList(this.modifyCommunityPostInfoRequest.getTagContentList())
                 .build();
     }

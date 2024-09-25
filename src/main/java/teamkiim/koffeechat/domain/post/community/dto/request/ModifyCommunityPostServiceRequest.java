@@ -16,5 +16,6 @@ public class ModifyCommunityPostServiceRequest {
     private Long id;
     private String title;
     private String bodyContent;
+    private List<Long> fileIdList;
     private List<String> tagContentList;
 }

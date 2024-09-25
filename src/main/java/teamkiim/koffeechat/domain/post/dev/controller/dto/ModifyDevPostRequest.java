@@ -2,6 +2,7 @@ package teamkiim.koffeechat.domain.post.dev.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,8 +30,13 @@ public class ModifyDevPostRequest {
     private String visualData;
 
     @Schema(description = "개발 게시글 연관 카테고리")
+    @NotEmpty(message = "기술 카테고리는 최소 하나 이상 선택해야 합니다.")
     private List<ParentSkillCategory> parentSkillCategoryList;
+    @NotEmpty(message = "기술 카테고리는 최소 하나 이상 선택해야 합니다.")
     private List<ChildSkillCategory> childSkillCategoryList;
+
+    @Schema(description = "게시글 관련 파일 리스트")
+    private List<Long> fileIdList;
 
     @Schema(description = "개발 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
@@ -43,6 +49,7 @@ public class ModifyDevPostRequest {
                 .visualData(this.visualData)
                 .parentSkillCategoryList(this.parentSkillCategoryList)
                 .childSkillCategoryList(this.childSkillCategoryList)
+                .fileIdList(this.fileIdList)
                 .tagContentList(this.tagContentList)
                 .build();
     }

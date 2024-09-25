@@ -2,6 +2,7 @@ package teamkiim.koffeechat.domain.post.dev.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class SaveDevPostRequest {
     private String visualData;
 
     @Schema(description = "게시글 관련 기술 카테고리")
+    @NotEmpty(message = "기술 카테고리는 최소 하나 이상 선택해야 합니다.")
     private List<SkillCategory> skillCategoryList;
     private List<Long> fileIdList;
 

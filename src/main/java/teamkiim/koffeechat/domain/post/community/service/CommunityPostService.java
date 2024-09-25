@@ -2,6 +2,7 @@ package teamkiim.koffeechat.domain.post.community.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +19,8 @@ import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPos
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.domain.post.community.dto.request.ModifyCommunityPostServiceRequest;
 import teamkiim.koffeechat.domain.post.community.dto.request.SaveCommunityPostServiceRequest;
-import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostSearchListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.VoteResponse;
 import teamkiim.koffeechat.domain.post.community.repository.CommunityPostRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
@@ -128,41 +129,43 @@ public class CommunityPostService {
     }
 
     /**
-     * 게시글 목록 조회
+     * 게시글 목록 조회 (필터 : 태그)
      *
-     * @param sortType 정렬 기준 (최신 | 좋아요순 | 조회순)
-     * @param page     페이지 번호 ( ex) 0, 1,,,, )
-     * @param size     페이지 당 조회할 데이터 수
-     * @return List<CommunityPostListResponse>
+     * @param sortType    정렬 기준 (최신 | 좋아요순 | 조회순)
+     * @param page        페이지 번호 ( ex) 0, 1,,,, )
+     * @param size        페이지 당 조회할 데이터 수
+     * @param tagContents 검색된 태그들
+     * @return CommunityPostSearchListResponse
      */
-    public List<CommunityPostListResponse> findCommunityPostList(SortCategory sortType, int page, int size) {
+    public CommunityPostSearchListResponse findCommunityPostList(SortCategory sortType, int page, int size, List<String> tagContents) {
 
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
-        List<CommunityPost> communityPostList = communityPostRepository.findAllCompletePost(pageRequest).getContent();
+        Page<CommunityPost> communityPostList = tagContents == null ? communityPostRepository.findAllCompletePost(pageRequest)
+                : communityPostRepository.findAllCompletePostByTags(tagContents, pageRequest);
 
-        return communityPostList.stream().map(CommunityPostListResponse::of).toList();
+        return CommunityPostSearchListResponse.of(communityPostList.getTotalElements(), communityPostList);
     }
 
     /**
-     * 태그로 게시글 검색
+     * 제목으로 게시글 검색
      *
-     * @param tagContents 검색된 태그들
-     * @param page        페이지 번호 ( ex) 0, 1,,,, )
-     * @param size        페이지 당 조회할 데이터 수
-     * @return List<CommunityPostListResponse>
+     * @param keyword 검색된 내용
+     * @param page    페이지 번호 ( ex) 0, 1,,,, )
+     * @param size    페이지 당 조회할 데이터 수
+     * @return CommunityPostSearchListResponse
      */
-    public List<CommunityPostListResponse> searchByTag(List<String> tagContents, SortCategory sortType, int page, int size) {
+    public CommunityPostSearchListResponse search(String keyword, SortCategory sortType, int page, int size) {
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
-        List<CommunityPost> communityPostList = communityPostRepository.findAllCompletePostByTags(tagContents, pageRequest).getContent();
+        Page<CommunityPost> communityPostList = communityPostRepository.findAllCompletePostByKeyword(keyword, pageRequest);
 
-        return communityPostList.stream().map(CommunityPostListResponse::of).toList();
+        return CommunityPostSearchListResponse.of(communityPostList.getTotalElements(), communityPostList);
     }
 
     /**
      * 게시글 상세 조회
      *
-     * @param postId postId 게시글 PK
+     * @param postId 게시글 PK
      * @return CommunityPostResponse
      */
     @Transactional

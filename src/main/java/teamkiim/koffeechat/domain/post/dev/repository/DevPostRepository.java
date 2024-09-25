@@ -20,7 +20,7 @@ public interface DevPostRepository extends JpaRepository<DevPost, Long> {
     Optional<DevPost> findById(Long id);
 
     @Query("select p from DevPost p where p.isEditing = false and p.deleted = false")
-    Page<DevPost> findAllCompletePostBySkillCategory(Pageable pageable);
+    Page<DevPost> findAllCompletePost(Pageable pageable);
 
     @Query("select p from DevPost p join fetch p.skillCategoryList sc where p.isEditing = false and p.deleted = false and sc.childSkillCategory in :childSkillCategoryList")
     Page<DevPost> findAllCompletePostBySkillCategory(@Param("childSkillCategoryList") List<ChildSkillCategory> childSkillCategoryList, Pageable pageable);
@@ -28,5 +28,14 @@ public interface DevPostRepository extends JpaRepository<DevPost, Long> {
     @Query("select p from DevPost p join fetch PostTag pt on pt.post = p " +
             "where pt.tag.content in (:tagContents) and p.isEditing = false and p.deleted = false " +
             "group by p order by count(pt.tag) desc")
-    Page<DevPost> findAllCompletePostByTags(List<String> tagContents, PageRequest pageRequest);
+    Page<DevPost> findAllCompletePostByTags(@Param("tagContents") List<String> tagContents, PageRequest pageRequest);
+
+    @Query("select p from DevPost p join fetch p.skillCategoryList sc join fetch PostTag pt on pt.post = p " +
+            "where sc.childSkillCategory in :childSkillCategoryList and pt.tag.content in (:tagContents) " +
+            "and p.isEditing = false and p.deleted = false " +
+            "group by p order by count(pt.tag) desc")
+    Page<DevPost> findAllCompletePostBySkillCategoryAndTags(@Param("childSkillCategoryList") List<ChildSkillCategory> childSkillCategoryList, @Param("tagContents") List<String> tagContents, PageRequest pageRequest);
+
+    @Query("SELECT p FROM DevPost p WHERE p.title LIKE %:keyword% AND p.isEditing = false AND p.deleted = false")
+    Page<DevPost> findAllCompletePostByKeyword(@Param("keyword") String keyword, PageRequest pageRequest);
 }

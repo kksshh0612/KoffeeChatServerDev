@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostSearchListResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -81,25 +82,25 @@ public @interface DevPostApiDocument {
     }
 
     /**
-     * 태그로 게시글 검색
+     * 제목으로 게시글 검색
      */
-    @Operation(summary = "태그를 통해 개발 게시글을 검색한다.", description = "태그를 통해 개발 게시글을 검색한다.")
+    @Operation(summary = "제목으로 개발 게시글을 검색한다.", description = "제목으로 개발 게시글을 검색한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색된 개발 게시물 리스트를 반환한다.",
                     content = @Content(schema = @Schema(implementation = DevPostListResponse.class)))
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface SearchByTagApiDoc {
+    @interface SearchApiDoc {
     }
 
     /**
      * 개발 게시글 목록 조회
      */
-    @Operation(summary = "게시글 목록 조회", description = "사용자가 개발 게시글 목록을 조회한다.")
+    @Operation(summary = "게시글 목록 조회", description = "사용자가 개발 게시글 목록을 조회한다. 게시물 카테고리와 태그로 필터링 할 수 있다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "개발 게시글 리스트를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
-                    content = @Content(schema = @Schema(implementation = DevPostListResponse.class))),
+                    content = @Content(schema = @Schema(implementation = DevPostSearchListResponse.class))),
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)

@@ -12,8 +12,8 @@ import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostSearchListResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -72,30 +72,31 @@ public class DevPostController {
     }
 
     /**
-     * 개발 게시글 목록 조회
+     * 개발 게시글 목록 조회 (필터: 기술 카테고리, 태그)
      */
     @GetMapping("")
     @DevPostApiDocument.GetDevPostList
     public ResponseEntity<?> getDevPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
-                                            @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
+                                            @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList,
+                                            @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
         log.info("/dev-post/list 진입");
 
-        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, childSkillCategoryList);
+        DevPostSearchListResponse responseList = devPostService.getDevPostList(sortType, page, size, childSkillCategoryList, tagContents);
 
         return ResponseEntity.ok(responseList);
     }
 
     /**
-     * 태그로 게빌 게시글 검색
+     * 제목으로 개발 게시글 검색
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/search")
-    @DevPostApiDocument.SearchByTagApiDoc
-    public ResponseEntity<?> searchByTag(@RequestParam("tag") List<String> tagContents, @RequestParam("sortType") SortCategory sortType,
-                                         @RequestParam("page") int page, @RequestParam("size") int size) {
+    @DevPostApiDocument.SearchApiDoc
+    public ResponseEntity<?> search(@RequestParam("word") String keyword, @RequestParam("sortType") SortCategory sortType,
+                                    @RequestParam("page") int page, @RequestParam("size") int size) {
 
-        List<DevPostListResponse> responses = devPostService.searchByTag(tagContents, sortType, page, size);
+        DevPostSearchListResponse responses = devPostService.search(keyword, sortType, page, size);
 
         return ResponseEntity.ok(responses);
     }

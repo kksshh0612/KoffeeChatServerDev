@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
-import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostSearchListResponse;
 import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -69,27 +69,28 @@ public class CommunityPostController {
     }
 
     /**
-     * 커뮤니티 게시글 목록 조회
+     * 커뮤니티 게시글 목록 조회 (필터: 태그)
      */
     @GetMapping("")
-    @CommunityPostApiDocument.ShowListApiDoc
-    public ResponseEntity<?> showList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size) {
+    @CommunityPostApiDocument.GetCommunityPostListApiDoc
+    public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
+                                                  @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
-        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(sortType, page, size);
+        CommunityPostSearchListResponse responses = communityPostService.findCommunityPostList(sortType, page, size, tagContents);
 
         return ResponseEntity.ok(responses);
     }
 
     /**
-     * 태그로 커뮤니티 게시글 검색
+     * 제목으로 커뮤니티 게시글 검색
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/search")
-    @CommunityPostApiDocument.SearchByTagApiDoc
-    public ResponseEntity<?> searchByTag(@RequestParam("tag") List<String> tagContents, @RequestParam("sortType") SortCategory sortType,
-                                         @RequestParam("page") int page, @RequestParam("size") int size) {
+    @CommunityPostApiDocument.SearchApiDoc
+    public ResponseEntity<?> search(@RequestParam("word") String keyword, @RequestParam("sortType") SortCategory sortType,
+                                    @RequestParam("page") int page, @RequestParam("size") int size) {
 
-        List<CommunityPostListResponse> responses = communityPostService.searchByTag(tagContents, sortType, page, size);
+        CommunityPostSearchListResponse responses = communityPostService.search(keyword, sortType, page, size);
 
         return ResponseEntity.ok(responses);
     }
