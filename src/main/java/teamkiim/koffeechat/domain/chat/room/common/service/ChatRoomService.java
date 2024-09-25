@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
+import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
@@ -35,10 +37,11 @@ public class ChatRoomService {
 
     /**
      * 참여중인 채팅방 목록 조회
-     * -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
+     *  -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
      * @param memberId
      * @param page
      * @param size
+     * @param chatRoomType
      * @return
      */
     public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size, ChatRoomType chatRoomType){
@@ -94,7 +97,7 @@ public class ChatRoomService {
 
 
     /**
-     * 채팅방 퇴장 처리
+     * 채팅방 닫기
      * @param chatRoomId
      * @param memberId
      * @param closeTime
@@ -112,5 +115,37 @@ public class ChatRoomService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
         memberChatRoom.updateCloseTime(closeTime);
+    }
+
+    /**
+     * 채팅방 퇴장
+     * @param chatRoomId
+     * @param memberId
+     * @param exitTime
+     */
+    @Transactional
+    public void exit(Long chatRoomId, Long memberId, LocalDateTime exitTime){
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndChatRoom(member, chatRoom)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
+
+        // 퇴장 메세지 전송
+        ChatMessageServiceRequest chatMessageServiceRequest = ChatMessageServiceRequest.builder()
+                .messageType(MessageType.EXIT)
+                .content(member.getNickname() + " 님이 퇴장하셨습니다")
+                .createdTime(exitTime)
+                .build();
+
+        chatMessageService.saveTextMessage(chatMessageServiceRequest, chatRoomId, memberId);
+        chatMessageService.send(chatMessageServiceRequest, chatRoomId, memberId);
+
+        // memberChatRoom 삭제
+        memberChatRoomRepository.delete(memberChatRoom);
     }
 }
