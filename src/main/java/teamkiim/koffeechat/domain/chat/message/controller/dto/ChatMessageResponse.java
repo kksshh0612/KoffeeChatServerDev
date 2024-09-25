@@ -9,6 +9,8 @@ import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceReq
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,24 +18,24 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 public class ChatMessageResponse {
 
     private MessageType messageType;
-    private Long chatRoomId;
-    private Long senderId;
-    private String senderNickName;
     private String content;
+    private Long senderId;
+    private String senderNickname;
     private String profileImagePath;
     private String profileImageName;
+//    private boolean isLoginMember;
+    private LocalDateTime createdTime;
 
-    public static ChatMessageResponse of(ChatMessageServiceRequest chatMessageServiceRequest, Member sendMember,
-                                         Long chatRoomId){
+    public static ChatMessageResponse of(ChatMessageServiceRequest chatMessageServiceRequest, Member sendMember){
 
         return ChatMessageResponse.builder()
                 .messageType(chatMessageServiceRequest.getMessageType())
-                .chatRoomId(chatRoomId)
-                .senderId(sendMember.getId())
-                .senderNickName(sendMember.getNickname())
                 .content(chatMessageServiceRequest.getContent())
+                .senderId(sendMember.getId())
+                .senderNickname(sendMember.getNickname())
                 .profileImagePath(sendMember.getProfileImagePath())
                 .profileImageName(sendMember.getProfileImageName())
+                .createdTime(chatMessageServiceRequest.getCreatedTime())
                 .build();
     }
 }

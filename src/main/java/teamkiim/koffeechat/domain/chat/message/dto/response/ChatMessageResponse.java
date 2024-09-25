@@ -17,28 +17,36 @@ import java.util.List;
 @Builder
 public class ChatMessageResponse {
 
+    private String messageId;
     private MessageType messageType;
+    private String content;
     private Long senderId;
     private String senderNickname;
-    private String content;
+    private String profileImagePath;
+    private String profileImageName;
     private boolean isLoginMember;
     private LocalDateTime createdTime;
 
-    public static ChatMessageResponse of(ChatMessage chatMessage, List<Member> members, Long memberId) {
+    public static ChatMessageResponse of(ChatMessage chatMessage, List<Member> joinMembers, Long loginMemberId) {
 
-        String senderNickname = members.stream()
-                .filter(member -> member.getId().equals(chatMessage.getSenderId()))
-                .map(Member::getNickname)
-                .findFirst()
-                .orElse("(Unknown)");
+        Member sender = joinMembers.stream().filter(m -> m.getId().equals(chatMessage.getSenderId())).findFirst().orElse(null);
 
-        boolean isLoginMember = chatMessage.getSenderId().equals(memberId);
+//        String senderNickname = members.stream()
+//                .filter(member -> member.getId().equals(chatMessage.getSenderId()))
+//                .map(Member::getNickname)
+//                .findFirst()
+//                .orElse("(Unknown)");
+
+        boolean isLoginMember = chatMessage.getSenderId().equals(loginMemberId);
 
         return ChatMessageResponse.builder()
+                .messageId(chatMessage.getId())
                 .messageType(chatMessage.getMessageType())
-                .senderId(chatMessage.getSenderId())
-                .senderNickname(senderNickname)
                 .content(chatMessage.getContent())
+                .senderId(chatMessage.getSenderId())
+                .senderNickname(sender.getNickname())
+                .profileImagePath(sender.getProfileImagePath())
+                .profileImageName(sender.getProfileImageName())
                 .isLoginMember(isLoginMember)
                 .createdTime(chatMessage.getCreatedTime())
                 .build();

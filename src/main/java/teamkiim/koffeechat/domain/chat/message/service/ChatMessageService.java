@@ -32,10 +32,20 @@ public class ChatMessageService {
      * @param chatRoomId
      * @param senderId
      */
-    public void save(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
+    public void saveTextMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
 
         ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
         chatMessageRepository.save(chatMessage);
+    }
+
+    public void saveSourceCodeMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
+
+        ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
+        chatMessageRepository.save(chatMessage);
+    }
+
+    public void saveImageMessage(){
+
     }
 
     /**
@@ -49,7 +59,7 @@ public class ChatMessageService {
         Member member = memberRepository.findById(senderId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        ChatMessageResponse chatMessageResponse = ChatMessageResponse.of(messageRequest, member, chatRoomId);
+        ChatMessageResponse chatMessageResponse = ChatMessageResponse.of(messageRequest, member);
 
         messagingTemplate.convertAndSend("/sub/chat/" + chatRoomId, chatMessageResponse);
     }
