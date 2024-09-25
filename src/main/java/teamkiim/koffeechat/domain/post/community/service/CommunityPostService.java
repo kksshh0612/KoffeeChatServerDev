@@ -7,11 +7,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
-import teamkiim.koffeechat.domain.file.service.FileService;
+import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
@@ -42,7 +41,7 @@ public class CommunityPostService {
 
     private final CommunityPostRepository communityPostRepository;
     private final MemberRepository memberRepository;
-    private final FileService fileService;
+    private final PostFileService postFileService;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
     private final VoteRepository voteRepository;
@@ -84,7 +83,7 @@ public class CommunityPostService {
         CommunityPost communityPost = communityPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        fileService.deleteImageFiles(communityPost);
+        postFileService.deleteImageFiles(communityPost);
 
         communityPostRepository.delete(communityPost);
     }
@@ -111,7 +110,7 @@ public class CommunityPostService {
 
         communityPost.completeCommunityPost(postServiceRequest.getTitle(), postServiceRequest.getBodyContent());
 
-        fileService.deleteImageFiles(postServiceRequest.getFileIdList(), communityPost);
+        postFileService.deleteImageFiles(postServiceRequest.getFileIdList(), communityPost);
 
         VoteResponse voteResponse = postRequest.getSaveVoteRequest() != null ?
                 VoteResponse.of(voteService.saveVote(postRequest.toVoteServiceRequest(), postServiceRequest.getId()), true) : null;

@@ -5,22 +5,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.file.domain.File;
+import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.file.dto.response.ImagePathResponse;
 import teamkiim.koffeechat.domain.file.repository.FileRepository;
+import teamkiim.koffeechat.domain.file.repository.PostFileRepository;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class FileService {
+public class PostFileService {
 
     private final FileRepository fileRepository;
+    private final PostFileRepository postFileRepository;
     private final PostRepository postRepository;
     private final FileStorageControlService fileStorageControlService;
 
@@ -37,11 +41,11 @@ public class FileService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        File file = new File(post, multipartFile);
+        PostFile file = new PostFile(post, multipartFile);
 
         fileStorageControlService.saveFile(file, multipartFile);
 
-        File saveFile = fileRepository.save(file);
+        PostFile saveFile = postFileRepository.save(file);
 
         post.addFile(saveFile);                         // 양방향 연관관계 주입
 

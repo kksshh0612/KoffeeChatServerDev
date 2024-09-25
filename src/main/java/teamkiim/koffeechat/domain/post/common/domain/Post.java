@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.file.domain.File;
+import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.global.auditing.BaseEntity;
 
@@ -63,7 +64,7 @@ public abstract class Post extends BaseEntity {
 
     //== 연관관계 편의 매서드 ==//
 
-    public void addFile(File file) {
+    public void addFile(PostFile file) {
         this.fileList.add(file);
         file.injectPost(this);
     }
