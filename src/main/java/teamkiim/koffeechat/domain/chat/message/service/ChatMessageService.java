@@ -44,8 +44,10 @@ public class ChatMessageService {
         chatMessageRepository.save(chatMessage);
     }
 
-    public void saveImageMessage(){
+    public void saveImageMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId){
 
+        ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
+        chatMessageRepository.save(chatMessage);
     }
 
     /**
