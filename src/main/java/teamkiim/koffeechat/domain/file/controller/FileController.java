@@ -29,7 +29,7 @@ public class FileController {
      * 게시글 이미지 단건 저장
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/image")
+    @PostMapping("/post")
     @FileApiDocument.SaveImageFile
     public ResponseEntity<?> saveImageFileInPost(@RequestPart(value = "file") MultipartFile multipartFile,
                                            @RequestPart(value = "postId") Long postId) {
@@ -43,7 +43,7 @@ public class FileController {
      * 채팅 이미지 단건 저장
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/image")
+    @PostMapping("/chat")
     @FileApiDocument.SaveImageFile
     public ResponseEntity<?> saveImageFileInChat(@RequestPart(value = "file") MultipartFile multipartFile,
                                                  @RequestPart(value = "postId") Long chatRoomId,
