@@ -69,31 +69,18 @@ public class CommunityPostController {
     }
 
     /**
-     * 커뮤니티 게시글 목록 조회 (필터: 태그)
+     * 커뮤니티 게시글 목록 조회 (필터: 제목, 태그)
      */
     @GetMapping("")
     @CommunityPostApiDocument.GetCommunityPostListApiDoc
     public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
-                                                  @RequestParam(value = "tag", required = false) List<String> tagContents) {
+                                                  @RequestParam(value = "word", required = false) String keyword, @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
-        CommunityPostSearchListResponse responses = communityPostService.findCommunityPostList(sortType, page, size, tagContents);
-
-        return ResponseEntity.ok(responses);
-    }
-
-    /**
-     * 제목으로 커뮤니티 게시글 검색
-     */
-    @AuthenticatedMemberPrincipal
-    @GetMapping("/search")
-    @CommunityPostApiDocument.SearchApiDoc
-    public ResponseEntity<?> search(@RequestParam("word") String keyword, @RequestParam("sortType") SortCategory sortType,
-                                    @RequestParam("page") int page, @RequestParam("size") int size) {
-
-        CommunityPostSearchListResponse responses = communityPostService.search(keyword, sortType, page, size);
+        CommunityPostSearchListResponse responses = communityPostService.findCommunityPostList(sortType, page, size, keyword, tagContents);
 
         return ResponseEntity.ok(responses);
     }
+
 
     /**
      * 커뮤니티 게시글 상세 조회

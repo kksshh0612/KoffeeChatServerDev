@@ -134,32 +134,29 @@ public class CommunityPostService {
      * @param sortType    정렬 기준 (최신 | 좋아요순 | 조회순)
      * @param page        페이지 번호 ( ex) 0, 1,,,, )
      * @param size        페이지 당 조회할 데이터 수
+     * @param keyword     제목 검색
      * @param tagContents 검색된 태그들
      * @return CommunityPostSearchListResponse
      */
-    public CommunityPostSearchListResponse findCommunityPostList(SortCategory sortType, int page, int size, List<String> tagContents) {
+    public CommunityPostSearchListResponse findCommunityPostList(SortCategory sortType, int page, int size, String keyword, List<String> tagContents) {
 
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
-        Page<CommunityPost> communityPostList = tagContents == null ? communityPostRepository.findAllCompletePost(pageRequest)
-                : communityPostRepository.findAllCompletePostByTags(tagContents, pageRequest);
+        Page<CommunityPost> communityPostList = searchFilter(keyword, tagContents, pageRequest);
 
         return CommunityPostSearchListResponse.of(communityPostList.getTotalElements(), communityPostList);
     }
 
-    /**
-     * 제목으로 게시글 검색
-     *
-     * @param keyword 검색된 내용
-     * @param page    페이지 번호 ( ex) 0, 1,,,, )
-     * @param size    페이지 당 조회할 데이터 수
-     * @return CommunityPostSearchListResponse
-     */
-    public CommunityPostSearchListResponse search(String keyword, SortCategory sortType, int page, int size) {
-        PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
-        Page<CommunityPost> communityPostList = communityPostRepository.findAllCompletePostByKeyword(keyword, pageRequest);
-
-        return CommunityPostSearchListResponse.of(communityPostList.getTotalElements(), communityPostList);
+    private Page<CommunityPost> searchFilter(String keyword, List<String> tagContents, PageRequest pageRequest) {
+        if (keyword == null && tagContents == null) { //전체 게시글
+            return communityPostRepository.findAllCompletePost(pageRequest);
+        } else if (keyword == null) {  // 태그로만 검색
+            return communityPostRepository.findAllCompletePostByTags(tagContents, pageRequest);
+        } else if (tagContents == null) {  // 제목으로만 검색
+            return communityPostRepository.findAllCompletePostByKeyword(keyword, pageRequest);
+        } else {  //제목, 태그로 검색
+            return communityPostRepository.findAllCompletePostByKeywordAndTags(keyword, tagContents, pageRequest);
+        }
     }
 
     /**

@@ -15,14 +15,19 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     Optional<CommunityPost> findById(Long id);
 
-    @Query("select p from CommunityPost p where p.isEditing = false and p.deleted = false")
+    @Query("select p from CommunityPost p where p.isEditing = false")
     Page<CommunityPost> findAllCompletePost(Pageable pageable);
 
     @Query("select p from CommunityPost p join fetch PostTag pt on pt.post = p " +
-            "where pt.tag.content in (:tagContents) and p.isEditing = false and p.deleted = false " +
+            "where pt.tag.content in (:tagContents) and p.isEditing = false " +
             "group by p order by count(pt.tag) desc")
     Page<CommunityPost> findAllCompletePostByTags(@Param("tagContents") List<String> tagContent, Pageable pageable);
 
-    @Query("SELECT p FROM CommunityPost p WHERE p.title LIKE %:keyword% AND p.isEditing = false AND p.deleted = false")
+    @Query("SELECT p FROM CommunityPost p WHERE p.title LIKE %:keyword% AND p.isEditing = false")
     Page<CommunityPost> findAllCompletePostByKeyword(@Param("keyword") String keyword, PageRequest pageRequest);
+
+    @Query("select p from CommunityPost p join fetch PostTag pt on pt.post = p " +
+            "where pt.tag.content in (:tagContents) and p.title like %:keyword% and p.isEditing = false " +
+            "group by p order by count(pt.tag) desc")
+    Page<CommunityPost> findAllCompletePostByKeywordAndTags(@Param("keyword") String keyword, @Param("tagContents") List<String> tagContents, PageRequest pageRequest);
 }
