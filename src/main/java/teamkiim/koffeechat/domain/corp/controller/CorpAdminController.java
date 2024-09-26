@@ -68,18 +68,18 @@ public class CorpAdminController {
     public ResponseEntity<?> listCorp() {
         List<AdminCorpDomainListResponse> responseList = corpAdminService.listCorp();
 
-        return ResponseEntity.ok().body(responseList);
+        return ResponseEntity.ok(responseList);
     }
 
     /**
      * 도메인 검색 : 회사 이름, 이메일
      */
     @Auth(role = ADMIN)
-    @GetMapping("/search")
+    @GetMapping("/keyword")
     @CorpAdminApiDocument.GetCorp
-    public ResponseEntity<?> getCorp(@RequestBody String keyword) {
+    public ResponseEntity<?> getCorp(@RequestParam("keyword") String keyword) {
         List<AdminCorpDomainListResponse> responseList = corpAdminService.findCorpByKeyword(keyword);
 
-        return ResponseEntity.ok().body(responseList);
+        return ResponseEntity.ok(responseList);
     }
 }

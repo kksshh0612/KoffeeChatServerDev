@@ -3,7 +3,6 @@ package teamkiim.koffeechat.domain.post.dev.service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
@@ -11,6 +10,8 @@ import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
+import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -108,13 +109,14 @@ public class DevPostService {
     /**
      * 게시글 목록 조회
      *
-     * @param page 페이지 번호 ( ex) 0, 1,,,, )
-     * @param size 페이지 당 조회할 데이터 수
+     * @param sortType 정렬 기준 (최신 | 좋아요순 | 조회순)
+     * @param page     페이지 번호 ( ex) 0, 1,,,, )
+     * @param size     페이지 당 조회할 데이터 수
      * @return List<DevPostListResponse>
      */
-    public List<DevPostListResponse> getDevPostList(int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
+    public List<DevPostListResponse> getDevPostList(SortCategory sortType, int page, int size, List<ChildSkillCategory> childSkillCategoryList) {
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         List<DevPost> devPostList = childSkillCategoryList == null ?
                 devPostRepository.findAllCompletePostBySkillCategory(pageRequest).getContent() : devPostRepository.findAllCompletePostBySkillCategory(childSkillCategoryList, pageRequest).getContent();

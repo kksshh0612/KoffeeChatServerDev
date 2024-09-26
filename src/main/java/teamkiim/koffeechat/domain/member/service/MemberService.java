@@ -1,6 +1,7 @@
 package teamkiim.koffeechat.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,7 @@ import teamkiim.koffeechat.domain.file.service.FileStorageControlService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
 import teamkiim.koffeechat.domain.member.dto.request.ModifyProfileServiceRequest;
+import teamkiim.koffeechat.domain.member.dto.request.UpdatePasswordRequest;
 import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.service.MemberFollowService;
@@ -29,6 +31,8 @@ public class MemberService {
     private final FileStorageControlService fileStorageControlService;
     private final MemberFollowService memberFollowService;
     private final EmailService emailService;
+
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 회원 정보 수정
@@ -150,5 +154,49 @@ public class MemberService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.updateEmail(email);
+    }
+
+    /**
+     * 사용자 비밀번호 변경
+     */
+
+    /**
+     * 기존 비밀번호 확인
+     *
+     * @param memberId 로그인한 사용자
+     * @param password 현재 비밀번호
+     */
+    public void checkCurrentPassword(Long memberId, String password) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+    }
+
+    /**
+     * 새 비밀번호로 변경
+     *
+     * @param memberId        로그인한 사용자
+     * @param passwordRequest 비밀번호 변경 요청
+     */
+    @Transactional
+    public void updatePassword(Long memberId, UpdatePasswordRequest passwordRequest) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        //기존 비밀번호와 동일한 비밀번호로 변경 요청
+        if (passwordEncoder.matches(passwordRequest.getNewPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_EQUAL);
+        }
+
+        //비밀번호 확인 실패
+        if (!passwordRequest.getNewPassword().equals(passwordRequest.getCheckPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+
+        member.encodePassword(passwordEncoder.encode(passwordRequest.getNewPassword()));
+
     }
 }

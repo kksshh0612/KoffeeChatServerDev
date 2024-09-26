@@ -171,4 +171,54 @@ public @interface MemberApiDocument {
     @Retention(RetentionPolicy.RUNTIME)
     @interface UpdateNewEmailApiDoc {
     }
+
+    /**
+     * 현재 비밀번호 인증
+     */
+    @Operation(summary = "현재 비밀번호 인증", description = "사용자가 비밀번호 변경을 위해 현재 비밀번호로 본인 인증한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "비밀번호 확인 완료"),
+            @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "비밀번호 인증 실패",
+                            value = "{\"code\":400, \"message\":\"비밀번호가 틀렸습니다.\"}")}
+            )),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 이메일을 변경하려고 하는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface CheckCurrentPasswordApiDoc {
+    }
+
+    /**
+     * 새 비밀번호로 변경
+     */
+    @Operation(summary = "새 비밀번호로 변경", description = "사용자가 새로운 비밀번호로 비밀번호를 변경한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "비밀번호 변경 완료, 다시 로그인해주세요."),
+            @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "비밀번호 요청이 올바르지 않습니다.",
+                            value = "{\"code\":400, \"message\":\"기존 비밀번호와 동일한 비밀번호 입니다.\"}"),
+                            @ExampleObject(name = "비밀번호 요청이 올바르지 않습니다.",
+                                    value = "{\"code\":400, \"message\":\"비밀번호를 확인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "로그인하지 않은 사용자가 이메일을 변경하려고 하는 경우",
+                            value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface UpdatePasswordApiDoc {
+    }
 }

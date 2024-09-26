@@ -21,9 +21,10 @@ public class LoginRequest {
 
     @Schema(description = "로그인 비밀번호", example = "1234asdf!@")
     @NotBlank(message = "비밀번호를 입력해주세요")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?])[A-Za-z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]{7,20}$")
     private String password;
 
-    public LoginServiceRequest toServiceRequest(){
+    public LoginServiceRequest toServiceRequest() {
         return LoginServiceRequest.builder()
                 .email(this.email)
                 .password(this.password)

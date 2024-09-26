@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
@@ -70,11 +71,11 @@ public class CommunityPostController {
     /**
      * 커뮤니티 게시글 목록 조회
      */
-    @GetMapping("/list")
+    @GetMapping("")
     @CommunityPostApiDocument.ShowListApiDoc
-    public ResponseEntity<?> showList(@RequestParam("page") int page, @RequestParam("size") int size) {
+    public ResponseEntity<?> showList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size) {
 
-        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(page, size);
+        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(sortType, page, size);
 
         return ResponseEntity.ok(responses);
     }

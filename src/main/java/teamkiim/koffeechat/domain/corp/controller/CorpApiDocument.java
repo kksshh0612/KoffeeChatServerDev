@@ -28,6 +28,14 @@ public @interface CorpApiDocument {
             @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "로그인하지 않은 사용자가 요청한 경우",
                             value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "403", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "승인 거절된 도메인으로 도메인 등록 요청한 경우",
+                            value = "{\"code\":403, \"message\":\"승인 거절된 도메인입니다. 이메일 확인 후 문의해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "409", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "이미 승인된 도메인에 대해 도메인 등록 요청한 경우",
+                            value = "{\"code\":409, \"message\":\"이미 존재하는 도메인입니다.\"}")}
             ))
     })
     @Target(ElementType.METHOD)
@@ -61,6 +69,16 @@ public @interface CorpApiDocument {
             @ApiResponse(responseCode = "401", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "로그인하지 않은 사용자가 요청한 경우",
                             value = "{\"code\":401, \"message\":\"로그인해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "403", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "승인 거절된 도메인으로 이메일 검증 코드를 요청한 경우",
+                            value = "{\"code\":403, \"message\":\"승인 거절된 도메인입니다. 이메일 확인 후 문의해주세요.\"}")}
+            )),
+            @ApiResponse(responseCode = "409", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "등록되어있지 않은 도메인에 대해 이메일 검증 코드를 요청한 경우",
+                            value = "{\"code\":409, \"message\":\"등록 요청이 되어있는 도메인입니다. 도메인 승인이 되면 다시 인증해주세요.\"}"),
+                            @ExampleObject(name = "승인 대기중인 도메인에 대해 이메일 검증 코드를 요청한 경우",
+                                    value = "{\"code\":409, \"message\":\"등록 요청이 되어있는 도메인입니다. 도메인 승인이 되면 다시 인증해주세요.\"}")}
             )),
             @ApiResponse(responseCode = "500", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "이메일이 정상적으로 전송되지 않은 경우",
