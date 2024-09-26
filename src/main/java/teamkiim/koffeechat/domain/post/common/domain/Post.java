@@ -48,7 +48,7 @@ public abstract class Post extends BaseEntity {
     private boolean deleted = false;                            // delete 여부 (Default false)
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<File> fileList = new ArrayList<>();
+    private List<PostFile> fileList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();

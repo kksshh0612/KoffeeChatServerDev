@@ -60,9 +60,13 @@ public class PostFileService {
     @Transactional
     public void deleteImageFiles(Post post) {
 
-        List<File> fileList = fileRepository.findAllByPost(post);
+        List<PostFile> fileList = postFileRepository.findAllByPost(post);
 
-        fileStorageControlService.deleteFiles(fileList);
+        for(PostFile postFile : fileList) {
+            fileStorageControlService.deleteFile(postFile);
+        }
+
+//        fileStorageControlService.deleteFiles(fileList);
 
         fileRepository.deleteAll(fileList);
     }
@@ -77,7 +81,7 @@ public class PostFileService {
     @Transactional
     public void deleteImageFiles(List<Long> fileIdList, Post post) {
 
-        List<File> existFileList = fileRepository.findAllByPost(post);
+        List<PostFile> existFileList = postFileRepository.findAllByPost(post);
 
         List<File> deleteFileList = existFileList.stream()
                 .filter(file -> !fileIdList.contains(file.getId()))
