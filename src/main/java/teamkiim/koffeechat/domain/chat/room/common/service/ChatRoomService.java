@@ -39,19 +39,20 @@ public class ChatRoomService {
      * 참여중인 채팅방 목록 조회
      *  -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
      * @param memberId
-     * @param page
+     * @param
      * @param size
      * @param chatRoomType
      * @return
      */
-    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size, ChatRoomType chatRoomType){
+    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int cursorId, int size, ChatRoomType chatRoomType){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "closeTime"));
+        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Order.desc("lastMessageTime").nullsLast()));      // 커서 기반이기 때문에 page 설정 안하기 위함.
 
-        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, pageRequest).getContent();
+        List<MemberChatRoom> memberChatRoomList =
+                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, cursorId, pageRequest).getContent();
 
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 

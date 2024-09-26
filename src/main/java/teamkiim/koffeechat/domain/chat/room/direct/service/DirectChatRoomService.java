@@ -58,6 +58,7 @@ public class DirectChatRoomService {
         DirectChatRoom directChatRoom = DirectChatRoom.builder()
                 .chatRoomType(ChatRoomType.DIRECT)
                 .name("DIRECT MESSAGE")
+                .lastMessageTime(null)
                 .build();
 
         DirectChatRoom saveChatRoom = directChatRoomRepository.save(directChatRoom);

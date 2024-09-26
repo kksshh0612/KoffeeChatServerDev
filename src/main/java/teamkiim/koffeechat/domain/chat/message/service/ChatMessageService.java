@@ -8,8 +8,10 @@ import teamkiim.koffeechat.domain.chat.message.controller.dto.ChatMessageRespons
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.repository.ChatMessageRepository;
+import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
+import teamkiim.koffeechat.domain.chat.room.common.repository.ChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
@@ -17,12 +19,14 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -36,6 +40,11 @@ public class ChatMessageService {
 
         ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
         chatMessageRepository.save(chatMessage);
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        chatRoom.updateLastMessageTime(messageRequest.getCreatedTime());            // 가장 최근 메세지 전송 시간 업데이트
     }
 
     public void saveSourceCodeMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
