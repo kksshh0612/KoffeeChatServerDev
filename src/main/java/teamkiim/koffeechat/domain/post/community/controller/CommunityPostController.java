@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
-import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostSearchListResponse;
 import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -76,7 +76,7 @@ public class CommunityPostController {
     public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
                                                   @RequestParam(value = "word", required = false) String keyword, @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
-        CommunityPostSearchListResponse responses = communityPostService.findCommunityPostList(sortType, page, size, keyword, tagContents);
+        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(sortType, page, size, keyword, tagContents);
 
         return ResponseEntity.ok(responses);
     }

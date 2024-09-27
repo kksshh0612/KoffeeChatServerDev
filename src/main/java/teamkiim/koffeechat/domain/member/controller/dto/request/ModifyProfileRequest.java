@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.member.controller.dto;
+package teamkiim.koffeechat.domain.member.controller.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -15,7 +15,7 @@ import teamkiim.koffeechat.domain.member.dto.request.ModifyProfileServiceRequest
 @Schema(description = "회원 프로필 수정 Request")
 public class ModifyProfileRequest {
 
-    @Schema(description = "회원 닉네임 수정", example ="커피챗수정" )
+    @Schema(description = "회원 닉네임 수정", example = "커피챗수정")
     @NotBlank(message = "닉네임 입력은 필수입니다")
     private String nickname;
 
@@ -23,7 +23,7 @@ public class ModifyProfileRequest {
     @NotNull(message = "회원 직업 입력은 필수입니다")
     private MemberRole memberRole;
 
-    public ModifyProfileServiceRequest toServiceRequest(){
+    public ModifyProfileServiceRequest toServiceRequest() {
         return ModifyProfileServiceRequest.builder()
                 .nickname(this.nickname)
                 .memberRole(this.memberRole)

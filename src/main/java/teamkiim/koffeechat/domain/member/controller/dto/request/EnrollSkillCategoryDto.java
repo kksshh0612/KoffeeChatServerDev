@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.member.controller.dto;
+package teamkiim.koffeechat.domain.member.controller.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

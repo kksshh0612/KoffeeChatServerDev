@@ -15,7 +15,6 @@ import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.dto.request.SkillCategoryRequest;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostSearchListResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -85,7 +84,7 @@ public class DevPostController {
 
         log.info("/dev-post/list 진입");
 
-        DevPostSearchListResponse responseList = devPostService.getDevPostList(sortType, page, size, keyword, childSkillCategoryList, tagContents);
+        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, keyword, childSkillCategoryList, tagContents);
 
         return ResponseEntity.ok(responseList);
     }

@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.member.controller.dto;
+package teamkiim.koffeechat.domain.member.controller.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,7 @@ public class EnrollSkillCategoryRequest {
     @NotNull(message = "하위 카테고리 선택은 필수입니다.")
     private ChildSkillCategory childSkillCategory;
 
-    public EnrollSkillCategoryServiceRequest toServiceRequest(){
+    public EnrollSkillCategoryServiceRequest toServiceRequest() {
         return EnrollSkillCategoryServiceRequest.builder()
                 .parentSkillCategory(this.parentSkillCategory)
                 .childSkillCategory(this.childSkillCategory)

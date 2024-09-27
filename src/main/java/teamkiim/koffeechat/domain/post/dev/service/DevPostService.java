@@ -23,7 +23,6 @@ import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceReque
 import teamkiim.koffeechat.domain.post.dev.dto.request.SaveDevPostServiceRequest;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostSearchListResponse;
 import teamkiim.koffeechat.domain.post.dev.repository.DevPostRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.domain.tag.service.TagService;
@@ -124,14 +123,14 @@ public class DevPostService {
      * @param tagContents            검색된 태그들
      * @return DevPostSearchListResponse
      */
-    public DevPostSearchListResponse getDevPostList(SortCategory sortType, int page, int size,
+    public List<DevPostListResponse> getDevPostList(SortCategory sortType, int page, int size,
                                                     String keyword, List<ChildSkillCategory> childSkillCategoryList, List<String> tagContents) {
 
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         Page<DevPost> devPostList = searchFilter(keyword, childSkillCategoryList, tagContents, pageRequest);
 
-        return DevPostSearchListResponse.of(devPostList.getTotalElements(), devPostList);
+        return devPostList.stream().map(DevPostListResponse::of).toList();
     }
 
     private Page<DevPost> searchFilter(String keyword, List<ChildSkillCategory> childSkillCategoryList, List<String> tagContents, PageRequest pageRequest) {

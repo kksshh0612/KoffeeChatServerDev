@@ -19,8 +19,8 @@ import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPos
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
 import teamkiim.koffeechat.domain.post.community.dto.request.ModifyCommunityPostServiceRequest;
 import teamkiim.koffeechat.domain.post.community.dto.request.SaveCommunityPostServiceRequest;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
-import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostSearchListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.VoteResponse;
 import teamkiim.koffeechat.domain.post.community.repository.CommunityPostRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
@@ -138,13 +138,13 @@ public class CommunityPostService {
      * @param tagContents 검색된 태그들
      * @return CommunityPostSearchListResponse
      */
-    public CommunityPostSearchListResponse findCommunityPostList(SortCategory sortType, int page, int size, String keyword, List<String> tagContents) {
+    public List<CommunityPostListResponse> findCommunityPostList(SortCategory sortType, int page, int size, String keyword, List<String> tagContents) {
 
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         Page<CommunityPost> communityPostList = searchFilter(keyword, tagContents, pageRequest);
 
-        return CommunityPostSearchListResponse.of(communityPostList.getTotalElements(), communityPostList);
+        return communityPostList.stream().map(CommunityPostListResponse::of).toList();
     }
 
     private Page<CommunityPost> searchFilter(String keyword, List<String> tagContents, PageRequest pageRequest) {
