@@ -14,9 +14,6 @@ import java.util.List;
 @Schema(description = "커뮤니티 게시글 저장 Request")
 public class SaveCommunityPostInfoRequest {
 
-    @Schema(description = "커뮤니티 게시글 pk", example = "1")
-    private Long id;
-
     @Schema(description = "커뮤니티 게시글 제목", example = "커뮤니티 게시글 제목입니다.")
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
@@ -26,6 +23,9 @@ public class SaveCommunityPostInfoRequest {
     private String bodyContent;
 
     private List<Long> fileIdList;
+
+    @Schema(description = "커뮤니티 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
+    private List<String> tagContentList;
 
 }
 

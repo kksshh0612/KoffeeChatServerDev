@@ -13,6 +13,7 @@ import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
 import teamkiim.koffeechat.domain.corp.service.CorpService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -47,7 +48,7 @@ public class CorpController {
         List<CorpDomainResponse> corpList = corpService.findCorpDomain(corpName);
 
         if (corpList.isEmpty()) {
-            return ResponseEntity.ok("찾으시는 회사명이 없으신가요? 직접 입력해주세요.");
+            return ResponseEntity.ok(new ArrayList<>());
         }
 
         return ResponseEntity.ok(corpList);
@@ -62,7 +63,7 @@ public class CorpController {
         List<CorpDomainResponse> corpList = corpService.findCorpName(corpDomain);
 
         if (corpList.isEmpty()) {
-            return ResponseEntity.ok("찾으시는 회사 도메인이 없으신가요? 직접 입력해주세요.");
+            return ResponseEntity.ok(new ArrayList<>());
         }
 
         return ResponseEntity.ok(corpList);

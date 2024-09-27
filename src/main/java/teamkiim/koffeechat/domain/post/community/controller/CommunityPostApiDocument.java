@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostSearchListResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -58,8 +58,7 @@ public @interface CommunityPostApiDocument {
      */
     @Operation(summary = "게시글 저장", description = "사용자가 커뮤니티 게시판에 게시글을 저장한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "생성된 게시글을 반환한다.",
-                    content = @Content(schema = @Schema(implementation = CommunityPostResponse.class))),
+            @ApiResponse(responseCode = "200", description = "커뮤니티 게시글 작성 완료"),
             @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "제목 없이 게시글을 쓰려고 하는 경우",
                             value = "{\"code\":400, \"message\":\"제목을 입력해 주세요.\"}"),
@@ -83,14 +82,14 @@ public @interface CommunityPostApiDocument {
     /**
      * 커뮤니티 게시글 목록 조회
      */
-    @Operation(summary = "게시글 목록 조회", description = "사용자가 커뮤니티 게시글 목록을 조회한다.")
+    @Operation(summary = "게시글 목록 조회", description = "사용자가 커뮤니티 게시글 목록을 조회한다. 게시물 제목, 태그로 필터링 할 수 있다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "커뮤니티 게시글 리스트를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
-                    content = @Content(schema = @Schema(implementation = CommunityPostListResponse.class))),
+            @ApiResponse(responseCode = "200", description = "검색된 커뮤니티 게시글 리스트와 개수를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
+                    content = @Content(schema = @Schema(implementation = CommunityPostSearchListResponse.class))),
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ShowListApiDoc {
+    @interface GetCommunityPostListApiDoc {
     }
 
     /**
@@ -119,8 +118,7 @@ public @interface CommunityPostApiDocument {
      */
     @Operation(summary = "게시글 수정", description = "사용자가 커뮤니티 게시글을 수정한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "커뮤니티 게시글을 반환한다.",
-                    content = @Content(schema = @Schema(implementation = CommunityPostResponse.class))),
+            @ApiResponse(responseCode = "200", description = "커뮤니티 게시글 수정 완료"),
             @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "제목 없이 게시글을 쓰려고 하는 경우",
                             value = "{\"code\":400, \"message\":\"제목을 입력해 주세요.\"}"),

@@ -12,6 +12,8 @@ import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
+import teamkiim.koffeechat.domain.post.dev.dto.request.SkillCategoryRequest;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
@@ -46,7 +48,7 @@ public class DevPostController {
      * 개발 게시글 작성 취소
      */
     @AuthenticatedMemberPrincipal
-    @DeleteMapping("/cancel/{postId}")
+    @DeleteMapping("/{postId}")
     @DevPostApiDocument.CancelPostApiDoc
     public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
 
@@ -59,31 +61,34 @@ public class DevPostController {
      * 개발 게시글 작성
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/post")
+    @PostMapping("/{postId}")
     @DevPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(@Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> savePost(@PathVariable("postId") Long postId, @Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(), memberId);
+        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(postId), memberId);
 
         return ResponseEntity.ok("게시글 작성 완료");
     }
 
     /**
-     * 개발 게시글 목록 조회
+     * 개발 게시글 목록 조회 (필터: 기술 카테고리, 태그, 제목)
      */
     @GetMapping("")
     @DevPostApiDocument.GetDevPostList
     public ResponseEntity<?> getDevPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
-                                            @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList) {
+                                            @RequestParam(value = "word", required = false) String keyword,
+                                            @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList,
+                                            @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
         log.info("/dev-post/list 진입");
 
-        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, childSkillCategoryList);
+        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, keyword, childSkillCategoryList, tagContents);
 
         return ResponseEntity.ok(responseList);
     }
+
 
     /**
      * 개발 게시글 상세 조회
@@ -104,15 +109,27 @@ public class DevPostController {
      * 개발 게시글 수정
      */
     @AuthenticatedMemberPrincipal
-    @PatchMapping("/modify")
+    @PatchMapping("/{postId}")
     @DevPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") Long postId, @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(), memberId);
+        devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(postId), memberId);
 
         return ResponseEntity.ok("게시물 수정 완료");
     }
 
+    /**
+     * 기술 채팅방 관련 게시글 조회
+     */
+    @AuthenticatedMemberPrincipal
+    @PostMapping("/skillCategory")
+    @DevPostApiDocument.SkillCategoryPostsApiDoc
+    public ResponseEntity<?> skillCategoryPosts(@RequestBody SkillCategoryRequest skillCategoryRequest, @RequestParam("page") int page, @RequestParam("size") int size) {
+
+        List<DevPostListResponse> responses = devPostService.findSkillCategoryPosts(skillCategoryRequest.convertToSkillCategory(), page, size);
+
+        return ResponseEntity.ok(responses);
+    }
 }

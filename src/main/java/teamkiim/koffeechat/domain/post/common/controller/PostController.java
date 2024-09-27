@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/post")
-@Tag(name = "게시판 공통API")
+@Tag(name = "게시판 공통 API")
 public class PostController {
 
     private final PostService postService;

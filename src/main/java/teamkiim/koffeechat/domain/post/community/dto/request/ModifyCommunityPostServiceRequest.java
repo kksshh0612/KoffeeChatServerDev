@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,4 +16,6 @@ public class ModifyCommunityPostServiceRequest {
     private Long id;
     private String title;
     private String bodyContent;
+    private List<Long> fileIdList;
+    private List<String> tagContentList;
 }

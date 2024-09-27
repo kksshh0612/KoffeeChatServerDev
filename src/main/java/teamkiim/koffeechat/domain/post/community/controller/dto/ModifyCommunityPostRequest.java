@@ -14,11 +14,13 @@ public class ModifyCommunityPostRequest {
     ModifyCommunityPostInfoRequest modifyCommunityPostInfoRequest;
     ModifyVoteRequest modifyVoteRequest;
 
-    public ModifyCommunityPostServiceRequest toPostServiceRequest() {
+    public ModifyCommunityPostServiceRequest toPostServiceRequest(Long postId) {
         return ModifyCommunityPostServiceRequest.builder()
-                .id(this.modifyCommunityPostInfoRequest.getId())
+                .id(postId)
                 .title(this.modifyCommunityPostInfoRequest.getTitle())
                 .bodyContent(this.modifyCommunityPostInfoRequest.getBodyContent())
+                .fileIdList(this.getModifyCommunityPostInfoRequest().getFileIdList())
+                .tagContentList(this.modifyCommunityPostInfoRequest.getTagContentList())
                 .build();
     }
 
@@ -30,6 +32,5 @@ public class ModifyCommunityPostRequest {
         return ModifyVoteServiceRequest.builder()
                 .items(this.modifyVoteRequest.getItems())
                 .build();
-
     }
 }

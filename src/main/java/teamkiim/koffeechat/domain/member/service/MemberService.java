@@ -95,7 +95,7 @@ public class MemberService {
      *
      * @param profileMemberId 조회한 대상 회원의 PK
      * @param loginMemberId   로그인한 회원 (현재 요청을 보낸) 의 PK
-     * @return
+     * @return MemberInfoResponse
      */
     public MemberInfoResponse findMemberInfo(Long profileMemberId, Long loginMemberId) {
 
@@ -123,7 +123,9 @@ public class MemberService {
             isFollowingMember = memberFollowService.isMemberFollowed(loginMember, profileMember);
         }
 
-        return MemberInfoResponse.of(profileMember, isLoginMemberProfile, isFollowingMember);
+        boolean isCorpVerified = profileMember.getCorpName() != null;  // 현직자 인증 여부
+
+        return MemberInfoResponse.of(profileMember, isLoginMemberProfile, isFollowingMember, isCorpVerified);
     }
 
 

@@ -24,9 +24,9 @@ public class SaveDevPostServiceRequest {
     private String bodyContent;
     private String visualData;
     private List<SkillCategory> skillCategoryList;
+    private List<String> tagContentList;
     private List<Long> fileIdList;
     private LocalDateTime currDateTime;
-
 
 }
 

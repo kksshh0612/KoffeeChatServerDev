@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.auth.service.AuthService;
 import teamkiim.koffeechat.domain.email.dto.request.EmailAuthRequest;
-import teamkiim.koffeechat.domain.member.controller.dto.EnrollSkillCategoryRequest;
-import teamkiim.koffeechat.domain.member.controller.dto.ModifyProfileRequest;
+import teamkiim.koffeechat.domain.member.controller.dto.request.CheckPasswordRequest;
+import teamkiim.koffeechat.domain.member.controller.dto.request.EnrollSkillCategoryRequest;
+import teamkiim.koffeechat.domain.member.controller.dto.request.ModifyProfileRequest;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
 import teamkiim.koffeechat.domain.member.dto.request.UpdatePasswordRequest;
 import teamkiim.koffeechat.domain.member.service.MemberService;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/member")
+@Tag(name = "사용자 API")
 public class MemberController {
 
     private final MemberService memberService;
@@ -83,7 +85,7 @@ public class MemberController {
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile")
-    @MemberApiDocument.FindMemberProfile
+    @MemberApiDocument.FindProfile
     public ResponseEntity<?> findProfile(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
@@ -144,11 +146,11 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/password")
     @MemberApiDocument.CheckCurrentPasswordApiDoc
-    public ResponseEntity<?> checkCurrentPassword(@RequestBody String password, HttpServletRequest request) {
+    public ResponseEntity<?> checkCurrentPassword(@RequestBody CheckPasswordRequest password, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        memberService.checkCurrentPassword(memberId, password);
+        memberService.checkCurrentPassword(memberId, password.getPassword());
 
         return ResponseEntity.ok("비밀번호 확인 완료");
     }

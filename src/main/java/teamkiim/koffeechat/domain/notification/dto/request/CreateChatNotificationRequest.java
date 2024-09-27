@@ -3,33 +3,33 @@ package teamkiim.koffeechat.domain.notification.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-import teamkiim.koffeechat.domain.comment.domain.Comment;
-import teamkiim.koffeechat.domain.member.domain.Member;
-import teamkiim.koffeechat.domain.notification.domain.NotificationType;
-import teamkiim.koffeechat.domain.post.common.domain.Post;
+import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
+import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @Schema(description = "채팅 알림 생성 Request")
 public class CreateChatNotificationRequest {
 
-    private Member sender;
+    private Long chatRoomId;                // 채팅방 id
 
-    private String title;
+    private String content;                 // 채팅 메세지
 
-    private String content;
+    private Long senderId;                  // 채팅을 작성한 회원
 
-    private Long roomId;
+    private MessageType messageType;        // 메세지 타입 (입장, 채팅, 이미지)
 
-    private NotificationType notificationType;
+    private LocalDateTime createdTime;
 
-    public static CreateChatNotificationRequest of(NotificationType notificationType, Member sender) {
+    public static CreateChatNotificationRequest of(ChatMessage chatMessage) {
         return CreateChatNotificationRequest.builder()
-                .sender(sender)
-                .roomId(0L)
-                .title("알림 내용")
-                .content("알림 내용")
-                .notificationType(NotificationType.CHATTING)
+                .chatRoomId(chatMessage.getChatRoomId())
+                .content(chatMessage.getContent())
+                .senderId(chatMessage.getSenderId())
+                .messageType(chatMessage.getMessageType())
+                .createdTime(chatMessage.getCreatedTime())
                 .build();
     }
 }

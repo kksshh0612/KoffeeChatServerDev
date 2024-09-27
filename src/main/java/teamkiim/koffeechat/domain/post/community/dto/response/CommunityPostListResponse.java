@@ -5,9 +5,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.file.domain.File;
+import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -18,6 +20,8 @@ public class CommunityPostListResponse {
     private Long id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
+    private List<TagInfoDto> tagDtoList;            //태그 리스트
+
     private long viewCount;                         // 조회수
     private long likeCount;                         // 좋아요 수
     private long bookmarkCount;                     // 북마크 수
@@ -36,6 +40,7 @@ public class CommunityPostListResponse {
                 .id(communityPost.getId())
                 .title(communityPost.getTitle())
                 .bodyContent(communityPost.getBodyContent())
+                .tagDtoList(communityPost.getPostTagList().stream().map(postTag -> TagInfoDto.of(postTag.getTag())).toList())
                 .viewCount(communityPost.getViewCount())
                 .likeCount(communityPost.getLikeCount())
                 .bookmarkCount(communityPost.getBookmarkCount())
