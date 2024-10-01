@@ -38,22 +38,40 @@ public class NotificationResponse {
 
     public static NotificationResponse of(Notification notification, long unreadNotifications) {
 
-        return NotificationResponse.builder()
-                .receiverId(notification.getReceiver().getId())
-                .unreadNotifications(unreadNotifications)
-                .senderId(notification.getSender().getId())
-                .senderNickname(notification.getSender().getNickname())
-                .profileImagePath(notification.getSender().getProfileImagePath())
-                .profileImageName(notification.getSender().getProfileImageName())
-                .title(notification.getTitle())
-                .content(notification.getContent())
-                .url(notification.getUrlPK())
-                .postType(notification.getPostType())
-                .commentId(notification.getCommentId())
-                .isRead(false)
-                .notificationType(notification.getNotificationType())
-                .createdTime(notification.getCreatedTime())
-                .build();
-
+        if (notification.getNotificationType() == NotificationType.CORP) { //현직자 인증 알림의 경우 sender x
+            return NotificationResponse.builder()
+                    .receiverId(notification.getReceiver().getId())
+                    .unreadNotifications(unreadNotifications)
+                    .senderId(null)
+                    .senderNickname(null)
+                    .profileImagePath(null)
+                    .profileImageName(null)
+                    .title(notification.getTitle())
+                    .content(notification.getContent())
+                    .url(notification.getUrlPK())
+                    .postType(notification.getPostType())
+                    .commentId(notification.getCommentId())
+                    .isRead(false)
+                    .notificationType(notification.getNotificationType())
+                    .createdTime(notification.getCreatedTime())
+                    .build();
+        } else {
+            return NotificationResponse.builder()
+                    .receiverId(notification.getReceiver().getId())
+                    .unreadNotifications(unreadNotifications)
+                    .senderId(notification.getSender().getId())
+                    .senderNickname(notification.getSender().getNickname())
+                    .profileImagePath(notification.getSender().getProfileImagePath())
+                    .profileImageName(notification.getSender().getProfileImageName())
+                    .title(notification.getTitle())
+                    .content(notification.getContent())
+                    .url(notification.getUrlPK())
+                    .postType(notification.getPostType())
+                    .commentId(notification.getCommentId())
+                    .isRead(false)
+                    .notificationType(notification.getNotificationType())
+                    .createdTime(notification.getCreatedTime())
+                    .build();
+        }
     }
 }

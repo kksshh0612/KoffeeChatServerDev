@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
+import teamkiim.koffeechat.domain.corp.domain.Corp;
+import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
@@ -92,21 +94,28 @@ public class NotificationService {
 
         List<Member> followerList = memberFollowRepository.findFollowerListByFollowing(writer);  // 글쓴이의 팔로워들
 
-        followerList.forEach(follower -> createNotification(CreateNotificationRequest.of(NotificationType.POST, writer, post, null), follower));
+        followerList.forEach(follower -> createNotification(CreateNotificationRequest.ofForPost(NotificationType.POST, writer, post), follower));
     }
 
     /**
      * 댓글 알림 생성
      */
     public void createCommentNotification(Post post, Member sender, Comment comment) {
-        createNotification(CreateNotificationRequest.of(NotificationType.COMMENT, sender, post, comment), post.getMember());
+        createNotification(CreateNotificationRequest.ofForComment(NotificationType.COMMENT, sender, post, comment), post.getMember());
     }
 
     /**
      * 팔로우 알림 생성
      */
     public void createFollowNotification(Member follower, Member following) {
-        createNotification(CreateNotificationRequest.of(NotificationType.FOLLOW, follower, null, null), following);
+        createNotification(CreateNotificationRequest.ofForFollow(NotificationType.FOLLOW, follower), following);
+    }
+
+    /**
+     * 현직자 인증 알림 생성
+     */
+    public void createCorpNotification(List<Member> memberList, Corp corp, Verified verified) {
+        memberList.forEach(member -> createNotification(CreateNotificationRequest.ofForCorp(NotificationType.CORP, corp, verified), member));
     }
 
     /**

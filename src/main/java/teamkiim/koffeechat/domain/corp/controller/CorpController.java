@@ -30,8 +30,10 @@ public class CorpController {
     @AuthenticatedMemberPrincipal
     @PostMapping("")
     @CorpApiDocument.CreateWaitingCorp
-    public ResponseEntity<?> createWaitingCorp(@Valid @RequestBody CorpDomainRequest corpDomainRequest) {
-        String response = corpService.createWaitingCorp(corpDomainRequest.getName(), corpDomainRequest.getEmailDomain());
+    public ResponseEntity<?> createWaitingCorp(@Valid @RequestBody CorpDomainRequest corpDomainRequest, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String response = corpService.createWaitingCorp(memberId, corpDomainRequest.getName(), corpDomainRequest.getEmailDomain());
 
         return ResponseEntity.ok(response);
     }

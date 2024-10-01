@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
+import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;
 import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
+import teamkiim.koffeechat.domain.corp.repository.WaitingCorpRepository;
 import teamkiim.koffeechat.domain.email.domain.EmailAuth;
 import teamkiim.koffeechat.domain.email.repository.EmailAuthRepository;
 import teamkiim.koffeechat.domain.email.service.EmailSendService;
@@ -25,6 +27,7 @@ public class CorpService {
 
     private final MemberRepository memberRepository;
     private final CorpRepository corpRepository;
+    private final WaitingCorpRepository waitingCorpRepository;
     private final EmailAuthRepository emailAuthRepository;
     private final EmailSendService emailSendService;
 
@@ -33,7 +36,9 @@ public class CorpService {
      * 거절된 도메인에 대해 요청하면 -> 요청 거절
      */
     @Transactional
-    public String createWaitingCorp(String corpName, String corpDomain) {
+    public String createWaitingCorp(Long memberId, String corpName, String corpDomain) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Optional<Corp> corp = corpRepository.findByNameAndEmailDomain(corpName, corpDomain);
 
@@ -44,10 +49,17 @@ public class CorpService {
             if (corp.get().getVerified().equals(Verified.APPROVED)) {
                 throw new CustomException(ErrorCode.CORP_ALREADY_EXIST);
             }
-        }
+            if (corp.get().getVerified().equals(Verified.WAITING)) {
+                if (waitingCorpRepository.existsByMemberAndCorp(member, corp.get())) {  //이미 존재하는 요청인 경우
+                    throw new CustomException(ErrorCode.CORP_REQUEST_ALREADY_EXIST);
+                }
+                waitingCorpRepository.save(new WaitingCorp(member, corp.get()));  // 대기 요청 저장
+            }
 
-        // 새로운 요청 -> 요청 생성
-        corpRepository.save(new Corp(corpName, corpDomain, Verified.WAITING));
+        } else {  // 새로운 요청 -> 요청 생성
+            Corp savedCorp = corpRepository.save(new Corp(corpName, corpDomain, Verified.WAITING));
+            waitingCorpRepository.save(new WaitingCorp(member, savedCorp));  // 대기 요청 저장
+        }
 
         return "도메인 등록이 요청되었습니다. 승인이 될 때까지 기다려 주세요.";
     }

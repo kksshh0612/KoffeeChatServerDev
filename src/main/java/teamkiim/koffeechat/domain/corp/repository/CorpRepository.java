@@ -11,7 +11,8 @@ import java.util.Optional;
 
 public interface CorpRepository extends JpaRepository<Corp, Long> {
 
-    Optional<Corp> findByNameAndEmailDomain(String name, String emailDomain);
+    @Query("SELECT c FROM Corp c WHERE c.name = :name AND c.emailDomain = :domain")
+    Optional<Corp> findByNameAndEmailDomain(@Param("name") String name, @Param("domain") String emailDomain);
 
     @Query("SELECT c FROM Corp c WHERE c.name LIKE %:name% AND c.verified = :verified")
     List<Corp> findApprovedCorpByName(@Param("name") String name, @Param("verified") Verified verified);
