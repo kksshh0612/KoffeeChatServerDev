@@ -27,7 +27,7 @@ public class ChatNotificationService {
      */
     private void sendNotification(String emitterId, SseEmitter emitter, String eventId, Object response) {
         try {
-            emitter.send(SseEmitter.event().id(eventId).data(response));
+            emitter.send(SseEmitter.event().id(eventId).name("chat").data(response));
         } catch (IOException e) {
             log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId, e.getMessage());
             emitter.completeWithError(e);
