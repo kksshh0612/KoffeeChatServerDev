@@ -31,6 +31,17 @@ public class MemberController {
     private final AuthService authService;
 
     /**
+     * 사용자 닉네임으로 암호화된 pk 요청
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/{memberId}")
+    @MemberApiDocument.GetMemberPK
+    public ResponseEntity<?> getMemberPK(@PathVariable(value = "memberId") String memberEmailId) throws Exception {
+
+        return ResponseEntity.ok(memberService.getMemberPK(memberEmailId));
+    }
+
+    /**
      * 프로필 사진 등록
      */
     @AuthenticatedMemberPrincipal
@@ -86,7 +97,7 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile")
     @MemberApiDocument.FindProfile
-    public ResponseEntity<?> findProfile(HttpServletRequest request) {
+    public ResponseEntity<?> findProfile(HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -99,7 +110,7 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile/{profileMemberId}")
     @MemberApiDocument.FindMemberProfile
-    public ResponseEntity<?> findProfile(@PathVariable(value = "profileMemberId") Long profileMemberId, HttpServletRequest request) {
+    public ResponseEntity<?> findProfile(@PathVariable("profileMemberId") String profileMemberId, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

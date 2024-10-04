@@ -23,6 +23,9 @@ spring:
       mail.smtp.auth: true        # SMTP 서버와의 인증
       mail.smtp.ssl.enable: true  # SSL 보안연결(필수)
 
+  aes:
+    secret: ${aes-secret-key}  # pk AES 암호화
+
 jwt:
   secret-key: ${secret-key}
   access:
