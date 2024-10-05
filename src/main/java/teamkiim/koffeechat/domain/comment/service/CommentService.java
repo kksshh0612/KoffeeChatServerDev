@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.comment.controller.dto.response.MyCommentListResponse;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.comment.dto.request.CommentServiceRequest;
@@ -13,7 +14,6 @@ import teamkiim.koffeechat.domain.comment.repository.CommentRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
@@ -31,19 +31,20 @@ public class CommentService {
     private final PostRepository postRepository;
     private final NotificationService notificationService;
 
+    private final AESCipher aesCipher;
+
     /**
      * 댓글 저장
      *
      * @param commentServiceRequest 댓글 저장 dto
      * @param memberId              댓글 작성자 PK
-     * @return ok
      */
     @Transactional
-    public void saveComment(CommentServiceRequest commentServiceRequest, Long memberId){
+    public void saveComment(CommentServiceRequest commentServiceRequest, String memberId) throws Exception {
 
         System.out.println("여기 ::  " + commentServiceRequest.getPostId());
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Post post = postRepository.findById(commentServiceRequest.getPostId())
@@ -65,7 +66,6 @@ public class CommentService {
      * 댓글 수정
      *
      * @param modifyCommentServiceRequest 댓글 수정 dto
-     * @return ok
      */
     @Transactional
     public void modifyComment(ModifyCommentServiceRequest modifyCommentServiceRequest) {
@@ -80,7 +80,6 @@ public class CommentService {
      * 댓글 삭제
      *
      * @param commentId 삭제할 댓글 PK
-     * @return ok
      */
     @Transactional
     public void deleteComment(Long commentId) {
@@ -99,9 +98,9 @@ public class CommentService {
      * @param size     페이지 당 조회할 데이터 수
      * @return List<MyCommentListResponse>
      */
-    public List<MyCommentListResponse> findMyCommentList(Long memberId, int page, int size) {
+    public List<MyCommentListResponse> findMyCommentList(String memberId, int page, int size) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 작성한 댓글부터

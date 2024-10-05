@@ -28,9 +28,9 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/subscribe")
     @NotificationApiDocument.SubscribeApiDoc
-    public SseEmitter subscribe(HttpServletRequest request) {
+    public SseEmitter subscribe(HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         return notificationService.connectNotification(memberId);
     }
@@ -41,9 +41,9 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/unread-notifications")
     @NotificationApiDocument.getUnreadNotificationCountApiDoc
-    public ResponseEntity<?> getUnreadNotificationCount(HttpServletRequest request) {
+    public ResponseEntity<?> getUnreadNotificationCount(HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         int count = notificationService.getUnreadNotificationCount(memberId);
 
@@ -56,10 +56,10 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("")
     @NotificationApiDocument.ShowNotificationListApiDoc
-    public ResponseEntity<?> showNotificationList(@RequestParam("notificationType") NotificationType notiType,
-                                                  @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    public ResponseEntity<?> showNotificationList(@RequestParam("notificationType") NotificationType notiType, @RequestParam("page") int page,
+                                                  @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         List<NotificationListItemResponse> response = notificationService.getNotificationList(notiType, memberId, page, size);
 
@@ -72,9 +72,9 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{notificationId}")
     @NotificationApiDocument.UpdateNotificationIsReadApiDoc
-    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") Long notiId, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         long count = notificationService.updateNotificationIsRead(memberId, notiId);
 
@@ -87,9 +87,9 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{notificationId}")
     @NotificationApiDocument.DeleteNotificationApiDoc
-    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") Long notiId, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         long count = notificationService.deleteNotification(memberId, notiId);
 
@@ -102,8 +102,8 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("")
     @NotificationApiDocument.DeleteAllNotificationsApiDoc
-    public ResponseEntity<?> deleteAllNotifications(HttpServletRequest request) {
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+    public ResponseEntity<?> deleteAllNotifications(HttpServletRequest request) throws Exception {
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         notificationService.deleteAllNotifications(memberId);
 
@@ -116,8 +116,8 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("")
     @NotificationApiDocument.ReadAllNotificationsApiDoc
-    public ResponseEntity<?> readAllNotifications(HttpServletRequest request) {
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+    public ResponseEntity<?> readAllNotifications(HttpServletRequest request) throws Exception {
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         notificationService.updateAllNotificationsIsRead(memberId);
 

@@ -29,9 +29,9 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @PostMapping("")
     @CommentApiDocument.SaveCommentApiDoc
-    public ResponseEntity<?> saveComment(@Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request) {
+    public ResponseEntity<?> saveComment(@Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         LocalDateTime currDateTime = LocalDateTime.now();
 
@@ -72,9 +72,9 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @GetMapping("")
     @CommentApiDocument.MyCommentListApiDoc
-    public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         List<MyCommentListResponse> myCommentListResponseList = commentService.findMyCommentList(memberId, page, size);
 

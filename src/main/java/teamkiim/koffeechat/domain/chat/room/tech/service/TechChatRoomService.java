@@ -3,6 +3,7 @@ package teamkiim.koffeechat.domain.chat.room.tech.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
@@ -18,8 +19,6 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.time.LocalDateTime;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -30,15 +29,18 @@ public class TechChatRoomService {
     private final MemberChatRoomRepository memberChatRoomRepository;
     private final ChatMessageService chatMessageService;
 
+    private final AESCipher aesCipher;
+
     /**
      * 기술 채팅방 생성
+     *
      * @param createTechChatRoomServiceRequest
-     * @param memberId                      채팅방 생성을 요청한 사용자 PK
+     * @param memberId                         채팅방 생성을 요청한 사용자 PK
      */
     @Transactional
-    public void createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, Long memberId){
+    public void createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, String memberId) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity();
@@ -55,12 +57,13 @@ public class TechChatRoomService {
 
     /**
      * 기술 채팅방 입장
+     *
      * @param enterTechChatRoomServiceRequest
-     * @param memberId                      채팅방 입장을 요청한 사용자 PK
+     * @param memberId                        채팅방 입장을 요청한 사용자 PK
      */
-    public void enterChatRoom(EnterTechChatRoomServiceRequest enterTechChatRoomServiceRequest, Long memberId){
+    public void enterChatRoom(EnterTechChatRoomServiceRequest enterTechChatRoomServiceRequest, String memberId) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         TechChatRoom techChatRoom = techChatRoomRepository.findById(enterTechChatRoomServiceRequest.getChatRoomId())
@@ -87,12 +90,13 @@ public class TechChatRoomService {
 
     /**
      * 기술 채팅방 퇴장
+     *
      * @param exitTechChatRoomServiceRequest
-     * @param memberId                      채팅방 입장을 요청한 사용자 PK
+     * @param memberId                       채팅방 입장을 요청한 사용자 PK
      */
-    public void exitChatRoom(ExitTechChatRoomServiceRequest exitTechChatRoomServiceRequest, Long memberId){
+    public void exitChatRoom(ExitTechChatRoomServiceRequest exitTechChatRoomServiceRequest, String memberId) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         TechChatRoom techChatRoom = techChatRoomRepository.findById(exitTechChatRoomServiceRequest.getChatRoomId())

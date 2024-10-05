@@ -3,6 +3,7 @@ package teamkiim.koffeechat.domain.vote.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
@@ -32,6 +33,8 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final VoteItemRepository voteItemRepository;
     private final VoteRecordRepository voteRecordRepository;
+
+    private final AESCipher aesCipher;
 
     //멤버가 투표를 했는지 안했는지
     public boolean hasMemberVoted(Vote vote, Member member) {
@@ -95,8 +98,8 @@ public class VoteService {
      * @return isVoted 필드를 포함한 dto
      */
     @Transactional
-    public List<SaveVoteRecordServiceDto> saveVoteRecord(Long postId, SaveVoteRecordRequest saveVoteRecordRequest, Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public List<SaveVoteRecordServiceDto> saveVoteRecord(Long postId, SaveVoteRecordRequest saveVoteRecordRequest, String memberId) throws Exception {
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Post post = postRepository.findById(postId)

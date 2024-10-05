@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
@@ -49,6 +50,8 @@ public class DevPostService {
     private final PostService postService;
     private final TagService tagService;
 
+    private final AESCipher aesCipher;
+
     /**
      * 게시글 최초 임시 저장
      *
@@ -56,9 +59,9 @@ public class DevPostService {
      * @return Long 게시글 PK
      */
     @Transactional
-    public Long saveInitDevPost(Long memberId) {
+    public Long saveInitDevPost(String memberId) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = DevPost.builder()
@@ -93,9 +96,9 @@ public class DevPostService {
      * @param saveDevPostServiceRequest 게시글 저장 dto
      */
     @Transactional
-    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
+    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, String memberId) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = devPostRepository.findById(saveDevPostServiceRequest.getId())
@@ -159,30 +162,34 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public DevPostResponse findPost(Long postId, Long memberId, HttpServletRequest request) {
+    public DevPostResponse findPost(Long postId, String memberId, HttpServletRequest request) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Long memberPk = aesCipher.decrypt(memberId);
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
-                .map(comment -> CommentInfoDto.of(comment, memberId)).toList();
+                .map(comment -> {
+                    boolean isMemberWritten = comment.getMember().getId().equals(memberPk);
+                    return CommentInfoDto.of(comment, isMemberWritten);
+                }).toList();
 
         List<TagInfoDto> tagInfoDtoList = devPost.getPostTagList().stream()
                 .map(postTag -> TagInfoDto.of(postTag.getTag())).toList();
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
-        boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
+        boolean isMemberWritten = memberPk.equals(devPost.getMember().getId());
 
         //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
         if (!isMemberWritten) {
             postService.viewPost(devPost, request);
         }
 
-        return DevPostResponse.of(devPost, tagInfoDtoList, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return DevPostResponse.of(devPost, aesCipher.encrypt(devPost.getMember().getId()), tagInfoDtoList, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
@@ -191,9 +198,9 @@ public class DevPostService {
      * @param modifyDevPostServiceRequest 게시글 수정 dto
      */
     @Transactional
-    public void modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
+    public void modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, String memberId) throws Exception {
 
-        memberRepository.findById(memberId)
+        memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())

@@ -1,14 +1,13 @@
 package teamkiim.koffeechat.domain.chat.room.common.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
-import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
 import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResponse;
@@ -33,17 +32,20 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageService chatMessageService;
 
+    private final AESCipher aesCipher;
+
     /**
      * 참여중인 채팅방 목록 조회
      * -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
+     *
      * @param memberId
      * @param page
      * @param size
      * @return
      */
-    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size){
+    public List<ChatRoomListResponse> findChatRoomList(String memberId, int page, int size) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "closeTime"));
@@ -54,7 +56,7 @@ public class ChatRoomService {
 
         List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
 
-        for(ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList){
+        for (ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList) {
             ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(chatRoomInfoDto);
 
             chatRoomListResponseList.add(chatRoomListResponse);
@@ -69,9 +71,9 @@ public class ChatRoomService {
 
 
     @Transactional
-    public void close(Long chatRoomId, Long memberId, LocalDateTime closeTime){
+    public void close(Long chatRoomId, String memberId, LocalDateTime closeTime) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)

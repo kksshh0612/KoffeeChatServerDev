@@ -35,9 +35,9 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/init")
     @DevPostApiDocument.InitPostApiDoc
-    public ResponseEntity<?> initPost(HttpServletRequest request) {
+    public ResponseEntity<?> initPost(HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         Long postId = devPostService.saveInitDevPost(memberId);
 
@@ -63,9 +63,9 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/{postId}")
     @DevPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(@PathVariable("postId") Long postId, @Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> savePost(@PathVariable("postId") Long postId, @Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(postId), memberId);
 
@@ -96,9 +96,9 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postId}")
     @DevPostApiDocument.ShowPostApiDoc
-    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request) {
+    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         DevPostResponse postResponse = devPostService.findPost(postId, memberId, request);
 
@@ -111,9 +111,10 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{postId}")
     @DevPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@PathVariable("postId") Long postId, @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") Long postId, @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest,
+                                        HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
 
         devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(postId), memberId);
 

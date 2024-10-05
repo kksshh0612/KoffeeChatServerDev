@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationResponse {
 
-    private Long receiverId;  //알림을 받는 회원
+    private String receiverId;  //알림을 받는 회원
     private long unreadNotifications;  //읽지 않은 알림 갯수
 
-    private Long senderId;  //알림 내용에 포함될 회원
+    private String senderId;  //알림 내용에 포함될 회원
     private String senderNickname;
     private String profileImagePath;
     private String profileImageName;
@@ -36,11 +36,11 @@ public class NotificationResponse {
 
     private LocalDateTime createdTime;
 
-    public static NotificationResponse of(Notification notification, long unreadNotifications) {
+    public static NotificationResponse of(String receiverId, String senderId, Notification notification, long unreadNotifications) {
 
         if (notification.getNotificationType() == NotificationType.CORP) { //현직자 인증 알림의 경우 sender x
             return NotificationResponse.builder()
-                    .receiverId(notification.getReceiver().getId())
+                    .receiverId(receiverId)
                     .unreadNotifications(unreadNotifications)
                     .senderId(null)
                     .senderNickname(null)
@@ -57,9 +57,9 @@ public class NotificationResponse {
                     .build();
         } else {
             return NotificationResponse.builder()
-                    .receiverId(notification.getReceiver().getId())
+                    .receiverId(receiverId)
                     .unreadNotifications(unreadNotifications)
-                    .senderId(notification.getSender().getId())
+                    .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
                     .profileImagePath(notification.getSender().getProfileImagePath())
                     .profileImageName(notification.getSender().getProfileImageName())

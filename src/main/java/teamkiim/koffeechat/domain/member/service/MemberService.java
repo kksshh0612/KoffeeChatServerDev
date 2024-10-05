@@ -40,7 +40,9 @@ public class MemberService {
      * 사용자 닉네임으로 암호화된 pk 요청
      */
     public String getMemberPK(String memberEmailId) throws Exception {
-        Member member = memberRepository.findByEmailId(memberEmailId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findByEmailId(memberEmailId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         return aesCipher.encrypt(member.getId());
     }
 
@@ -51,9 +53,9 @@ public class MemberService {
      * @param memberId                    사용자 PK
      */
     @Transactional
-    public void modifyProfile(ModifyProfileServiceRequest modifyProfileServiceRequest, Long memberId) {
+    public void modifyProfile(ModifyProfileServiceRequest modifyProfileServiceRequest, String memberId) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.modify(modifyProfileServiceRequest.getNickname(), modifyProfileServiceRequest.getMemberRole());
@@ -66,13 +68,13 @@ public class MemberService {
      * @param enrollSkillCategoryServiceRequestList 관심 기술 dto
      */
     @Transactional
-    public void enrollSkillCategory(Long memberId, List<EnrollSkillCategoryServiceRequest> enrollSkillCategoryServiceRequestList) {
+    public void enrollSkillCategory(String memberId, List<EnrollSkillCategoryServiceRequest> enrollSkillCategoryServiceRequestList) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         List<SkillCategory> skillCategoryList = enrollSkillCategoryServiceRequestList.stream()
-                .map(enrollSkillCategoryServiceRequest -> enrollSkillCategoryServiceRequest.combine())
+                .map(EnrollSkillCategoryServiceRequest::combine)
                 .collect(Collectors.toList());
 
         member.enrollSkillCategory(skillCategoryList);
@@ -86,9 +88,9 @@ public class MemberService {
      * @return ProfileImageInfoResponse
      */
     @Transactional
-    public ProfileImageInfoResponse enrollProfileImage(Long memberId, MultipartFile multipartFile) {
+    public ProfileImageInfoResponse enrollProfileImage(String memberId, MultipartFile multipartFile) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         ProfileImageInfoResponse response = fileStorageControlService.saveFile(member, multipartFile);
@@ -105,7 +107,7 @@ public class MemberService {
      * @param loginMemberId   로그인한 회원 (현재 요청을 보낸) 의 PK
      * @return MemberInfoResponse
      */
-    public MemberInfoResponse findMemberInfo(String profileMemberId, Long loginMemberId) throws Exception {
+    public MemberInfoResponse findMemberInfo(String profileMemberId, String loginMemberId) throws Exception {
 
         boolean isLoginMemberProfile = false;
         Boolean isFollowingMember = null;
@@ -113,7 +115,7 @@ public class MemberService {
 
         // 프로필 PK가 null이면 로그인한 회원 PK로 조회
         if (profileMemberId == null) {
-            profileMember = memberRepository.findById(loginMemberId)
+            profileMember = memberRepository.findById(aesCipher.decrypt(loginMemberId))
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
             isLoginMemberProfile = true;
@@ -121,11 +123,11 @@ public class MemberService {
             profileMember = memberRepository.findById(aesCipher.decrypt(profileMemberId))
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-            isLoginMemberProfile = loginMemberId.equals(profileMember.getId());
+            isLoginMemberProfile = aesCipher.decrypt(loginMemberId).equals(profileMember.getId());
         }
 
         if (!isLoginMemberProfile) {
-            Member loginMember = memberRepository.findById(loginMemberId)
+            Member loginMember = memberRepository.findById(aesCipher.decrypt(loginMemberId))
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
             isFollowingMember = memberFollowService.isMemberFollowed(loginMember, profileMember);
@@ -141,9 +143,10 @@ public class MemberService {
      * 사용자 이메일 변경 시 인증 메시지 전송
      */
     @Transactional
-    public void sendNewAuthEmail(Long memberId, String email) {
+    public void sendNewAuthEmail(String memberId, String email) throws Exception {
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.getEmail().equals(email) || memberRepository.findByEmail(email).isPresent()) {
             throw new CustomException(ErrorCode.EMAIL_ALREADY_EXIST);
@@ -159,9 +162,10 @@ public class MemberService {
      * @param email    변경할 이메일
      */
     @Transactional
-    public void updateNewAuthEmail(Long memberId, String email) {
+    public void updateNewAuthEmail(String memberId, String email) throws Exception {
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.updateEmail(email);
     }
@@ -176,8 +180,8 @@ public class MemberService {
      * @param memberId 로그인한 사용자
      * @param password 현재 비밀번호
      */
-    public void checkCurrentPassword(Long memberId, String password) {
-        Member member = memberRepository.findById(memberId)
+    public void checkCurrentPassword(String memberId, String password) throws Exception {
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
@@ -192,8 +196,8 @@ public class MemberService {
      * @param passwordRequest 비밀번호 변경 요청
      */
     @Transactional
-    public void updatePassword(Long memberId, UpdatePasswordRequest passwordRequest) {
-        Member member = memberRepository.findById(memberId)
+    public void updatePassword(String memberId, UpdatePasswordRequest passwordRequest) throws Exception {
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         //기존 비밀번호와 동일한 비밀번호로 변경 요청

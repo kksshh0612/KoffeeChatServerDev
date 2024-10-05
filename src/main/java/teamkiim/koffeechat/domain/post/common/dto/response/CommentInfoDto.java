@@ -19,13 +19,13 @@ public class CommentInfoDto {
     private String nickname;
     private String profileImagePath;
     private String profileImageName;
+
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
+
     private boolean isMemberWritten;
 
-    public static CommentInfoDto of(Comment comment, Long loginMemberId) {
-
-        boolean isMemberWritten = comment.getMember().getId().equals(loginMemberId);
+    public static CommentInfoDto of(Comment comment, boolean isMemberWritten) {
 
         return CommentInfoDto.builder()
                 .id(comment.getId())
