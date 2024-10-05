@@ -23,7 +23,7 @@ public class WebSocketConnectionHandshakeInterceptor implements HandshakeInterce
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
         String validAccessToken = authenticator.verify(request, response);
-        Long memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);
+        String memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);
 
         log.info("MemberPK : " + memberId + " 의 web socket HandShake started");
 

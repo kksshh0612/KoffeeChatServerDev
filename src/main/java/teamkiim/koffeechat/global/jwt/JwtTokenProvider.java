@@ -48,16 +48,17 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * 로그인한 사용자의 정보로 Access Token 발급
-     * @param role 회원 권한
-     * @param memberId 회원 PK
+     *
+     * @param role     회원 권한
+     * @param memberId 암호화된 회원 PK
      * @return JWT (Access Token)
      */
-    public String createAccessToken(String role,  Long memberId){
+    public String createAccessToken(String role, String memberId) {
 
         Date validity = new Date(System.currentTimeMillis() + accessTokenExpTime);    //현재시간 + 토큰 유효 시간 == 만료날짜
 
         return Jwts.builder()
-                .setSubject(memberId.toString())
+                .setSubject(memberId)
                 .claim(AUTHORITIES_KEY, role)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -66,16 +67,17 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * 로그인한 사용자의 정보로 Refresh Token 발급
-     * @param role 회원 권한
-     * @param memberId 회원 PK
+     *
+     * @param role     회원 권한
+     * @param memberId 암호화된 회원 PK
      * @return JWT (Refresh Token)
      */
-    public String createRefreshToken(String role,  Long memberId){
+    public String createRefreshToken(String role, String memberId) {
 
         Date validity = new Date(System.currentTimeMillis() + refreshTokenExpTime);    //현재시간 + 토큰 유효 시간 == 만료날짜
 
         return Jwts.builder()
-                .setSubject(memberId.toString())
+                .setSubject(memberId)
                 .claim(AUTHORITIES_KEY, role)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -84,10 +86,11 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * JWT에서 claim 정보 추출
+     *
      * @param token 토큰 (Access or Refresh)
      * @return Claims
      */
-    public Claims getTokenClaims(String token){
+    public Claims getTokenClaims(String token) {
 
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -100,18 +103,20 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * Claim에서 PK 추출
+     *
      * @param claims
-     * @return 사용자의 PK
+     * @return 사용자의 암호화된 PK
      */
-    public Long getMemberPK(Claims claims){
+    public String getMemberPK(Claims claims) {
 
-        return Long.parseLong(claims.getSubject());
+        return claims.getSubject();
     }
 
     /**
      * Access Token 유효성 검증
+     *
      * @param accessToken Access Token
-     * @param request HttpServletRequest
+     * @param request     HttpServletRequest
      * @return 유효한 경우 -> Access Token / 유효하지 않은 경우 -> null
      */
     public String validateAccessToken(String accessToken, HttpServletRequest request) {
@@ -130,15 +135,14 @@ public class JwtTokenProvider implements InitializingBean {
             String refreshToken = cookieProvider.getRefreshToken(request);
 
             //리프레쉬 토큰이 유효하면 DB 기존 값 지우고 엑세스 토큰 재발급
-            if(refreshToken != null && validateRefreshToken(refreshToken)){
+            if (refreshToken != null && validateRefreshToken(refreshToken)) {
 
                 log.debug("TokenProvider.class / validateAccessToken : JWT access 토큰 재발급");
 
                 String newAccessToken = createAccessTokenFromRefreshToken(refreshToken);
 
                 return newAccessToken;
-            }
-            else{       //리프레쉬 토큰이 유효하지 않으면 다시 로그인하라는 예외 발생
+            } else {       //리프레쉬 토큰이 유효하지 않으면 다시 로그인하라는 예외 발생
                 log.info("refresh 토큰 만료 / 다시 로그인 해야함");
 
                 return null;
@@ -148,19 +152,20 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * Refresh Token 유효성 검증
+     *
      * @param requestRefreshToken Refresh Token
      * @return 유효한 경우 -> true / 유효하지 않은 경우 -> false
      */
-    public boolean validateRefreshToken(String requestRefreshToken){
+    public boolean validateRefreshToken(String requestRefreshToken) {
 
         //쿠키에서 받은 리프레시 토큰이 없음
-        if(requestRefreshToken == null){
+        if (requestRefreshToken == null) {
             log.debug("JwtTokenProvider.class / validateRefreshToken : refresh 토큰 없음");
             return false;
         }
 
         // 레디스에 리프레시 토큰이 있으면
-        if(redisUtil.hasKey(requestRefreshToken) && redisUtil.getData(requestRefreshToken).equals("refresh-token")){
+        if (redisUtil.hasKey(requestRefreshToken) && redisUtil.getData(requestRefreshToken).equals("refresh-token")) {
             log.debug("JwtTokenProvider.class / validateRefreshToken : refresh 토큰이 유효함");
             return true;
         }
@@ -171,14 +176,15 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * Refresh Token으로 새로운 Access Token 발급
+     *
      * @param refreshToken Refresh Token
      * @return Access Token
      */
-    public String createAccessTokenFromRefreshToken(String refreshToken){
+    public String createAccessTokenFromRefreshToken(String refreshToken) {
 
         Claims claims = getTokenClaims(refreshToken);
 
-        Long id = Long.parseLong(claims.getSubject());                  // 멤버 PK
+        String id = claims.getSubject();                  // 멤버 PK
         String memberRole = claims.get(AUTHORITIES_KEY).toString();     // 멤버 권한
 
         return createAccessToken(memberRole, id);
@@ -186,9 +192,10 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * Access Token 레디스에 블랙리스트 등록 (무효화)
+     *
      * @param accessToken Access Token
      */
-    public void invalidateAccessToken(String accessToken){
+    public void invalidateAccessToken(String accessToken) {
 
         Claims claims = getTokenClaims(accessToken);
 
@@ -204,11 +211,12 @@ public class JwtTokenProvider implements InitializingBean {
 
     /**
      * Refresh Token 레디스에서 삭제 (무효화)
+     *
      * @param refreshToken Refresh Token
      */
-    public void invalidateRefreshToken(String refreshToken){
+    public void invalidateRefreshToken(String refreshToken) {
 
-        if(refreshToken != null){
+        if (refreshToken != null) {
             redisUtil.deleteData(refreshToken);
         }
     }
