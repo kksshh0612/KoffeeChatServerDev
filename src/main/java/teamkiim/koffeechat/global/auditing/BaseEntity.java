@@ -24,4 +24,8 @@ public abstract class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime modifiedTime;
+
+    public void updateCreatedTime(LocalDateTime time){
+        this.createdTime = time;
+    }
 }

@@ -11,7 +11,6 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
-import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
@@ -30,6 +29,7 @@ import teamkiim.koffeechat.domain.vote.service.VoteService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -96,7 +96,7 @@ public class CommunityPostService {
      * @return CommunityPostResponse
      */
     @Transactional
-    public CommunityPostResponse saveCommunityPost(SaveCommunityPostRequest postRequest, Long memberId) {
+    public CommunityPostResponse saveCommunityPost(SaveCommunityPostRequest postRequest, Long memberId, LocalDateTime createdTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -109,7 +109,7 @@ public class CommunityPostService {
         if (communityPost.isDeleted()) throw new CustomException(ErrorCode.POST_NOT_FOUND);
         if (!communityPost.isEditing()) throw new CustomException(ErrorCode.POST_ALREADY_EXIST);
 
-        communityPost.completeCommunityPost(postServiceRequest.getTitle(), postServiceRequest.getBodyContent());
+        communityPost.completeCommunityPost(postServiceRequest.getTitle(), postServiceRequest.getBodyContent(), createdTime);
 
         postFileService.deleteImageFiles(postServiceRequest.getFileIdList(), communityPost);
 

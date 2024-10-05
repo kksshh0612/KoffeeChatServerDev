@@ -14,6 +14,7 @@ import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostRespo
 import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -63,7 +64,9 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        CommunityPostResponse response = communityPostService.saveCommunityPost(saveCommunityPostRequest, memberId);
+        LocalDateTime createdTime = LocalDateTime.now();
+
+        CommunityPostResponse response = communityPostService.saveCommunityPost(saveCommunityPostRequest, memberId, createdTime);
 
         return ResponseEntity.ok(response);
     }

@@ -9,6 +9,8 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @DiscriminatorValue("COMMUNITY")
@@ -30,9 +32,9 @@ public class CommunityPost extends Post {
      * @param title       제목
      * @param bodyContent 본문
      */
-    public void completeCommunityPost(String title, String bodyContent) {
+    public void completeCommunityPost(String title, String bodyContent, LocalDateTime createdTime) {
 
-        complete(PostCategory.COMMUNITY, title, bodyContent);
+        complete(PostCategory.COMMUNITY, title, bodyContent, createdTime);
     }
 
     /**

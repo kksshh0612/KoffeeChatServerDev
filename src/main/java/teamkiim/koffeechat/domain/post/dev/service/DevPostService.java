@@ -11,7 +11,6 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
-import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -25,6 +24,7 @@ import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,7 +90,7 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
+    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId, LocalDateTime createdTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -99,7 +99,7 @@ public class DevPostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList());
+                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList(), createdTime);
 
         postFileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 

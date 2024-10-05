@@ -10,6 +10,7 @@ import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.global.auditing.BaseEntity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,11 +86,12 @@ public abstract class Post extends BaseEntity {
      * @param title        제목
      * @param bodyContent  본문
      */
-    protected void complete(PostCategory postCategory, String title, String bodyContent) {
+    protected void complete(PostCategory postCategory, String title, String bodyContent, LocalDateTime createdTime) {
         this.postCategory = postCategory;
         this.title = title;
         this.bodyContent = bodyContent;
         isEditing = false;
+        updateCreatedTime(createdTime);
     }
 
     /**
