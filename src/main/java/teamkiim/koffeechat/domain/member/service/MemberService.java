@@ -1,13 +1,14 @@
 package teamkiim.koffeechat.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.email.service.EmailService;
-import teamkiim.koffeechat.domain.file.dto.response.ProfileImageInfoResponse;
-import teamkiim.koffeechat.domain.file.service.FileStorageControlService;
+import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
+import teamkiim.koffeechat.domain.file.service.FileStorageService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
 import teamkiim.koffeechat.domain.member.dto.request.ModifyProfileServiceRequest;
@@ -19,7 +20,11 @@ import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,11 +33,16 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final FileStorageControlService fileStorageControlService;
+    private final FileStorageService fileStorageService;
     private final MemberFollowService memberFollowService;
     private final EmailService emailService;
-
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${file-path}")
+    private String baseFilePath;
+
+    private static final String profileImagePath = "PROFILE";
+    private static final String basicProfileImageName = "basic_profile_image.png";
 
     /**
      * 회원 정보 수정
@@ -71,23 +81,64 @@ public class MemberService {
     }
 
     /**
-     * 프로필 이미지 등록
+     * 프로필 이미지 로컬 파일시스템에 등록
      *
      * @param memberId      회원 PK
      * @param multipartFile 실제 파일
      * @return ok
      */
     @Transactional
-    public ProfileImageInfoResponse enrollProfileImage(Long memberId, MultipartFile multipartFile) {
+    public ImageUrlResponse enrollProfileImageToLocal(Long memberId, MultipartFile multipartFile) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        ProfileImageInfoResponse response = fileStorageControlService.saveFile(member, multipartFile);
+        String saveFileUrl = new StringBuilder(baseFilePath)
+                .append(File.separator)
+                .append(profileImagePath)
+                .append(File.separator)
+                .append(UUID.randomUUID())
+                .append("_")
+                .append(multipartFile.getOriginalFilename())
+                .toString();
 
-        member.enrollProfileImage(response.getProfileImageName());
+        // 이미 등록된 프로필 이미지 있으면 삭제
+        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl().equals(basicProfileImageName)) {
+            fileStorageService.deleteFile(saveFileUrl);
+        }
 
-        return response;
+        fileStorageService.uploadFile(saveFileUrl, multipartFile);
+
+        member.enrollProfileImage(saveFileUrl);
+
+        return ImageUrlResponse.of(saveFileUrl);
+    }
+
+    /**
+     * 프로필 이미지 S3에 등록
+     *
+     * @param memberId      회원 PK
+     * @param multipartFile 실제 파일
+     * @return ok
+     */
+    @Transactional
+    public ImageUrlResponse enrollProfileImageToS3(Long memberId, MultipartFile multipartFile) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        String fileName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
+
+        // 이미 등록된 프로필 이미지 있으면 삭제
+        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl().equals(basicProfileImageName)) {
+            fileStorageService.deleteFile(fileName);
+        }
+
+        ImageUrlResponse imageUrlResponse = fileStorageService.uploadFile(fileName, multipartFile);
+
+        member.enrollProfileImage(imageUrlResponse.getUrl());
+
+        return imageUrlResponse;
     }
 
     /**
@@ -157,10 +208,6 @@ public class MemberService {
     }
 
     /**
-     * 사용자 비밀번호 변경
-     */
-
-    /**
      * 기존 비밀번호 확인
      *
      * @param memberId 로그인한 사용자
@@ -176,9 +223,9 @@ public class MemberService {
     }
 
     /**
-     * 새 비밀번호로 변경
+     * 비밀번호 변경
      *
-     * @param memberId        로그인한 사용자
+     * @param memberId        로그인한 사용자 PK
      * @param passwordRequest 비밀번호 변경 요청
      */
     @Transactional

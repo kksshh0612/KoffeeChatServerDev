@@ -23,7 +23,7 @@ import static jakarta.persistence.FetchType.LAZY;
 public class ChatFile extends File {
 
     @Builder
-    public ChatFile(Long chatRoomId) {
-        super("CHAT", UUID.randomUUID() + "_" + chatRoomId);
+    public ChatFile(String url) {
+        super(url);
     }
 }

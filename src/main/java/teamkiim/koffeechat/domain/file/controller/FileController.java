@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.file.dto.response.ImagePathResponse;
 import teamkiim.koffeechat.domain.file.service.ChatFileService;
 import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
@@ -30,13 +29,11 @@ public class FileController {
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/post")
-    @FileApiDocument.SaveImageFile
+    @FileApiDocument.saveImageFileInPost
     public ResponseEntity<?> saveImageFileInPost(@RequestPart(value = "file") MultipartFile multipartFile,
-                                           @RequestPart(value = "postId") Long postId) {
+                                                 @RequestPart(value = "postId") Long postId) {
 
-        ImagePathResponse response = postFileService.saveImageFile(multipartFile, postId);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(postFileService.uploadImageFile(multipartFile, postId));
     }
 
     /**
@@ -44,17 +41,17 @@ public class FileController {
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/chat")
-    @FileApiDocument.SaveImageFile
+    @FileApiDocument.saveImageFileInChat
     public ResponseEntity<?> saveImageFileInChat(@RequestPart(value = "file") MultipartFile multipartFile,
-                                                 @RequestPart(value = "postId") Long chatRoomId,
+                                                 @RequestPart(value = "chatRoomId") Long chatRoomId,
                                                  HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
         LocalDateTime sendTime = LocalDateTime.now();
 
-        chatFileService.saveImageFile(multipartFile, chatRoomId, memberId, sendTime);
+        chatFileService.uploadImageFile(multipartFile, chatRoomId, memberId, sendTime);
 
         return ResponseEntity.ok().build();
     }
-
 }

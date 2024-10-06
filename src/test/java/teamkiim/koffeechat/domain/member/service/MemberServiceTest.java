@@ -7,16 +7,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.TestSupport;
-import teamkiim.koffeechat.domain.file.dto.response.ProfileImageInfoResponse;
-import teamkiim.koffeechat.domain.file.service.FileStorageControlService;
+import teamkiim.koffeechat.domain.file.service.local.LocalFileStorageControlService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.domain.MemberRole;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
@@ -25,7 +22,6 @@ import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.domain.MemberFollow;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
-import teamkiim.koffeechat.domain.memberfollow.service.MemberFollowService;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.ParentSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
@@ -48,7 +44,7 @@ class MemberServiceTest extends TestSupport {
     MemberFollowRepository memberFollowRepository;
 
     @MockBean
-    private FileStorageControlService fileStorageControlService;
+    private LocalFileStorageControlService localFileStorageControlService;
 
     @AfterEach
     void tearDown() {
@@ -167,7 +163,7 @@ class MemberServiceTest extends TestSupport {
                .profileImageName("name")
                .build();
 
-       BDDMockito.given(fileStorageControlService.saveFile(any(Member.class), any(MultipartFile.class)))
+       BDDMockito.given(localFileStorageControlService.saveFile(any(Member.class), any(MultipartFile.class)))
                .willReturn(profileImageInfoResponse);
 
        // when
@@ -195,7 +191,7 @@ class MemberServiceTest extends TestSupport {
                 .profileImageName("name")
                 .build();
 
-        BDDMockito.given(fileStorageControlService.saveFile(any(Member.class), any(MultipartFile.class)))
+        BDDMockito.given(localFileStorageControlService.saveFile(any(Member.class), any(MultipartFile.class)))
                 .willReturn(profileImageInfoResponse);
 
         // when & then

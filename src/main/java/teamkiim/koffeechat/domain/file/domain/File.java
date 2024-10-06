@@ -20,18 +20,14 @@ import static jakarta.persistence.FetchType.LAZY;
 @NoArgsConstructor
 public abstract class File extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="file_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "file_id")
     private Long id;
 
-    private String path;                                // 파일 저장 경로
-    private String name;                                // 파일 저장명
+    private String url;                                 // 파일 저장 url
 
-    public File(String path, String name) {
-
-        this.path = path;
-        this.name = name;
+    public File(String url) {
+        this.url = url;
     }
-
-
 }
