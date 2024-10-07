@@ -8,6 +8,9 @@ server:
         same-site: none
 
 spring:
+  profiles:
+    include: aws
+
   servlet:
     multipart:
       enabled: true
