@@ -44,7 +44,7 @@ public class CommunityPostController {
      * 커뮤니티 게시글 작성 취소
      */
     @AuthenticatedMemberPrincipal
-    @DeleteMapping("/cancel/{postId}")
+    @DeleteMapping("/{postId}")
     @CommunityPostApiDocument.CancelPostApiDoc
     public ResponseEntity<?> CancelPostApiDoc(@PathVariable("postId") Long postId) {
 
@@ -57,28 +57,29 @@ public class CommunityPostController {
      * 커뮤니티 게시글 작성
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/post")
+    @PostMapping("/{postId}")
     @CommunityPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(
-            @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest, HttpServletRequest request) {
+    public ResponseEntity<?> savePost(@PathVariable("postId") Long postId, @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest,
+                                      HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime createdTime = LocalDateTime.now();
 
-        CommunityPostResponse response = communityPostService.saveCommunityPost(saveCommunityPostRequest, memberId, createdTime);
+        CommunityPostResponse response = communityPostService.saveCommunityPost(postId, saveCommunityPostRequest, memberId, createdTime);
 
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 커뮤니티 게시글 목록 조회
+     * 커뮤니티 게시글 목록 조회 (필터: 제목, 태그)
      */
     @GetMapping("")
-    @CommunityPostApiDocument.ShowListApiDoc
-    public ResponseEntity<?> showList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size) {
+    @CommunityPostApiDocument.GetCommunityPostListApiDoc
+    public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
+                                                  @RequestParam(value = "word", required = false) String keyword, @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
-        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(sortType, page, size);
+        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(sortType, page, size, keyword, tagContents);
 
         return ResponseEntity.ok(responses);
     }
@@ -102,14 +103,14 @@ public class CommunityPostController {
      * 커뮤니티 게시글 수정
      */
     @AuthenticatedMemberPrincipal
-    @PatchMapping("/modify")
+    @PatchMapping("/{postId}")
     @CommunityPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") Long postId, @Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
                                         HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        CommunityPostResponse response = communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
+        communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(postId), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
 
         return ResponseEntity.ok(response);
     }

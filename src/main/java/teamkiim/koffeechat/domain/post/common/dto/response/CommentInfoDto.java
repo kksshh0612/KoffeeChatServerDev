@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.post.community.dto.response;
+package teamkiim.koffeechat.domain.post.common.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ public class CommentInfoDto {
     private LocalDateTime modifiedTime;
     private boolean isMemberWritten;
 
-    public static CommentInfoDto of(Comment comment, Long loginMemberId){
+    public static CommentInfoDto of(Comment comment, Long loginMemberId) {
 
         boolean isMemberWritten = comment.getMember().getId().equals(loginMemberId);
 

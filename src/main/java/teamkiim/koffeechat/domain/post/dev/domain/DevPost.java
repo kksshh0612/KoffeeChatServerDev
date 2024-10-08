@@ -32,38 +32,40 @@ public class DevPost extends Post {
 
         super(member, PostCategory.DEV, title, bodyContent, isEditing);
         this.visualData = visualDate;
-        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
+        if (skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
     //== 비지니스 로직==//
 
     /**
      * DevPost 완성
-     * @param title 제목
-     * @param bodyContent 본문
-     * @param visualData 시각자료
+     *
+     * @param title             제목
+     * @param bodyContent       본문
+     * @param visualData        시각자료
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
     public void completeDevPost(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList, LocalDateTime createdTime){
 
         complete(PostCategory.DEV, title, bodyContent, createdTime);
         this.visualData = visualData;
-        if(skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
+        if (skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
     }
 
     /**
      * DevPost 수정
-     * @param title 제목
-     * @param bodyContent 본문
-     * @param visualData 시각자료
+     *
+     * @param title             제목
+     * @param bodyContent       본문
+     * @param visualData        시각자료
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
-    public void modify(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList){
+    public void modify(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList) {
 
         modify(title, bodyContent);
         this.visualData = visualData;
         this.skillCategoryList.clear();
-        if(skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
+        if (skillCategoryList != null) this.skillCategoryList = List.copyOf(skillCategoryList);
     }
 
 }

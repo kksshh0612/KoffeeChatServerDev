@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -18,4 +17,5 @@ public class SaveCommunityPostServiceRequest {
     private String title;
     private String bodyContent;
     private List<Long> fileIdList;
+    private List<String> tagList;
 }

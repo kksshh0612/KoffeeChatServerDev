@@ -8,7 +8,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateChatNotificationRequest;
-import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 
 import java.io.IOException;

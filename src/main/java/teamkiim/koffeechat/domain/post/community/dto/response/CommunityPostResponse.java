@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
+import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
 
 import java.time.LocalDateTime;
@@ -18,27 +20,33 @@ public class CommunityPostResponse {
     private Long id;
     private String title;
     private String bodyContent;
+    private VoteResponse voteResponse;
+
     private Long memberId;
     private String nickname;
     private String profileImageUrl;
     private boolean isMemberWritten;
     private boolean isMemberLiked;
     private boolean isMemberBookmarked;
+
     private long viewCount;
     private long likeCount;
     private long bookmarkCount;
+
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
-    private List<CommentInfoDto> commentInfoDtoList;
-    private VoteResponse voteResponse;
 
-    public static CommunityPostResponse of(CommunityPost communityPost, List<CommentInfoDto> commentInfoDtoList,
+    private List<TagInfoDto> tagInfoDtoList;
+    private List<CommentInfoDto> commentInfoDtoList;
+
+    public static CommunityPostResponse of(CommunityPost communityPost, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
                                            VoteResponse voteResponse, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return CommunityPostResponse.builder()
                 .id(communityPost.getId())
                 .title(communityPost.getTitle())
                 .bodyContent(communityPost.getBodyContent())
+                .voteResponse(voteResponse)
                 .memberId(communityPost.getMember().getId())
                 .nickname(communityPost.getMember().getNickname())
                 .profileImageUrl(communityPost.getMember().getProfileImageUrl())
@@ -50,8 +58,8 @@ public class CommunityPostResponse {
                 .bookmarkCount(communityPost.getBookmarkCount())
                 .createdTime(communityPost.getCreatedTime())
                 .modifiedTime(communityPost.getModifiedTime())
+                .tagInfoDtoList(tagInfoDtoList)
                 .commentInfoDtoList(commentInfoDtoList)
-                .voteResponse(voteResponse)
                 .build();
     }
 }
