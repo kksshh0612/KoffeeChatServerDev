@@ -24,11 +24,18 @@ public interface MemberChatRoomRepository extends JpaRepository<MemberChatRoom, 
 
     List<MemberChatRoom> findAllByChatRoom(ChatRoom chatRoom);
 
+//    @Query("SELECT mcr FROM MemberChatRoom mcr WHERE " +
+//            "mcr.member =:member AND " +
+//            "(:chatRoomType IS NULL OR mcr.chatRoom.chatRoomType =:chatRoomType) AND " +
+//            "mcr.chatRoom.id <:cursorId " +
+//            "ORDER BY mcr.chatRoom.lastMessageTime desc")
+//    Page<MemberChatRoom> findAllByMemberAndChatRoomType(@Param("member") Member member, @Param("chatRoomType") ChatRoomType chatRoomType,
+//                                                        @Param("cursorId") int cursorId, Pageable pageable);
+
     @Query("SELECT mcr FROM MemberChatRoom mcr WHERE " +
             "mcr.member =:member AND " +
-            "(:chatRoomType IS NULL OR mcr.chatRoom.chatRoomType =:chatRoomType) AND " +
-            "mcr.chatRoom.id <:cursorId")
+            "(:chatRoomType IS NULL OR mcr.chatRoom.chatRoomType =:chatRoomType)")
     Page<MemberChatRoom> findAllByMemberAndChatRoomType(@Param("member") Member member, @Param("chatRoomType") ChatRoomType chatRoomType,
-                                                        @Param("cursorId") int cursorId, Pageable pageable);
+                                                        Pageable pageable);
 
 }
