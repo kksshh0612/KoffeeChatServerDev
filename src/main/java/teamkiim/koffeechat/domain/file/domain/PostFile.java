@@ -21,18 +21,17 @@ import static jakarta.persistence.FetchType.LAZY;
 public class PostFile extends File {
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name="post_id")
+    @JoinColumn(name = "post_id")
     private Post post;                                  // 연관 게시물
 
     @Builder
-    public PostFile(Post post, MultipartFile multipartFile) {
-
-        super(post.getPostCategory().toString(), UUID.randomUUID() + "_" + multipartFile.getOriginalFilename());
+    public PostFile(String url, Post post) {
+        super(url);
         this.post = post;
     }
 
     //== 연관관계 주입 매서드 ==//
-    public void injectPost(Post post){
+    public void injectPost(Post post) {
         this.post = post;
     }
 }
