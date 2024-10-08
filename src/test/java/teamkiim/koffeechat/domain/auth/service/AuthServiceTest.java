@@ -167,7 +167,7 @@ class AuthServiceTest extends TestSupport {
                 .nickname("test")
                 .memberRole(MemberRole.FREELANCER)
                 .interestSkillCategoryList(null)
-                .profileImageName(null)
+                .profileImageUrl(null)
                 .build();
     }
 

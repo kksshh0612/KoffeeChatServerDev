@@ -19,6 +19,7 @@ public class ChatMessageRequest {
 
     public ChatMessageServiceRequest toServiceRequest(LocalDateTime currDateTime) {
         return ChatMessageServiceRequest.builder()
+                .messageId(null)
                 .messageType(this.messageType)
                 .content(this.content)
                 .createdTime(currDateTime)

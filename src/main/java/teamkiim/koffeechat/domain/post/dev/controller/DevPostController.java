@@ -12,12 +12,14 @@ import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.request.SkillCategoryRequest;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -67,7 +69,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(postId), memberId);
+        LocalDateTime createdTime = LocalDateTime.now();
+
+        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(postId), memberId, createdTime);
 
         return ResponseEntity.ok("게시글 작성 완료");
     }
@@ -88,7 +92,6 @@ public class DevPostController {
 
         return ResponseEntity.ok(responseList);
     }
-
 
     /**
      * 개발 게시글 상세 조회

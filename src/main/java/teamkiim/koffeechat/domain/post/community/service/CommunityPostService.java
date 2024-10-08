@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
-import teamkiim.koffeechat.domain.file.service.FileService;
+import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
@@ -32,6 +32,8 @@ import teamkiim.koffeechat.domain.vote.service.VoteService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,11 +44,10 @@ public class CommunityPostService {
 
     private final CommunityPostRepository communityPostRepository;
     private final MemberRepository memberRepository;
-    private final VoteRepository voteRepository;
-
-    private final FileService fileService;
+    private final PostFileService postFileService;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
+    private final VoteRepository voteRepository;
     private final VoteService voteService;
     private final NotificationService notificationService;
     private final PostService postService;
@@ -85,7 +86,7 @@ public class CommunityPostService {
         CommunityPost communityPost = communityPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        fileService.deleteImageFiles(communityPost);
+        postFileService.deleteImageFiles(communityPost);
 
         communityPostRepository.delete(communityPost);
     }
@@ -94,9 +95,10 @@ public class CommunityPostService {
      * 게시글 저장
      *
      * @param postRequest 게시글 저장 dto
+     * @return CommunityPostResponse
      */
     @Transactional
-    public void saveCommunityPost(Long postId, SaveCommunityPostRequest postRequest, Long memberId) {
+    public void saveCommunityPost(Long postId, SaveCommunityPostRequest postRequest, Long memberId, LocalDateTime createdTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -115,9 +117,9 @@ public class CommunityPostService {
 
         tagService.addTags(communityPost, postServiceRequest.getTagList());  //해시태그 추가
 
-        communityPost.completeCommunityPost(postServiceRequest.getTitle(), postServiceRequest.getBodyContent());
+        communityPost.completeCommunityPost(postServiceRequest.getTitle(), postServiceRequest.getBodyContent(), createdTime);
 
-        fileService.deleteImageFiles(postServiceRequest.getFileIdList(), communityPost);
+        postFileService.deleteImageFiles(postServiceRequest.getFileIdList(), communityPost);
 
         if (postRequest.getSaveVoteRequest() != null) {  //투표 저장
             voteService.saveVote(postRequest.toVoteServiceRequest(), postServiceRequest.getId());
@@ -201,6 +203,7 @@ public class CommunityPostService {
      * 게시글 수정
      *
      * @param modifyCommunityPostServiceRequest 게시글 수정 dto
+     * @return CommunityPostResponse
      */
     @Transactional
     public void modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest,

@@ -81,7 +81,7 @@ public class TechChatRoomService {
                 .createdTime(enterTechChatRoomServiceRequest.getEnterTime())
                 .build();
 
-        chatMessageService.save(messageRequest, techChatRoom.getId(), null);
+        chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), null);
         chatMessageService.send(messageRequest, techChatRoom.getId(), null);
     }
 
@@ -111,7 +111,7 @@ public class TechChatRoomService {
                 .createdTime(exitTechChatRoomServiceRequest.getExitTime())
                 .build();
 
-        chatMessageService.save(messageRequest, techChatRoom.getId(), member.getId());
+        chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), member.getId());
         chatMessageService.send(messageRequest, techChatRoom.getId(), member.getId());
     }
 }

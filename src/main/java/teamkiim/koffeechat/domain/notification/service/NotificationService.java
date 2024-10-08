@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
+import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -37,6 +39,7 @@ public class NotificationService {
 
     private final MemberRepository memberRepository;
     private final EmitterRepository emitterRepository;
+    private final MemberChatRoomRepository memberChatRoomRepository;
     private final NotificationRepository notificationRepository;
     private final MemberFollowRepository memberFollowRepository;
 
@@ -48,11 +51,21 @@ public class NotificationService {
      */
     public SseEmitter connectNotification(Long memberId) {
 
-        memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);   //연결 유지를 위한 적절한 타임 아웃 설정 필요
         String emitterId = memberId + "_" + System.currentTimeMillis();  //memberId + 연결된 시간으로 id 생성 -> memberId를 통해 알림 전송
-        emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
+
+        SseEmitterWrapper emitterWrapper = emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
+
+        //채팅방 목록 emitter에 추가
+
+        List<Long> memberChatRoomIdList = memberChatRoomRepository.findAllByMember(member)
+                .stream().map(memberChatRoom -> memberChatRoom.getChatRoom().getId()).toList();
+
+        if (memberChatRoomIdList != null && !memberChatRoomIdList.isEmpty()) {
+            emitterWrapper.updateChatRoomNotificationStatus(memberChatRoomIdList);
+        }
 
         sseEmitter.onTimeout(() -> {
             log.info("disconnected by timeout server sent event: id={}", emitterId);

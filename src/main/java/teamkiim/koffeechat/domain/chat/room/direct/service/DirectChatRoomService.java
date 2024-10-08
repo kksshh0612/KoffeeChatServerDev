@@ -5,10 +5,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.domain.chat.message.controller.dto.CreateDirectChatRoomRequest;
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
+import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
 import teamkiim.koffeechat.domain.chat.room.direct.domain.DirectChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse;
@@ -18,10 +18,10 @@ import teamkiim.koffeechat.domain.chat.room.direct.repository.DirectChatRoomRepo
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +35,8 @@ public class DirectChatRoomService {
     private final MemberRepository memberRepository;
     private final MemberChatRoomRepository memberChatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomManager chatRoomManager;
+    private final ChatNotificationService chatNotificationService;
 
     /**
      * 일대일 채팅방 생성
@@ -42,6 +44,7 @@ public class DirectChatRoomService {
      * @param memberId2
      * @return
      */
+    @Transactional
     public CreateDirectChatRoomResponse createChatRoom(Long memberId1, Long memberId2){
 
         Member member1 = memberRepository.findById(memberId1)
@@ -51,11 +54,14 @@ public class DirectChatRoomService {
 
         Optional<DirectChatRoom> existChatRoom = directChatRoomRepository.findDirectChatRoomByMembers(member1, member2);
 
-        if(existChatRoom.isPresent()) throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_EXIST);
+        if(existChatRoom.isPresent()){
+            return new CreateDirectChatRoomResponse(existChatRoom.get().getId());
+        }
 
         DirectChatRoom directChatRoom = DirectChatRoom.builder()
                 .chatRoomType(ChatRoomType.DIRECT)
                 .name("DIRECT MESSAGE")
+                .lastMessageTime(null)
                 .build();
 
         DirectChatRoom saveChatRoom = directChatRoomRepository.save(directChatRoom);
@@ -74,6 +80,14 @@ public class DirectChatRoomService {
 
         memberChatRoomRepository.saveAll(List.of(memberChatRoom1, memberChatRoom2));
 
+        // 채팅방 멤버 관리 추가
+        chatRoomManager.addMember(saveChatRoom.getId(), member1);
+        chatRoomManager.addMember(saveChatRoom.getId(), member2);
+
+        // 채팅 알림 등록
+        chatNotificationService.addChatRoomNotification(memberId1, saveChatRoom.getId());
+        chatNotificationService.addChatRoomNotification(memberId2, saveChatRoom.getId());
+
         return new CreateDirectChatRoomResponse(saveChatRoom.getId());
     }
 
@@ -85,22 +99,29 @@ public class DirectChatRoomService {
     @Transactional
     public List<ChatMessageResponse> openChatRoom(Long chatRoomId, int page, int size, Long memberId){
 
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         DirectChatRoom directChatRoom = directChatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByChatRoom(directChatRoom, pageRequest).getContent();
+        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByChatRoom(directChatRoom);
 
+        // 채팅방에 참여한 멤버들
         List<Member> joinMemberList = memberChatRoomList.stream()
                 .map(MemberChatRoom::getMember)
                 .toList();
 
-        List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(directChatRoom.getId());
+        List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(directChatRoom.getId(), pageRequest).getContent();
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
                 .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList, memberId))
                 .toList();
+
+        // 채팅 알림 off
+        chatNotificationService.offChatRoomNotification(member.getId(), directChatRoom.getId());
 
         return chatMessageResponseList;
     }

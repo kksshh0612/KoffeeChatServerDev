@@ -1,51 +1,64 @@
-package teamkiim.koffeechat.domain.file.service;
+package teamkiim.koffeechat.domain.file.service.local;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.file.domain.File;
-import teamkiim.koffeechat.domain.file.dto.response.ImagePathResponse;
+import teamkiim.koffeechat.domain.file.domain.PostFile;
+import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.repository.FileRepository;
+import teamkiim.koffeechat.domain.file.repository.PostFileRepository;
+import teamkiim.koffeechat.domain.file.service.FileStorageService;
+import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class FileService {
+@Profile("local")
+public class LocalPostFileService implements PostFileService {
 
     private final FileRepository fileRepository;
+    private final PostFileRepository postFileRepository;
     private final PostRepository postRepository;
-    private final FileStorageControlService fileStorageControlService;
+    private final FileStorageService fileStorageService;
+
+    @Value("${file-path}")
+    private String baseFilePath;
 
     /**
-     * 이미지 파일 단건 저장
+     * 이미지 파일 Local에 단건 저장
      *
      * @param multipartFile 실제 파일
      * @param postId        연관 게시물 PK
      * @return ImagePathResponse
      */
     @Transactional
-    public ImagePathResponse saveImageFile(MultipartFile multipartFile, Long postId) {
+    public ImageUrlResponse uploadImageFile(MultipartFile multipartFile, Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        File file = new File(post, multipartFile);
+        String saveFileUrl = Paths.get(baseFilePath, post.getPostCategory().toString(), UUID.randomUUID() + "_" + multipartFile.getOriginalFilename()).toString();
 
-        fileStorageControlService.saveFile(file, multipartFile);
+        PostFile saveFile = postFileRepository.save(new PostFile(saveFileUrl, post));
+        post.addPostFile(saveFile);                         // 양방향 연관관계 주입
 
-        File saveFile = fileRepository.save(file);
+        // 로컬 파일 시스템에 업로드
+        fileStorageService.uploadFile(saveFileUrl, multipartFile);
 
-        post.addFile(saveFile);                         // 양방향 연관관계 주입
-
-        return ImagePathResponse.of(saveFile);
+        return ImageUrlResponse.of(saveFileUrl);
     }
 
     /**
@@ -56,9 +69,11 @@ public class FileService {
     @Transactional
     public void deleteImageFiles(Post post) {
 
-        List<File> fileList = fileRepository.findAllByPost(post);
+        List<PostFile> fileList = postFileRepository.findAllByPost(post);
 
-        fileStorageControlService.deleteFiles(fileList);
+        for (PostFile postFile : fileList) {
+            fileStorageService.deleteFile(postFile.getUrl());
+        }
 
         fileRepository.deleteAll(fileList);
     }
@@ -68,18 +83,17 @@ public class FileService {
      *
      * @param fileIdList 삭제하지 않을 이미지 파일 id 리스트
      * @param post       연관 게시물
-     * @return
      */
     @Transactional
     public void deleteImageFiles(List<Long> fileIdList, Post post) {
 
-        List<File> existFileList = fileRepository.findAllByPost(post);
+        List<PostFile> existFileList = postFileRepository.findAllByPost(post);
 
         List<File> deleteFileList = existFileList.stream()
                 .filter(file -> !fileIdList.contains(file.getId()))
                 .collect(Collectors.toList());
 
-        fileStorageControlService.deleteFiles(deleteFileList);
+        fileStorageService.deleteFiles(deleteFileList);
 
         fileRepository.deleteAll(deleteFileList);
     }

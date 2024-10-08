@@ -8,7 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
-import teamkiim.koffeechat.domain.file.service.FileService;
+import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
@@ -29,6 +29,7 @@ import teamkiim.koffeechat.domain.tag.service.TagService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -41,8 +42,7 @@ public class DevPostService {
 
     private final DevPostRepository devPostRepository;
     private final MemberRepository memberRepository;
-
-    private final FileService fileService;
+    private final PostFileService postFileService;
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
     private final NotificationService notificationService;
@@ -82,7 +82,7 @@ public class DevPostService {
         DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        fileService.deleteImageFiles(devPost);
+        postFileService.deleteImageFiles(devPost);
 
         devPostRepository.delete(devPost);
     }
@@ -91,9 +91,10 @@ public class DevPostService {
      * 게시글 저장
      *
      * @param saveDevPostServiceRequest 게시글 저장 dto
+     * @return DevPostResponse
      */
     @Transactional
-    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) {
+    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId, LocalDateTime createdTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -104,9 +105,9 @@ public class DevPostService {
         tagService.addTags(devPost, saveDevPostServiceRequest.getTagContentList());  //해시태그 추가
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList());
+                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList(), createdTime);
 
-        fileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
+        postFileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
         notificationService.createPostNotification(member, devPost);  //팔로워들에게 알림 발송
     }
@@ -193,7 +194,7 @@ public class DevPostService {
     @Transactional
     public void modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
 
-        memberRepository.findById(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())

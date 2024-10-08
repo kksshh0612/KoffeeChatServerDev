@@ -14,6 +14,7 @@ import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostRespo
 import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -63,9 +64,11 @@ public class CommunityPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        communityPostService.saveCommunityPost(postId, saveCommunityPostRequest, memberId);
+        LocalDateTime createdTime = LocalDateTime.now();
 
-        return ResponseEntity.ok("커뮤니티 게시글 저장 완료");
+        communityPostService.saveCommunityPost(postId, saveCommunityPostRequest, memberId, createdTime);
+
+        return ResponseEntity.ok("게시글 작성 완료");
     }
 
     /**
@@ -80,7 +83,6 @@ public class CommunityPostController {
 
         return ResponseEntity.ok(responses);
     }
-
 
     /**
      * 커뮤니티 게시글 상세 조회
@@ -110,7 +112,7 @@ public class CommunityPostController {
 
         communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(postId), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
 
-        return ResponseEntity.ok("게시물 수정 완료");
+        return ResponseEntity.ok("게시글 수정 완료");
     }
 
 }

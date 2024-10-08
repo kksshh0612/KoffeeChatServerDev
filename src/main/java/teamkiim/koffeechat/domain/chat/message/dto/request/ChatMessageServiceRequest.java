@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatMessageServiceRequest {
 
+    private String messageId;
     private MessageType messageType;
     private String content;
     private LocalDateTime createdTime;
@@ -27,5 +28,9 @@ public class ChatMessageServiceRequest {
                 .messageType(this.messageType)
                 .createdTime(this.createdTime)
                 .build();
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 }

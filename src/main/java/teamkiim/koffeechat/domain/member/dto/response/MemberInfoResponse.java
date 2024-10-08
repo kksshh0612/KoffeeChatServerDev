@@ -25,8 +25,7 @@ public class MemberInfoResponse {
     private long followingCount;
     private Boolean isLoginMember;
     private Boolean isFollowingMember;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
 
     private boolean isCorpVerified;  // 현직자 인증 여부
     private String corpName;
@@ -43,10 +42,10 @@ public class MemberInfoResponse {
                 .followingCount(member.getFollowingCount())
                 .isLoginMember(isLoginMember)
                 .isFollowingMember(isFollowingMember)
-                .profileImagePath(member.getProfileImagePath())
-                .profileImageName(member.getProfileImageName())
+                .profileImageUrl(member.getProfileImageUrl())
                 .isCorpVerified(isCorpVerified)
                 .corpName(isCorpVerified ? member.getCorpName() : null)
                 .build();
+
     }
 }

@@ -16,8 +16,7 @@ public class NotificationListItemResponse {
 
     private Long senderId;  //알림 내용에 포함될 회원
     private String senderNickname;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
 
     private String title;
 
@@ -42,8 +41,7 @@ public class NotificationListItemResponse {
                     .id(notification.getId())
                     .senderId(notification.getSender().getId())
                     .senderNickname(notification.getSender().getNickname())
-                    .profileImagePath(notification.getSender().getProfileImagePath())
-                    .profileImageName(notification.getSender().getProfileImageName())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .isRead(notification.isRead())
                     .notificationType(notification.getNotificationType())
                     .createdTime(notification.getCreatedTime())
@@ -54,8 +52,7 @@ public class NotificationListItemResponse {
                     .id(notification.getId())
                     .senderId(notification.getSender().getId())
                     .senderNickname(notification.getSender().getNickname())
-                    .profileImagePath(notification.getSender().getProfileImagePath())
-                    .profileImageName(notification.getSender().getProfileImageName())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .title(notification.getTitle())
                     .content(notification.getContent())
                     .url(notification.getUrlPK())
@@ -71,8 +68,7 @@ public class NotificationListItemResponse {
                     .id(notification.getId())
                     .senderId(notification.getSender().getId())
                     .senderNickname(notification.getSender().getNickname())
-                    .profileImagePath(notification.getSender().getProfileImagePath())
-                    .profileImageName(notification.getSender().getProfileImageName())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .title(notification.getTitle())
                     .url(notification.getUrlPK())
                     .postType(notification.getPostType())

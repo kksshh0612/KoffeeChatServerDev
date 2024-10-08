@@ -24,9 +24,7 @@ public class DevPostResponse {
 
     private Long memberId;
     private String nickname;
-    private String profileImagePath;
-    private String profileImageName;
-
+    private String profileImageUrl;
     private boolean isMemberWritten;
     private boolean isMemberLiked;
     private boolean isMemberBookmarked;
@@ -52,8 +50,7 @@ public class DevPostResponse {
                 .bodyContent(devPost.getBodyContent())
                 .memberId(devPost.getMember().getId())
                 .nickname(devPost.getMember().getNickname())
-                .profileImagePath(devPost.getMember().getProfileImagePath())
-                .profileImageName(devPost.getMember().getProfileImageName())
+                .profileImageUrl(devPost.getMember().getProfileImageUrl())
                 .isMemberWritten(isMemberWritten)
                 .isMemberLiked(isMemberLiked)
                 .isMemberBookmarked(isMemberBookmarked)

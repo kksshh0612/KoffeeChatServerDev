@@ -11,14 +11,19 @@ import java.util.List;
 public class SseEmitterWrapper {
 
     private SseEmitter sseEmitter;
-    private List<ChatRoomNotificationStatus> chatRoomNotificationStatus;  // 사용자가 채팅방 별로 접속해있는 상태 저장
+    private List<ChatRoomNotificationStatus> chatRoomNotificationStatusList;  // 사용자가 채팅방 별로 접속해있는 상태 저장
     private boolean isReceive;  // 채팅에 대한 알림 수신 여부
 
     @Builder
     public SseEmitterWrapper(SseEmitter sseEmitter) {
         this.sseEmitter = sseEmitter;
-        this.chatRoomNotificationStatus = new ArrayList<>();
+        this.chatRoomNotificationStatusList = new ArrayList<>();
         this.isReceive = false;
+    }
+
+    // emitter 최초 생성 후 채팅방 목록 초기화
+    public void updateChatRoomNotificationStatus(List<Long> memberChatRoomIdList) {
+        this.chatRoomNotificationStatusList = memberChatRoomIdList.stream().map(id -> new ChatRoomNotificationStatus(id, true)).toList();
     }
 
     // 채팅 알림 sse 수신 o/x
@@ -32,23 +37,28 @@ public class SseEmitterWrapper {
 
     //채팅방 입장/퇴장 시 알림 설정 추가
     public void addChatRoomNotificationStatus(Long chatRoomId) {
-        this.chatRoomNotificationStatus.add(new ChatRoomNotificationStatus(chatRoomId, false));  //채팅방 입장 후 websocket 통신
+        boolean exists = chatRoomNotificationStatusList.stream()
+                .anyMatch(status -> status.getChatRoomId().equals(chatRoomId));  //이미 채팅방 목록에 존재하는 채팅방인지 검사
+
+        if (!exists) {
+            this.chatRoomNotificationStatusList.add(new ChatRoomNotificationStatus(chatRoomId, false));  //채팅방 입장 후 websocket 통신
+        }
     }
 
     public void removeChatRoomNotificationStatus(Long chatRoomId) {
-        this.chatRoomNotificationStatus.removeIf(status -> status.getChatRoomId().equals(chatRoomId));
+        this.chatRoomNotificationStatusList.removeIf(status -> status.getChatRoomId().equals(chatRoomId));
     }
 
     //채팅방 접속/미접속 시 sse 알림 상태 on/off
     public void onChatRoomNotificationStatus(Long chatRoomId) {  //채팅방 미접속시 : sse 알림 on
-        this.chatRoomNotificationStatus.stream()
+        this.chatRoomNotificationStatusList.stream()
                 .filter(status -> status.getChatRoomId().equals(chatRoomId))
                 .findFirst()
                 .ifPresent(ChatRoomNotificationStatus::startSseAlert);
     }
 
     public void offChatRoomNotificationStatus(Long chatRoomId) {  //채팅방 접속시 : sse 알림 off
-        this.chatRoomNotificationStatus.stream()
+        this.chatRoomNotificationStatusList.stream()
                 .filter(status -> status.getChatRoomId().equals(chatRoomId))
                 .findFirst()
                 .ifPresent(ChatRoomNotificationStatus::stopSseAlert);
@@ -56,7 +66,7 @@ public class SseEmitterWrapper {
 
     //해당 채팅방에 대한 알림 수신 여부 확인
     public boolean isSseAlertActive(Long chatRoomId) {
-        return chatRoomNotificationStatus.stream()
+        return chatRoomNotificationStatusList.stream()
                 .filter(status -> status.getChatRoomId().equals(chatRoomId))
                 .findFirst()
                 .map(ChatRoomNotificationStatus::isAlert)  // isAlert 상태 반환

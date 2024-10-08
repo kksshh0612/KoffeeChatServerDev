@@ -8,6 +8,7 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,9 +45,9 @@ public class DevPost extends Post {
      * @param visualData        시각자료
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
-    public void completeDevPost(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList) {
+    public void completeDevPost(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList, LocalDateTime createdTime){
 
-        complete(PostCategory.DEV, title, bodyContent);
+        complete(PostCategory.DEV, title, bodyContent, createdTime);
         this.visualData = visualData;
         if (skillCategoryList != null) this.skillCategoryList.addAll(skillCategoryList);
     }

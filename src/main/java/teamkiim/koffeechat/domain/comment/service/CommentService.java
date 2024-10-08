@@ -41,8 +41,6 @@ public class CommentService {
     @Transactional
     public void saveComment(CommentServiceRequest commentServiceRequest, Long memberId){
 
-        System.out.println("여기 ::  " + commentServiceRequest.getPostId());
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 

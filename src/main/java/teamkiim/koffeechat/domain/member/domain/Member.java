@@ -9,6 +9,7 @@ import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @NoArgsConstructor
@@ -33,34 +34,28 @@ public class Member {
     @ElementCollection(fetch = FetchType.LAZY)
     private List<SkillCategory> interestSkillCategoryList = new ArrayList<>();
 
-    private long followerCount;                                     //팔로워 수
-    private long followingCount;                                    //팔로잉 수
+    private long followerCount;                                     // 팔로워 수
+    private long followingCount;                                    // 팔로잉 수
 
-    @Transient
-    private final String profileImagePath = "PROFILE";
+    private String profileImageUrl;                                 // 회원 프로필 이미지 url
 
-    private String profileImageName;
+    private String corpName;                                        // 회사 이름
+    private String corpEmail;                                       // 회사 이메일
 
-    private String corpName;                                        //회사 이름
-    private String corpEmail;                                       //회사 이메일
-
-    private long unreadNotifications;                               //읽지 않은 알림 갯수
+    private long unreadNotifications;                               // 읽지 않은 알림 갯수
 
     @Builder
-    public Member(String email, String password, String nickname, MemberRole memberRole,
-                  List<SkillCategory> interestSkillCategoryList,
-                  long followerCount, long followingCount, String profileImageName) {
+    public Member(String email, String password, String nickname, MemberRole memberRole, List<SkillCategory> interestSkillCategoryList,
+                  long followerCount, long followingCount, String profileImageUrl) {
 
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.memberRole = memberRole;
-        if (interestSkillCategoryList != null) {
-            this.interestSkillCategoryList.addAll(interestSkillCategoryList);
-        }
+        this.interestSkillCategoryList.addAll(Optional.ofNullable(interestSkillCategoryList).orElse(new ArrayList<>()));
         this.followerCount = followerCount;
         this.followingCount = followingCount;
-        this.profileImageName = profileImageName;
+        this.profileImageUrl = profileImageUrl;
         this.corpName = null;
         this.corpEmail = null;
         this.unreadNotifications = 0;
@@ -94,8 +89,11 @@ public class Member {
         this.email = email;
     }
 
-    public void enrollProfileImage(String profileImageName) {
-        this.profileImageName = profileImageName;
+    /**
+     * 프로필 이미지 등록
+     */
+    public void enrollProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     /**
