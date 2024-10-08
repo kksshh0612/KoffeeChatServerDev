@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
+import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
 import teamkiim.koffeechat.domain.chat.room.direct.domain.DirectChatRoom;
@@ -21,6 +22,7 @@ import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -124,19 +126,19 @@ public class DirectChatRoomService {
         return chatMessageResponseList;
     }
 
-//    @Transactional
-//    public void closeChatRoom(Long chatRoomId, Long memberId, LocalDateTime closeTime){
-//
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-//
-//        ChatRoom chatRoom = directChatRoomRepository.findById(chatRoomId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
-//
-//        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndChatRoom(member, chatRoom)
-//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
-//
-//        memberChatRoom.updateCloseTime(closeTime);
-//    }
+    @Transactional
+    public void closeChatRoom(Long chatRoomId, Long memberId, LocalDateTime closeTime){
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        ChatRoom chatRoom = directChatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndChatRoom(member, chatRoom)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
+
+        memberChatRoom.updateCloseTime(closeTime);
+    }
 
 }

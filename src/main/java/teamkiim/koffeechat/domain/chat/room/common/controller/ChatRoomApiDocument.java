@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResponse;
-import teamkiim.koffeechat.domain.file.dto.response.ProfileImageInfoResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
