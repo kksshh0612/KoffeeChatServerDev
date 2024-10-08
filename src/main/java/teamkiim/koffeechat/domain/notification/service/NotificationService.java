@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
+import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -14,7 +16,6 @@ import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
-import teamkiim.koffeechat.domain.notification.dto.request.CreateChatNotificationRequest;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 import teamkiim.koffeechat.domain.notification.dto.response.NotificationResponse;
@@ -38,6 +39,7 @@ public class NotificationService {
 
     private final MemberRepository memberRepository;
     private final EmitterRepository emitterRepository;
+    private final MemberChatRoomRepository memberChatRoomRepository;
     private final NotificationRepository notificationRepository;
     private final MemberFollowRepository memberFollowRepository;
 
@@ -49,11 +51,21 @@ public class NotificationService {
      */
     public SseEmitter connectNotification(Long memberId) {
 
-        memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);   //연결 유지를 위한 적절한 타임 아웃 설정 필요
         String emitterId = memberId + "_" + System.currentTimeMillis();  //memberId + 연결된 시간으로 id 생성 -> memberId를 통해 알림 전송
-        emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
+
+        SseEmitterWrapper emitterWrapper = emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
+
+        //채팅방 목록 emitter에 추가
+
+        List<Long> memberChatRoomIdList = memberChatRoomRepository.findAllByMember(member)
+                .stream().map(memberChatRoom -> memberChatRoom.getChatRoom().getId()).toList();
+
+        if (memberChatRoomIdList != null && !memberChatRoomIdList.isEmpty()) {
+            emitterWrapper.updateChatRoomNotificationStatus(memberChatRoomIdList);
+        }
 
         sseEmitter.onTimeout(() -> {
             log.info("disconnected by timeout server sent event: id={}", emitterId);
@@ -89,20 +101,14 @@ public class NotificationService {
      * 댓글 알림 생성
      */
     public void createCommentNotification(Post post, Member sender, Comment comment) {
-
-        Member receiver = post.getMember();  // 글쓴이
-
-        createNotification(CreateNotificationRequest.of(NotificationType.COMMENT, sender, post, comment), receiver);
+        createNotification(CreateNotificationRequest.of(NotificationType.COMMENT, sender, post, comment), post.getMember());
     }
 
     /**
      * 팔로우 알림 생성
      */
     public void createFollowNotification(Member follower, Member following) {
-
-        Member receiver = following;
-
-        createNotification(CreateNotificationRequest.of(NotificationType.FOLLOW, follower, null, null), receiver);
+        createNotification(CreateNotificationRequest.of(NotificationType.FOLLOW, follower, null, null), following);
     }
 
     /**
@@ -119,38 +125,6 @@ public class NotificationService {
 
         emitters.forEach((id, emitter) -> {
             sendNotification(id, emitter.getSseEmitter(), eventId, NotificationResponse.of(savedNotification, receiver.getUnreadNotifications()));
-        });
-    }
-
-    /**
-     * 채팅 알림 생성
-     */
-    public void createChatNotification(CreateChatNotificationRequest createNotificationRequest, Member receiver) {
-        String eventId = receiver.getId() + "_" + System.currentTimeMillis();   //eventId 생성
-
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findReceiveEmitterByReceiverId(String.valueOf(receiver.getId()));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
-
-        emitters.forEach((id, emitter) -> {
-            sendNotification(id, emitter.getSseEmitter(), eventId, createNotificationRequest);
-        });
-    }
-
-    /**
-     * 채팅방 입장/퇴장 시 알림 on/off
-     */
-    public void startNotifications(Member receiver) {
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiver.getId()));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
-
-        emitters.forEach((id, emitter) -> {
-            emitter.startReceiving();
-        });
-    }
-
-    public void stopNotifications(Member receiver) {
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiver.getId()));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
-
-        emitters.forEach((id, emitter) -> {
-            emitter.stopReceiving();
         });
     }
 
@@ -172,7 +146,7 @@ public class NotificationService {
     /**
      * 페이지 로딩 시 읽지 않은 알림 개수 조회
      *
-     * @Return 읽지 않은 알림 개수
+     * @return 읽지 않은 알림 개수
      */
     @Transactional
     public int getUnreadNotificationCount(Long memberId) {
@@ -211,7 +185,7 @@ public class NotificationService {
      *
      * @param memberId member pk
      * @param notiId   notification pk
-     * @Return 읽지 않은 알림 개수
+     * @return 읽지 않은 알림 개수
      */
     @Transactional
     public long updateNotificationIsRead(Long memberId, Long notiId) {
@@ -231,7 +205,7 @@ public class NotificationService {
      *
      * @param memberId member pk
      * @param notiId   notification pk
-     * @Return 읽지 않은 알림 개수
+     * @return 읽지 않은 알림 개수
      */
     @Transactional
     public long deleteNotification(Long memberId, Long notiId) {
@@ -250,7 +224,6 @@ public class NotificationService {
      * 알림 전체 삭제
      *
      * @param memberId member pk
-     * @Return 읽지 않은 알림 개수 : 0
      */
     @Transactional
     public void deleteAllNotifications(Long memberId) {
@@ -264,7 +237,6 @@ public class NotificationService {
      * 알림 전체 읽기
      *
      * @param memberId member pk
-     * @Return 읽지 않은 알림 개수 : 0
      */
     @Transactional
     public void updateAllNotificationsIsRead(Long memberId) {

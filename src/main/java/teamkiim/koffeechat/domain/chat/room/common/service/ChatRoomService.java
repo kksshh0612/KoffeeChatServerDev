@@ -1,7 +1,6 @@
 package teamkiim.koffeechat.domain.chat.room.common.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -9,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
+import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
@@ -18,6 +18,7 @@ import teamkiim.koffeechat.domain.chat.room.common.repository.ChatRoomRepository
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
@@ -34,6 +35,8 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageService chatMessageService;
+    private final ChatRoomManager chatRoomManager;
+    private final ChatNotificationService chatNotificationService;
 
     /**
      * 참여중인 채팅방 목록 조회
@@ -44,15 +47,21 @@ public class ChatRoomService {
      * @param chatRoomType
      * @return
      */
-    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int cursorId, int size, ChatRoomType chatRoomType){
+    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size, ChatRoomType chatRoomType){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Order.desc("lastMessageTime").nullsLast()));      // 커서 기반이기 때문에 page 설정 안하기 위함.
+        chatNotificationService.startNotifications(memberId);
 
+//        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Order.desc("lastMessageTime").nullsLast()));      // 커서 기반이기 때문에 page 설정 안하기 위함.
+
+        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
         List<MemberChatRoom> memberChatRoomList =
-                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, cursorId, pageRequest).getContent();
+                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, pageRequest).getContent();
+
+//        List<MemberChatRoom> memberChatRoomList =
+//                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, cursorId, pageRequest).getContent();
 
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 
@@ -68,6 +77,8 @@ public class ChatRoomService {
 
             chatRoomListResponseList.add(chatRoomListResponse);
         }
+
+        chatNotificationService.startNotifications(memberId);
 
         return chatRoomListResponseList;
     }
@@ -116,6 +127,9 @@ public class ChatRoomService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
         memberChatRoom.updateCloseTime(closeTime);
+
+        // 채팅방 알림 on
+        chatNotificationService.onChatRoomNotification(memberId, chatRoomId);
     }
 
     /**
@@ -148,5 +162,18 @@ public class ChatRoomService {
 
         // memberChatRoom 삭제
         memberChatRoomRepository.delete(memberChatRoom);
+
+        chatRoomManager.removeMember(chatRoomId, member);
+
+        // 채팅 알림 정보 삭제
+        chatNotificationService.removeChatRoomNotification(memberId, chatRoomId);
+    }
+
+    public String findChatRoomName(Long chatRoomId){
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        return chatRoom.getName();
     }
 }

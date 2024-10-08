@@ -22,8 +22,7 @@ public class ChatMessageResponse {
     private String content;
     private Long senderId;
     private String senderNickname;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
     private boolean isLoginMember;
     private LocalDateTime createdTime;
 
@@ -45,8 +44,7 @@ public class ChatMessageResponse {
                 .content(chatMessage.getContent())
                 .senderId(chatMessage.getSenderId())
                 .senderNickname(sender.getNickname())
-                .profileImagePath(sender.getProfileImagePath())
-                .profileImageName(sender.getProfileImageName())
+                .profileImageUrl(sender.getProfileImageUrl())
                 .isLoginMember(isLoginMember)
                 .createdTime(chatMessage.getCreatedTime())
                 .build();

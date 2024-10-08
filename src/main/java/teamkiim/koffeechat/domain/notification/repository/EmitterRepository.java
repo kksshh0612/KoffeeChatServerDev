@@ -24,6 +24,7 @@ public class EmitterRepository {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    // 알림 수신 받는 emitter 찾기
     public Map<String, SseEmitterWrapper> findReceiveEmitterByReceiverId(String memberId) {
         return emitters.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(memberId) && entry.getValue().isReceive())

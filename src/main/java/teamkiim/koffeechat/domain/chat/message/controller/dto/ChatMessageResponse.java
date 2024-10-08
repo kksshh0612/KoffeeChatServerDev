@@ -17,24 +17,23 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatMessageResponse {
 
+    private String messageId;
     private MessageType messageType;
     private String content;
     private Long senderId;
     private String senderNickname;
-    private String profileImagePath;
-    private String profileImageName;
-//    private boolean isLoginMember;
+    private String profileImageUrl;
     private LocalDateTime createdTime;
 
     public static ChatMessageResponse of(ChatMessageServiceRequest chatMessageServiceRequest, Member sendMember){
 
         return ChatMessageResponse.builder()
+                .messageId(chatMessageServiceRequest.getMessageId())
                 .messageType(chatMessageServiceRequest.getMessageType())
                 .content(chatMessageServiceRequest.getContent())
                 .senderId(sendMember.getId())
                 .senderNickname(sendMember.getNickname())
-                .profileImagePath(sendMember.getProfileImagePath())
-                .profileImageName(sendMember.getProfileImageName())
+                .profileImageUrl(sendMember.getProfileImageUrl())
                 .createdTime(chatMessageServiceRequest.getCreatedTime())
                 .build();
     }

@@ -3,6 +3,7 @@ package teamkiim.koffeechat.domain.chat.message.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.stylesheets.LinkStyle;
 import teamkiim.koffeechat.domain.chat.message.controller.dto.ChatMessageResponse;
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
@@ -36,15 +37,19 @@ public class ChatMessageService {
      * @param chatRoomId
      * @param senderId
      */
-    public void saveTextMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
+    @Transactional
+    public ChatMessageServiceRequest saveTextMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
 
         ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
-        chatMessageRepository.save(chatMessage);
+        ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
         chatRoom.updateLastMessageTime(messageRequest.getCreatedTime());            // 가장 최근 메세지 전송 시간 업데이트
+
+        messageRequest.setMessageId(savedMessage.getId());
+        return messageRequest;
     }
 
     public void saveSourceCodeMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
