@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.post.common.controller.dto.response.BookmarkPostListResponse;
-import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
+import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
+import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

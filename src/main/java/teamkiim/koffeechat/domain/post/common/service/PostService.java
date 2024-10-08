@@ -11,8 +11,8 @@ import teamkiim.koffeechat.domain.bookmark.repository.BookmarkRepository;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
-import teamkiim.koffeechat.domain.post.common.controller.dto.response.BookmarkPostListResponse;
-import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
+import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
+import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
@@ -157,7 +157,9 @@ public class PostService {
 
         List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postCategory, pageRequest).getContent();
 
-        return postList.stream().map(MyPostListResponse::of).toList();
+        return postList.stream()
+                .map(MyPostListResponse::of)
+                .toList();
 
     }
 
