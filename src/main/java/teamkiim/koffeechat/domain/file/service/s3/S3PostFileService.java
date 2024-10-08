@@ -51,7 +51,7 @@ public class S3PostFileService implements PostFileService {
 
         PostFile saveFile = postFileRepository.save(new PostFile(imageUrlResponse.getUrl(), post));
 
-        post.addFile(saveFile);                         // 양방향 연관관계 주입
+        post.addPostFile(saveFile);                         // 양방향 연관관계 주입
 
         return imageUrlResponse;
     }

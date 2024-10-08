@@ -53,7 +53,7 @@ public class LocalPostFileService implements PostFileService {
         String saveFileUrl = Paths.get(baseFilePath, post.getPostCategory().toString(), UUID.randomUUID() + "_" + multipartFile.getOriginalFilename()).toString();
 
         PostFile saveFile = postFileRepository.save(new PostFile(saveFileUrl, post));
-        post.addFile(saveFile);                         // 양방향 연관관계 주입
+        post.addPostFile(saveFile);                         // 양방향 연관관계 주입
 
         // 로컬 파일 시스템에 업로드
         fileStorageService.uploadFile(saveFileUrl, multipartFile);

@@ -66,9 +66,9 @@ public class CommunityPostController {
 
         LocalDateTime createdTime = LocalDateTime.now();
 
-        CommunityPostResponse response = communityPostService.saveCommunityPost(postId, saveCommunityPostRequest, memberId, createdTime);
+        communityPostService.saveCommunityPost(postId, saveCommunityPostRequest, memberId, createdTime);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("게시글 작성 완료");
     }
 
     /**
@@ -112,7 +112,7 @@ public class CommunityPostController {
 
         communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(postId), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("게시글 수정 완료");
     }
 
 }

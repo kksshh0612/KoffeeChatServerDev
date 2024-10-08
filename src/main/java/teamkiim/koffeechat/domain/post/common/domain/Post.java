@@ -51,7 +51,7 @@ public abstract class Post extends BaseEntity {
     private boolean deleted = false;                            // delete 여부 (Default false)
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<File> fileList = new ArrayList<>();             //파일 리스트
+    private List<PostFile> fileList = new ArrayList<>();             //파일 리스트
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();       //댓글 리스트
@@ -71,7 +71,7 @@ public abstract class Post extends BaseEntity {
 
     //== 연관관계 편의 매서드 ==//
 
-    public void addFile(PostFile file) {
+    public void addPostFile(PostFile file) {
         this.fileList.add(file);
         file.injectPost(this);
     }

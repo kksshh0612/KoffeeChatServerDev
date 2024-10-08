@@ -98,7 +98,7 @@ public class CommunityPostService {
      * @return CommunityPostResponse
      */
     @Transactional
-    public CommunityPostResponse saveCommunityPost(Long postId, SaveCommunityPostRequest postRequest, Long memberId, LocalDateTime createdTime) {
+    public void saveCommunityPost(Long postId, SaveCommunityPostRequest postRequest, Long memberId, LocalDateTime createdTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -127,8 +127,6 @@ public class CommunityPostService {
 
         //팔로워들에게 알림 발송
         notificationService.createPostNotification(member, communityPost);
-
-        return CommunityPostResponse.of(communityPost, new ArrayList<>(), voteResponse, false, false, true);
 
     }
 
