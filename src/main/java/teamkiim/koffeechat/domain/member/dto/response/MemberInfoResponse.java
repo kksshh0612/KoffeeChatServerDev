@@ -25,8 +25,7 @@ public class MemberInfoResponse {
     private long followingCount;
     private Boolean isLoginMember;
     private Boolean isFollowingMember;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
 
     public static MemberInfoResponse of(Member member, boolean isLoginMember, Boolean isFollowingMember) {
 
@@ -40,8 +39,7 @@ public class MemberInfoResponse {
                 .followingCount(member.getFollowingCount())
                 .isLoginMember(isLoginMember)
                 .isFollowingMember(isFollowingMember)
-                .profileImagePath(member.getProfileImagePath())
-                .profileImageName(member.getProfileImageName())
+                .profileImageUrl(member.getProfileImageUrl())
                 .build();
 
     }

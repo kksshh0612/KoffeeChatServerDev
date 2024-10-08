@@ -24,8 +24,7 @@ public class ChatRoomListResponse {
     private LocalDateTime lastMessageTime;
     private Long unreadMessageCount;
     private Long oppositeMemberId;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
 
 
     public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo, Member oppositeMember){
@@ -44,8 +43,7 @@ public class ChatRoomListResponse {
                 .lastMessageTime(LocalDateTime.of(2024, 9, 20, 13, 0))
                 .unreadMessageCount(chatRoomInfo.getUnreadCount())
                 .oppositeMemberId(oppositeMember.getId())
-                .profileImagePath(oppositeMember.getProfileImagePath())
-                .profileImageName(oppositeMember.getProfileImageName())
+                .profileImageUrl(oppositeMember.getProfileImageUrl())
                 .build();
     }
 

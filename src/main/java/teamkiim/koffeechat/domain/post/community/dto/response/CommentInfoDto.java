@@ -17,8 +17,7 @@ public class CommentInfoDto {
     private Long id;
     private String content;
     private String nickname;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
     private boolean isMemberWritten;
@@ -31,8 +30,7 @@ public class CommentInfoDto {
                 .id(comment.getId())
                 .content(comment.getContent())
                 .nickname(comment.getMember().getNickname())
-                .profileImagePath(comment.getMember().getProfileImagePath())
-                .profileImageName(comment.getMember().getProfileImageName())
+                .profileImageUrl(comment.getMember().getProfileImageUrl())
                 .createdTime(comment.getCreatedTime())
                 .modifiedTime(comment.getModifiedTime())
                 .isMemberWritten(isMemberWritten)
