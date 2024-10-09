@@ -13,9 +13,9 @@ import teamkiim.koffeechat.domain.comment.repository.CommentRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
+import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -42,8 +42,6 @@ public class CommentService {
      */
     @Transactional
     public void saveComment(CommentServiceRequest commentServiceRequest, Long memberId) throws Exception {
-
-        System.out.println("여기 ::  " + commentServiceRequest.getPostId());
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));

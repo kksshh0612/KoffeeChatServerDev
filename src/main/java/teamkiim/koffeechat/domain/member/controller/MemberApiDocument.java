@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.file.dto.response.ProfileImageInfoResponse;
+import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
 
 import java.lang.annotation.ElementType;
@@ -43,7 +43,7 @@ public @interface MemberApiDocument {
     @Operation(summary = "회원 프로필 사진 등록", description = "사용자가 프로필 사진을 등록한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "프로필 사진의 정보가 반환된다.",
-                    content = @Content(schema = @Schema(implementation = ProfileImageInfoResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ImageUrlResponse.class))),
             @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "프로필 사진 파일이 잘못된 경우",
                             value = "{\"code\":400, \"message\":\"사진 파일 요청이 올바르지 않습니다.\"}")}

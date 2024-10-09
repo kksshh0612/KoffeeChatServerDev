@@ -16,8 +16,7 @@ public class NotificationListItemResponse {
 
     private String senderId;  //알림 내용에 포함될 회원
     private String senderNickname;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
 
     private String title;
 
@@ -42,8 +41,7 @@ public class NotificationListItemResponse {
                     .id(notificationId)
                     .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
-                    .profileImagePath(notification.getSender().getProfileImagePath())
-                    .profileImageName(notification.getSender().getProfileImageName())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .title(notification.getTitle())
                     .url(urlPK)
                     .postType(notification.getPostType())
@@ -56,8 +54,7 @@ public class NotificationListItemResponse {
                     .id(notificationId)
                     .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
-                    .profileImagePath(notification.getSender().getProfileImagePath())
-                    .profileImageName(notification.getSender().getProfileImageName())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .title(notification.getTitle())
                     .content(notification.getContent())
                     .url(urlPK)
@@ -73,8 +70,7 @@ public class NotificationListItemResponse {
                     .id(notificationId)
                     .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
-                    .profileImagePath(notification.getSender().getProfileImagePath())
-                    .profileImageName(notification.getSender().getProfileImageName())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .isRead(notification.isRead())
                     .notificationType(notification.getNotificationType())
                     .createdTime(notification.getCreatedTime())
@@ -91,5 +87,4 @@ public class NotificationListItemResponse {
                     .build();
         }
     }
-
 }

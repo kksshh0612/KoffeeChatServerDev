@@ -7,7 +7,7 @@ public enum MessageType {
 
     ENTER("입장"),
     EXIT("퇴장"),
-    CHAT("채팅"),
+    TEXT("텍스트"),
     SOURCE_CODE("소스코드"),
     IMAGE("이미지");
 

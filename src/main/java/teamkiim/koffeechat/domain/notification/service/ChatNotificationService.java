@@ -5,11 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateChatNotificationRequest;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -38,16 +40,28 @@ public class ChatNotificationService {
     /**
      * 채팅 알림 생성 : 채팅방 sse 알림 수신 설정이 되어있으면 알림을 보낸다.
      */
-    public void createChatNotification(CreateChatNotificationRequest createNotificationRequest, Long receiverId) {
-        String eventId = receiverId + "_" + System.currentTimeMillis();   //eventId 생성
+    public void createChatNotification(ChatMessageServiceRequest chatMessageServiceRequest,
+                                       Long chatRoomId, Long senderId, List<Long> receiverIds) {
 
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findReceiveEmitterByReceiverId(String.valueOf(receiverId));  //알림 수신 설정 되어있는 emitter 확인
+        for (Long receiverId : receiverIds) {
+            String eventId = receiverId + "_" + System.currentTimeMillis();   //eventId 생성
 
-        emitters.forEach((id, emitterWrapper) -> {
-            if (emitterWrapper.isSseAlertActive(createNotificationRequest.getChatRoomId())) {  // 해당 채팅방에 대해 알림 수신 설정이 되어있는 사용자에게 알림 발송
-                sendNotification(id, emitterWrapper.getSseEmitter(), eventId, createNotificationRequest);
-            }
-        });
+            Map<String, SseEmitterWrapper> emitters = emitterRepository.findReceiveEmitterByReceiverId(String.valueOf(receiverId));  //알림 수신 설정 되어있는 emitter 확인
+
+            CreateChatNotificationRequest createChatNotificationRequest = CreateChatNotificationRequest.builder()
+                    .chatRoomId(chatRoomId)
+                    .content(chatMessageServiceRequest.getContent())
+                    .senderId(senderId)
+                    .messageType(chatMessageServiceRequest.getMessageType())
+                    .createdTime(chatMessageServiceRequest.getCreatedTime())
+                    .build();
+
+            emitters.forEach((id, emitterWrapper) -> {
+                if (emitterWrapper.isSseAlertActive(chatRoomId)) {  // 해당 채팅방에 대해 알림 수신 설정이 되어있는 사용자에게 알림 발송
+                    sendNotification(id, emitterWrapper.getSseEmitter(), eventId, createChatNotificationRequest);
+                }
+            });
+        }
     }
 
     /**

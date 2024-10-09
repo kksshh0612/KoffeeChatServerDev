@@ -17,6 +17,7 @@ import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -66,7 +67,9 @@ public class DevPostController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.saveDevPost(postId, saveDevPostRequest.toServiceRequest(), memberId);
+        LocalDateTime createdTime = LocalDateTime.now();
+
+        devPostService.saveDevPost(postId, saveDevPostRequest.toServiceRequest(), memberId, createdTime);
 
         return ResponseEntity.ok("게시글 작성 완료");
     }
@@ -87,7 +90,6 @@ public class DevPostController {
 
         return ResponseEntity.ok(responseList);
     }
-
 
     /**
      * 개발 게시글 상세 조회

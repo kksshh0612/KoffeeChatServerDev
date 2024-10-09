@@ -11,15 +11,13 @@ import teamkiim.koffeechat.domain.file.domain.File;
 public class ImageFileInfoDto {
 
     private final Long id;
-    private final String path;
-    private final String fileName;
+    private final String url;
 
     public static ImageFileInfoDto of(File file){
 
         return ImageFileInfoDto.builder()
                 .id(file.getId())
-                .path(file.getPath())
-                .fileName(file.getName())
+                .url(file.getUrl())
                 .build();
     }
 }

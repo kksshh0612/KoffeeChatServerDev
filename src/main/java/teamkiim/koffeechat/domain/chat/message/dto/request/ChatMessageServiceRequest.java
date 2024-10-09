@@ -15,11 +15,12 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatMessageServiceRequest {
 
+    private String messageId;
     private MessageType messageType;
     private String content;
     private LocalDateTime createdTime;
 
-    public ChatMessage toEntity(Long chatRoomId, Long senderId){
+    public ChatMessage toEntity(Long chatRoomId, Long senderId) {
         return ChatMessage.builder()
                 .chatRoomId(chatRoomId)
                 .content(this.content)
@@ -27,5 +28,9 @@ public class ChatMessageServiceRequest {
                 .messageType(this.messageType)
                 .createdTime(this.createdTime)
                 .build();
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 }

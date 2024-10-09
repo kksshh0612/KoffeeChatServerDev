@@ -1,44 +1,24 @@
 package teamkiim.koffeechat.domain.file.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.post.common.domain.Post;
-
-import java.util.UUID;
-
-import static jakarta.persistence.FetchType.LAZY;
+import teamkiim.koffeechat.global.auditing.BaseEntity;
 
 @Entity
 @Getter
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "dtype")
 @NoArgsConstructor
-public class File {
+public abstract class File extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="file_id")
+    @Column(name = "file_id")
     private Long id;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name="post_id")
-    private Post post;                                  // 연관 게시물
+    private String url;                                 // 파일 저장 url
 
-    private String path;                                // 파일 저장 경로
-    private String name;                                // 파일 저장명
-
-    @Builder
-    public File(Post post, MultipartFile multipartFile) {
-
-        StringBuilder nameBuilder = new StringBuilder().append(UUID.randomUUID()).append("_").append(multipartFile.getOriginalFilename());
-
-        this.post = post;
-        this.path = post.getPostCategory().toString();
-        this.name = nameBuilder.toString();
-    }
-
-    //== 연관관계 주입 매서드 ==//
-    public void injectPost(Post post){
-        this.post = post;
+    public File(String url) {
+        this.url = url;
     }
 }

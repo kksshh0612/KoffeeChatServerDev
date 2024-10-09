@@ -17,8 +17,7 @@ public class NotificationResponse {
 
     private String senderId;  //알림 내용에 포함될 회원
     private String senderNickname;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
 
     private String title;
 
@@ -44,8 +43,7 @@ public class NotificationResponse {
                     .unreadNotifications(unreadNotifications)
                     .senderId(null)
                     .senderNickname(null)
-                    .profileImagePath(null)
-                    .profileImageName(null)
+                    .profileImageUrl(null)
                     .title(notification.getTitle())
                     .content(notification.getContent())
                     .url(notification.getUrlPK())
@@ -61,8 +59,7 @@ public class NotificationResponse {
                     .unreadNotifications(unreadNotifications)
                     .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
-                    .profileImagePath(notification.getSender().getProfileImagePath())
-                    .profileImageName(notification.getSender().getProfileImageName())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .title(notification.getTitle())
                     .content(notification.getContent())
                     .url(notification.getUrlPK())

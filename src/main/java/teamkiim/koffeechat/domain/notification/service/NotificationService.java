@@ -63,6 +63,7 @@ public class NotificationService {
         SseEmitterWrapper emitterWrapper = emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
 
         //채팅방 목록 emitter에 추가
+
         List<Long> memberChatRoomIdList = memberChatRoomRepository.findAllByMember(member)
                 .stream().map(memberChatRoom -> memberChatRoom.getChatRoom().getId()).toList();
 

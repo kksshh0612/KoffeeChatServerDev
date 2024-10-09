@@ -20,6 +20,7 @@ import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
 
+import java.io.File;
 import java.util.Optional;
 
 @Service
@@ -39,6 +40,12 @@ public class OAuthService {
 
     @Value("${jwt.refresh.exp}")
     private long refreshTokenExpTime;
+
+    @Value("${file-path}")
+    private String baseFilePath;
+
+    @Value("${basic-profile-image-url}")
+    private String basicProfileImageUrl;
 
     /**
      * Access Token으로 네이버 회원 정보 조회
@@ -207,7 +214,7 @@ public class OAuthService {
                 .password(null)
                 .nickname(memberInfoSaveRequest.getNickname())
                 .memberRole(MemberRole.TEMP)
-                .profileImageName("basic_profile_image.png")
+                .profileImageUrl(baseFilePath + File.separator + basicProfileImageUrl)
                 .build();
 
         memberRepository.save(member);

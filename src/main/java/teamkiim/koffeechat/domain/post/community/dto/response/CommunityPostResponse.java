@@ -24,9 +24,7 @@ public class CommunityPostResponse {
 
     private String memberId;
     private String nickname;
-    private String profileImagePath;
-    private String profileImageName;
-
+    private String profileImageUrl;
     private boolean isMemberWritten;
     private boolean isMemberLiked;
     private boolean isMemberBookmarked;
@@ -51,8 +49,7 @@ public class CommunityPostResponse {
                 .voteResponse(voteResponse)
                 .memberId(memberId)
                 .nickname(communityPost.getMember().getNickname())
-                .profileImagePath(communityPost.getMember().getProfileImagePath())
-                .profileImageName(communityPost.getMember().getProfileImageName())
+                .profileImageUrl(communityPost.getMember().getProfileImageUrl())
                 .isMemberWritten(isMemberWritten)
                 .isMemberLiked(isMemberLiked)
                 .isMemberBookmarked(isMemberBookmarked)

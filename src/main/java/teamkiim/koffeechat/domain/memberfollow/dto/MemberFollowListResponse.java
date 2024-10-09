@@ -15,8 +15,7 @@ public class MemberFollowListResponse {
     private String memberId;
     private String email;
     private String nickname;
-    private String profileImagePath;
-    private String profileImageName;
+    private String profileImageUrl;
     private boolean isFollowedByLoginMember;                            //로그인된 사용자가 팔로우하는 회원
     private boolean isLoginMember;                                      //팔로우 목록에 로그인된 사용자가 포함된 경우
 
@@ -26,8 +25,7 @@ public class MemberFollowListResponse {
                 .memberId(memberId)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .profileImagePath(member.getProfileImagePath())
-                .profileImageName(member.getProfileImageName())
+                .profileImageUrl(member.getProfileImageUrl())
                 .isFollowedByLoginMember(isFollowedByLoginMember)
                 .isLoginMember(isLoginMember)
                 .build();

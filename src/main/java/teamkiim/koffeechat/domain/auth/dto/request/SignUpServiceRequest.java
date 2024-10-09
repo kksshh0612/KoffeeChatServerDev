@@ -18,7 +18,7 @@ public class SignUpServiceRequest {
     private String nickname;
     private MemberRole memberRole;
 
-    public Member toEntity(){
+    public Member toEntity(String basicProfileImageUrl) {
         return Member.builder()
                 .email(this.email)
                 .password(this.password)
@@ -26,7 +26,7 @@ public class SignUpServiceRequest {
                 .memberRole(this.memberRole)
                 .followerCount(0L)
                 .followingCount(0L)
-                .profileImageName("basic_profile_image.png")
+                .profileImageUrl(basicProfileImageUrl)
                 .build();
 
     }

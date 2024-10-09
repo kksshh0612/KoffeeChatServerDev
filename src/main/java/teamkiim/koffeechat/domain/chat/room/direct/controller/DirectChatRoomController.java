@@ -39,7 +39,7 @@ public class DirectChatRoomController {
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @GetMapping("/{chatRoomId}")
-    public ResponseEntity<?> open(@PathVariable Long chatRoomId,
+    public ResponseEntity<?> open(@PathVariable("chatRoomId") Long chatRoomId,
                                   @RequestParam("page") int page, @RequestParam("size") int size,
                                   HttpServletRequest request) {
 

@@ -41,17 +41,31 @@ public class MemberController {
     }
 
     /**
-     * 프로필 사진 등록
+     * 프로필 사진 등록 (Local 환경)
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/enroll-profile-image")
+    @PostMapping("/enroll-profile-image/local")
     @MemberApiDocument.SaveProfileImage
-    public ResponseEntity<?> saveProfileImage(@RequestPart(value = "file") MultipartFile multipartFile, HttpServletRequest request) {
+    public ResponseEntity<?> saveProfileImageToLocal(@RequestPart(value = "file") MultipartFile multipartFile, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(memberService.enrollProfileImage(memberId, multipartFile));
+        return ResponseEntity.ok(memberService.enrollProfileImageToLocal(memberId, multipartFile));
     }
+
+//    /**
+//     * 프로필 사진 등록 (S3 환경)
+//     */
+//    @AuthenticatedMemberPrincipal
+//    @PostMapping("/enroll-profile-image/s3")
+//    @MemberApiDocument.SaveProfileImage
+//    public ResponseEntity<?> saveProfileImageToS3(@RequestPart(value = "file") MultipartFile multipartFile,
+//                                              HttpServletRequest request) {
+//
+//        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+//
+//        return ResponseEntity.ok(memberService.enrollProfileImageToS3(memberId, multipartFile));
+//    }
 
     /**
      * 관심 기술 카테고리 등록

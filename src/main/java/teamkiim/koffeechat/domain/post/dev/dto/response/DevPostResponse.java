@@ -24,9 +24,7 @@ public class DevPostResponse {
 
     private String memberId;  //글 작성자의 암호화된 pk
     private String nickname;
-    private String profileImagePath;
-    private String profileImageName;
-
+    private String profileImageUrl;
     private boolean isMemberWritten;
     private boolean isMemberLiked;
     private boolean isMemberBookmarked;
@@ -52,8 +50,7 @@ public class DevPostResponse {
                 .bodyContent(devPost.getBodyContent())
                 .memberId(memberId)
                 .nickname(devPost.getMember().getNickname())
-                .profileImagePath(devPost.getMember().getProfileImagePath())
-                .profileImageName(devPost.getMember().getProfileImageName())
+                .profileImageUrl(devPost.getMember().getProfileImageUrl())
                 .isMemberWritten(isMemberWritten)
                 .isMemberLiked(isMemberLiked)
                 .isMemberBookmarked(isMemberBookmarked)

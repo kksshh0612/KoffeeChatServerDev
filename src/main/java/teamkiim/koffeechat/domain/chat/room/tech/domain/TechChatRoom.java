@@ -9,6 +9,8 @@ import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -20,9 +22,9 @@ public class TechChatRoom extends ChatRoom {
     private SkillCategory skillCategory;
 
     @Builder
-    public TechChatRoom(String name, int memberCount, SkillCategory skillCategory) {
+    public TechChatRoom(ChatRoomType chatRoomType, String name, LocalDateTime lastMessageTime, int memberCount, SkillCategory skillCategory) {
 
-        super(ChatRoomType.TECH, name);
+        super(chatRoomType, name, lastMessageTime);
         this.memberCount = memberCount;
         this.skillCategory = skillCategory;
     }
@@ -32,14 +34,14 @@ public class TechChatRoom extends ChatRoom {
     /**
      * 채팅방 참여자 수 증가
      */
-    public void increaseMemberCount(){
+    public void increaseMemberCount() {
         memberCount++;
     }
 
     /**
      * 채팅방 참여자 수 감소
      */
-    public void decreaseMemberCount(){
+    public void decreaseMemberCount() {
         memberCount--;
     }
 }

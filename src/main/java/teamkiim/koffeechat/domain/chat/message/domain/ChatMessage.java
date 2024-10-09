@@ -18,6 +18,9 @@ public class ChatMessage {
     private String id;                      // mongoDB의 고유 식별자 ObjectId 사용
 
     @Indexed
+    private Long seqId;                       // 순차 Id
+
+    @Indexed
     private Long chatRoomId;                // 채팅방 id 인덱싱
 
     private String content;                 // 채팅 메세지
