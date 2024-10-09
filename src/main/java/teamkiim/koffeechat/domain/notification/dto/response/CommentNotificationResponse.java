@@ -17,8 +17,7 @@ public class CommentNotificationResponse {
 
     private String senderId;  //알림 내용에 포함될 회원
     private String senderNickname;
-    private String profileImagePath;
-    private String profileImageName;
+    private String senderProfileImageUrl;
 
     private String title;
 
@@ -42,8 +41,7 @@ public class CommentNotificationResponse {
                 .unreadNotifications(unreadNotifications)
                 .senderId(senderId)
                 .senderNickname(notification.getSender().getNickname())
-                .profileImagePath(notification.getSender().getProfileImagePath())
-                .profileImageName(notification.getSender().getProfileImageName())
+                .senderProfileImageUrl(notification.getSender().getProfileImageUrl())
                 .title(notification.getTitle())
                 .content(notification.getContent())
                 .url(postId)

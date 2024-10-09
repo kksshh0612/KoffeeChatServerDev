@@ -10,7 +10,7 @@ import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.CommentRequest;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.ModifyCommentRequest;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
-import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
+import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.time.LocalDateTime;
