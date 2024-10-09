@@ -41,7 +41,8 @@ public @interface FileApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface saveImageFileInPost {}
+    @interface saveImageFileInPost {
+    }
 
     /**
      * 채팅 이미지 단건 저장
@@ -61,6 +62,7 @@ public @interface FileApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface saveImageFileInChat {}
+    @interface saveImageFileInChat {
+    }
 
 }

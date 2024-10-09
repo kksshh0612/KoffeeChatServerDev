@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.stylesheets.LinkStyle;
 import teamkiim.koffeechat.domain.chat.message.controller.dto.ChatMessageResponse;
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
@@ -20,7 +19,6 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +31,7 @@ public class ChatMessageService {
 
     /**
      * 채팅 메세지 저장
+     *
      * @param messageRequest
      * @param chatRoomId
      * @param senderId
@@ -58,7 +57,7 @@ public class ChatMessageService {
         chatMessageRepository.save(chatMessage);
     }
 
-    public void saveImageMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId){
+    public void saveImageMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
 
         ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
         chatMessageRepository.save(chatMessage);
@@ -66,6 +65,7 @@ public class ChatMessageService {
 
     /**
      * subscribers에게 채팅 메세지 전송
+     *
      * @param messageRequest
      * @param chatRoomId
      * @param senderId
@@ -84,7 +84,7 @@ public class ChatMessageService {
 
         List<ChatRoomInfoDto> dtoList = new ArrayList<>();
 
-        for(MemberChatRoom memberChatRoom : memberChatRoomList) {
+        for (MemberChatRoom memberChatRoom : memberChatRoomList) {
             long unreadMessageCount = chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(), memberChatRoom.getCloseTime());
 
             dtoList.add(new ChatRoomInfoDto(memberChatRoom, unreadMessageCount));

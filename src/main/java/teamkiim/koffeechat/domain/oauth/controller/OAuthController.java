@@ -57,7 +57,7 @@ public class OAuthController {
             case NAVER -> response = oAuthService.getMemberInfoFromNaver(socialAccessTokenRequest.getAccessToken());
             case KAKAO -> response = oAuthService.getMemberInfoFromKakao(socialAccessTokenRequest.getAccessToken());
             case GOOGLE -> response = oAuthService.getMemberInfoFromGoogle(socialAccessTokenRequest.getAccessToken());
-            default -> response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("시용자 정보를 불러오는 중 에러가 발생했습니다.");
+            default -> response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("사용자 정보를 불러오는 중 에러가 발생했습니다.");
         }
 
         return response;
@@ -69,7 +69,7 @@ public class OAuthController {
     @PostMapping("/login")
     @OAuthApiDocument.SocialLogin
     public ResponseEntity<?> socialLogin(@Valid @RequestBody SaveSocialLoginMemberInfoRequest saveSocialLoginMemberInfoRequest,
-                                         HttpServletResponse response) {
+                                         HttpServletResponse response) throws Exception {
 
         return oAuthService.loginOrSignUpSocialMember(saveSocialLoginMemberInfoRequest.toServiceRequest(), response);
     }

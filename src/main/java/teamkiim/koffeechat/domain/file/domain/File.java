@@ -1,17 +1,9 @@
 package teamkiim.koffeechat.domain.file.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLRestriction;
-import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.global.auditing.BaseEntity;
-
-import java.util.UUID;
-
-import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -20,8 +12,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @NoArgsConstructor
 public abstract class File extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "file_id")
     private Long id;
 

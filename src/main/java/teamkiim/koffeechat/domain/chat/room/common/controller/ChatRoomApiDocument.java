@@ -35,7 +35,8 @@ public @interface ChatRoomApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FindChatRoomsByTypeApiDoc {}
+    @interface FindChatRoomsByTypeApiDoc {
+    }
 
     /**
      * 채팅방 id로 채팅방 정보 단건 조회
@@ -53,5 +54,6 @@ public @interface ChatRoomApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FindChatRoomByChatRoomIdApiDoc {}
+    @interface FindChatRoomByChatRoomIdApiDoc {
+    }
 }

@@ -21,6 +21,23 @@ import java.lang.annotation.Target;
 public @interface MemberApiDocument {
 
     /**
+     * 사용자 닉네임으로 암호화된 pk 요청
+     */
+    @Operation(summary = "사용자 닉네임으로 암호화된 pk 요청", description = "사용자 닉네임으로 암호화된 pk를 조회한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "암호화된 pk를 정보가 조회된다.",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
+                    examples = {@ExampleObject(name = "사용자를 찾을 수 없는 경우",
+                            value = "{\"code\":404, \"message\":\"해당 회원이 존재하지 않습니다\"}")}
+            ))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface GetMemberPK {
+    }
+
+    /**
      * 프로필 사진 등록
      */
     @Operation(summary = "회원 프로필 사진 등록", description = "사용자가 프로필 사진을 등록한다.")

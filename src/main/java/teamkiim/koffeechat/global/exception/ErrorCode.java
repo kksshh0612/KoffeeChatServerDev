@@ -50,12 +50,15 @@ public enum ErrorCode {
     POST_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 작성된 게시글입니다."),
     VOTE_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 투표되었습니다."),
     CORP_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 회사 도메인입니다."),
-    CORP_DOMAIN_WAITING(HttpStatus.CONFLICT, "등록 요청이 되어있는 도메인입니다. 도메인 승인이 되면 다시 인증해주세요."),
+    CORP_REQUEST_ALREADY_EXIST(HttpStatus.CONFLICT, "요청이 처리중입니다. 요청 처리 결과는 알림으로 발송됩니다."),
+    CORP_DOMAIN_WAITING(HttpStatus.CONFLICT, "등록 요청이 되어있는 도메인입니다. 요청 처리 결과는 알림으로 발송됩니다."),
 
     // 500 INTERNAL_SERVER_ERROR
     JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "소셜 로그인 사용자 정보 json 파싱 에러"),
     CANNOT_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 이메일이 올바른지 확인해주세요"),
-    FILE_IO_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다.");
+    FILE_IO_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다."),
+    NOTIFICATION_TYPE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 알림 종류"),
+    ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "암호화를 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String msg;

@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
-import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostSearchListResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -85,7 +85,7 @@ public @interface CommunityPostApiDocument {
     @Operation(summary = "게시글 목록 조회", description = "사용자가 커뮤니티 게시글 목록을 조회한다. 게시물 제목, 태그로 필터링 할 수 있다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색된 커뮤니티 게시글 리스트와 개수를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
-                    content = @Content(schema = @Schema(implementation = CommunityPostSearchListResponse.class))),
+                    content = @Content(schema = @Schema(implementation = CommunityPostListResponse.class))),
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)

@@ -9,6 +9,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.auth.dto.TokenDto;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
@@ -146,7 +147,7 @@ public class Authenticator {
     }
 
     /**
-     * 인증이 완료된 유효한 accessToken에서 memberId를 추출
+     * 인증이 완료된 유효한 accessToken에서 암호화된 memberId를 추출
      *
      * @param validAccessToken
      * @return memberId(PK)

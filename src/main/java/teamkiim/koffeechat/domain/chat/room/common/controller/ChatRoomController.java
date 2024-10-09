@@ -1,9 +1,7 @@
 package teamkiim.koffeechat.domain.chat.room.common.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
@@ -21,6 +19,7 @@ public class ChatRoomController {
 
     /**
      * 회원이 현재 속해있는 채팅방 목록 페이징 조회
+     *
      * @param page
      * @param size
      * @param chatRoomType
@@ -31,8 +30,8 @@ public class ChatRoomController {
     @GetMapping("")
     @ChatRoomApiDocument.FindChatRoomsByTypeApiDoc
     public ResponseEntity<?> findChatRoomsByType(@RequestParam("page") int page, @RequestParam("size") int size,
-                                                @RequestParam(value = "chatRoomType", required = false) ChatRoomType chatRoomType,
-                                                HttpServletRequest request) {
+                                                 @RequestParam(value = "chatRoomType", required = false) ChatRoomType chatRoomType,
+                                                 HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -51,6 +50,7 @@ public class ChatRoomController {
 
     /**
      * 채팅방 종료 (채팅창을 닫을 때 호출하는 API)
+     *
      * @param chatRoomId
      * @param request
      * @return
@@ -70,6 +70,7 @@ public class ChatRoomController {
 
     /**
      * 채팅방 퇴장 (채팅방에서 완전히 퇴장할 때 호출하는 API)
+     *
      * @param chatRoomId
      * @param request
      * @return

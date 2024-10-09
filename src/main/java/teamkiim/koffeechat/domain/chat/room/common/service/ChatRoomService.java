@@ -40,14 +40,15 @@ public class ChatRoomService {
 
     /**
      * 참여중인 채팅방 목록 조회
-     *  -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
+     * -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
+     *
      * @param memberId
-     * @param
+     * @param page
      * @param size
      * @param chatRoomType
      * @return
      */
-    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size, ChatRoomType chatRoomType){
+    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size, ChatRoomType chatRoomType) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -67,7 +68,7 @@ public class ChatRoomService {
 
         List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
 
-        for(ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList){
+        for (ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList) {
             MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
 
             MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(memberChatRoom.getChatRoom(), memberChatRoom.getMember())
@@ -110,12 +111,13 @@ public class ChatRoomService {
 
     /**
      * 채팅방 닫기
+     *
      * @param chatRoomId
      * @param memberId
      * @param closeTime
      */
     @Transactional
-    public void close(Long chatRoomId, Long memberId, LocalDateTime closeTime){
+    public void close(Long chatRoomId, Long memberId, LocalDateTime closeTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -134,12 +136,13 @@ public class ChatRoomService {
 
     /**
      * 채팅방 퇴장
+     *
      * @param chatRoomId
      * @param memberId
      * @param exitTime
      */
     @Transactional
-    public void exit(Long chatRoomId, Long memberId, LocalDateTime exitTime){
+    public void exit(Long chatRoomId, Long memberId, LocalDateTime exitTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -169,7 +172,7 @@ public class ChatRoomService {
         chatNotificationService.removeChatRoomNotification(memberId, chatRoomId);
     }
 
-    public String findChatRoomName(Long chatRoomId){
+    public String findChatRoomName(Long chatRoomId) {
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentInfoDto {
 
-    private Long id;
+    private String id;
     private String content;
     private String nickname;
     private String profileImageUrl;
@@ -22,12 +22,10 @@ public class CommentInfoDto {
     private LocalDateTime modifiedTime;
     private boolean isMemberWritten;
 
-    public static CommentInfoDto of(Comment comment, Long loginMemberId) {
-
-        boolean isMemberWritten = comment.getMember().getId().equals(loginMemberId);
+    public static CommentInfoDto of(String commentId, Comment comment, boolean isMemberWritten) {
 
         return CommentInfoDto.builder()
-                .id(comment.getId())
+                .id(commentId)
                 .content(comment.getContent())
                 .nickname(comment.getMember().getNickname())
                 .profileImageUrl(comment.getMember().getProfileImageUrl())

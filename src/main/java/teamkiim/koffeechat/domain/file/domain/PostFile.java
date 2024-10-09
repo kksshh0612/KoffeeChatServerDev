@@ -7,10 +7,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
-
-import java.util.UUID;
 
 import static jakarta.persistence.FetchType.LAZY;
 

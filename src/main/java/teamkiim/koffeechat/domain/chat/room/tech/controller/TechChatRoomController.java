@@ -26,7 +26,7 @@ public class TechChatRoomController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/")
     public ResponseEntity<?> create(@Valid @RequestBody CreateTechChatRoomRequest createTechChatRoomRequest,
-                                    HttpServletRequest request) {
+                                    HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -41,7 +41,7 @@ public class TechChatRoomController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/enter")
     public ResponseEntity<?> create(@Valid @RequestBody EnterTechChatRoomRequest enterTechChatRoomRequest,
-                                    HttpServletRequest request) {
+                                    HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

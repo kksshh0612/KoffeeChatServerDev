@@ -19,7 +19,6 @@ import java.util.List;
 @Builder
 public class SaveDevPostServiceRequest {
 
-    private Long id;
     private String title;
     private String bodyContent;
     private String visualData;

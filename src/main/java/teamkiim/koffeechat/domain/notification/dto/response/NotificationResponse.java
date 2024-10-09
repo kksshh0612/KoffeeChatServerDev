@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationResponse {
 
-    private Long receiverId;  //알림을 받는 회원
+    private String receiverId;  //알림을 받는 회원
     private long unreadNotifications;  //읽지 않은 알림 갯수
 
-    private Long senderId;  //알림 내용에 포함될 회원
+    private String senderId;  //알림 내용에 포함될 회원
     private String senderNickname;
     private String profileImageUrl;
 
@@ -35,23 +35,40 @@ public class NotificationResponse {
 
     private LocalDateTime createdTime;
 
-    public static NotificationResponse of(Notification notification, long unreadNotifications) {
+    public static NotificationResponse of(String receiverId, String senderId, Notification notification, long unreadNotifications) {
 
-        return NotificationResponse.builder()
-                .receiverId(notification.getReceiver().getId())
-                .unreadNotifications(unreadNotifications)
-                .senderId(notification.getSender().getId())
-                .senderNickname(notification.getSender().getNickname())
-                .profileImageUrl(notification.getSender().getProfileImageUrl())
-                .title(notification.getTitle())
-                .content(notification.getContent())
-                .url(notification.getUrlPK())
-                .postType(notification.getPostType())
-                .commentId(notification.getCommentId())
-                .isRead(false)
-                .notificationType(notification.getNotificationType())
-                .createdTime(notification.getCreatedTime())
-                .build();
-
+        if (notification.getNotificationType() == NotificationType.CORP) { //현직자 인증 알림의 경우 sender x
+            return NotificationResponse.builder()
+                    .receiverId(receiverId)
+                    .unreadNotifications(unreadNotifications)
+                    .senderId(null)
+                    .senderNickname(null)
+                    .profileImageUrl(null)
+                    .title(notification.getTitle())
+                    .content(notification.getContent())
+                    .url(notification.getUrlPK())
+                    .postType(notification.getPostType())
+                    .commentId(notification.getCommentId())
+                    .isRead(false)
+                    .notificationType(notification.getNotificationType())
+                    .createdTime(notification.getCreatedTime())
+                    .build();
+        } else {
+            return NotificationResponse.builder()
+                    .receiverId(receiverId)
+                    .unreadNotifications(unreadNotifications)
+                    .senderId(senderId)
+                    .senderNickname(notification.getSender().getNickname())
+                    .profileImageUrl(notification.getSender().getProfileImageUrl())
+                    .title(notification.getTitle())
+                    .content(notification.getContent())
+                    .url(notification.getUrlPK())
+                    .postType(notification.getPostType())
+                    .commentId(notification.getCommentId())
+                    .isRead(false)
+                    .notificationType(notification.getNotificationType())
+                    .createdTime(notification.getCreatedTime())
+                    .build();
+        }
     }
 }

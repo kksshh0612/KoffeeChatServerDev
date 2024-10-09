@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationListItemResponse {
 
-    private Long id;
+    private String id;
 
-    private Long senderId;  //알림 내용에 포함될 회원
+    private String senderId;  //알림 내용에 포함될 회원
     private String senderNickname;
     private String profileImageUrl;
 
@@ -22,9 +22,9 @@ public class NotificationListItemResponse {
 
     private String content;
 
-    private Long url;
+    private String url;
 
-    private Long commentId;
+    private String commentId;
 
     private PostCategory postType;
 
@@ -34,49 +34,57 @@ public class NotificationListItemResponse {
 
     private LocalDateTime createdTime;
 
-    public static NotificationListItemResponse of(Notification notification) {
+    public static NotificationListItemResponse of(String notificationId, Notification notification, String senderId, String urlPK, String commentId) {
 
-        if (notification.getNotificationType().equals(NotificationType.FOLLOW)) {
+        if (notification.getNotificationType().equals(NotificationType.POST)) {  // 글 알림
             return NotificationListItemResponse.builder()
-                    .id(notification.getId())
-                    .senderId(notification.getSender().getId())
+                    .id(notificationId)
+                    .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
                     .profileImageUrl(notification.getSender().getProfileImageUrl())
+                    .title(notification.getTitle())
+                    .url(urlPK)
+                    .postType(notification.getPostType())
                     .isRead(notification.isRead())
                     .notificationType(notification.getNotificationType())
                     .createdTime(notification.getCreatedTime())
                     .build();
-
         } else if (notification.getNotificationType().equals(NotificationType.COMMENT)) {
             return NotificationListItemResponse.builder()
-                    .id(notification.getId())
-                    .senderId(notification.getSender().getId())
+                    .id(notificationId)
+                    .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
                     .profileImageUrl(notification.getSender().getProfileImageUrl())
                     .title(notification.getTitle())
                     .content(notification.getContent())
-                    .url(notification.getUrlPK())
+                    .url(urlPK)
                     .postType(notification.getPostType())
-                    .commentId(notification.getCommentId())
+                    .commentId(commentId)
                     .isRead(notification.isRead())
                     .notificationType(notification.getNotificationType())
                     .createdTime(notification.getCreatedTime())
                     .build();
 
-        } else {  // 글 알림
+        } else if (notification.getNotificationType().equals(NotificationType.FOLLOW)) {
             return NotificationListItemResponse.builder()
-                    .id(notification.getId())
-                    .senderId(notification.getSender().getId())
+                    .id(notificationId)
+                    .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
                     .profileImageUrl(notification.getSender().getProfileImageUrl())
+                    .isRead(notification.isRead())
+                    .notificationType(notification.getNotificationType())
+                    .createdTime(notification.getCreatedTime())
+                    .build();
+        } else {  //현직자 인증 알림
+            return NotificationListItemResponse.builder()
+                    .id(notificationId)
                     .title(notification.getTitle())
-                    .url(notification.getUrlPK())
-                    .postType(notification.getPostType())
+                    .content(notification.getContent())
+                    .url(urlPK)
                     .isRead(notification.isRead())
                     .notificationType(notification.getNotificationType())
                     .createdTime(notification.getCreatedTime())
                     .build();
         }
     }
-
 }

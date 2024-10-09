@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
-import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,7 @@ public class ChatMessageResponse {
     private String profileImageUrl;
     private LocalDateTime createdTime;
 
-    public static ChatMessageResponse of(ChatMessageServiceRequest chatMessageServiceRequest, Member sendMember){
+    public static ChatMessageResponse of(ChatMessageServiceRequest chatMessageServiceRequest, Member sendMember) {
 
         return ChatMessageResponse.builder()
                 .messageId(chatMessageServiceRequest.getMessageId())

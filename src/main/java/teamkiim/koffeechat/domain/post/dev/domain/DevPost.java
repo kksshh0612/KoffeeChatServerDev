@@ -45,7 +45,7 @@ public class DevPost extends Post {
      * @param visualData        시각자료
      * @param skillCategoryList 관련 기술 카테고리 리스트
      */
-    public void completeDevPost(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList, LocalDateTime createdTime){
+    public void completeDevPost(String title, String bodyContent, String visualData, List<SkillCategory> skillCategoryList, LocalDateTime createdTime) {
 
         complete(PostCategory.DEV, title, bodyContent, createdTime);
         this.visualData = visualData;

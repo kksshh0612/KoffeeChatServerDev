@@ -34,14 +34,14 @@ public class TechChatRoom extends ChatRoom {
     /**
      * 채팅방 참여자 수 증가
      */
-    public void increaseMemberCount(){
+    public void increaseMemberCount() {
         memberCount++;
     }
 
     /**
      * 채팅방 참여자 수 감소
      */
-    public void decreaseMemberCount(){
+    public void decreaseMemberCount() {
         memberCount--;
     }
 }

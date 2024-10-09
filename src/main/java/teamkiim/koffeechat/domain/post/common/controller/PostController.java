@@ -28,7 +28,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("delete/{postId}")
     @PostApiDocument.DeletePostApiDoc
-    public ResponseEntity<?> delete(@PathVariable("postId") Long postId) {
+    public ResponseEntity<?> delete(@PathVariable("postId") String postId) throws Exception {
 
         postService.softDelete(postId);
 
@@ -41,7 +41,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/like/{postId}")
     @PostApiDocument.LikeApiDoc
-    public ResponseEntity<?> like(@PathVariable("postId") Long postId, HttpServletRequest request) {
+    public ResponseEntity<?> like(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -56,7 +56,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/bookmark/{postId}")
     @PostApiDocument.BookmarkApiDoc
-    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request) {
+    public ResponseEntity<?> bookmark(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -72,7 +72,7 @@ public class PostController {
     @GetMapping("/bookmark/{postType}/{sortType}")
     @PostApiDocument.BookmarkedPostListApiDoc
     public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
-                                                    @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+                                                    @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -88,7 +88,7 @@ public class PostController {
     @GetMapping("/{postType}/{sortType}")
     @PostApiDocument.MyPostListApiDoc
     public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
-                                            @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+                                            @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

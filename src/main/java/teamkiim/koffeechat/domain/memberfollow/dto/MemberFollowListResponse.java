@@ -12,17 +12,17 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 @Builder
 public class MemberFollowListResponse {
 
-    private Long memberId;
+    private String memberId;
     private String email;
     private String nickname;
     private String profileImageUrl;
     private boolean isFollowedByLoginMember;                            //로그인된 사용자가 팔로우하는 회원
     private boolean isLoginMember;                                      //팔로우 목록에 로그인된 사용자가 포함된 경우
 
-    public static MemberFollowListResponse of(Member member, boolean isFollowedByLoginMember, boolean isLoginMember){
+    public static MemberFollowListResponse of(String memberId, Member member, boolean isFollowedByLoginMember, boolean isLoginMember) {
 
         return MemberFollowListResponse.builder()
-                .memberId(member.getId())
+                .memberId(memberId)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())

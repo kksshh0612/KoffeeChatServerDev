@@ -36,9 +36,8 @@ public class SaveDevPostRequest {
     @Schema(description = "개발 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
 
-    public SaveDevPostServiceRequest toServiceRequest(Long postId) {
+    public SaveDevPostServiceRequest toServiceRequest() {
         return SaveDevPostServiceRequest.builder()
-                .id(postId)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
                 .visualData(this.visualData)

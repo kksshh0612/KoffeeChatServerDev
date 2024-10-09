@@ -13,7 +13,6 @@ import java.util.List;
 @Builder
 public class ModifyCommunityPostServiceRequest {
 
-    private Long id;
     private String title;
     private String bodyContent;
     private List<Long> fileIdList;

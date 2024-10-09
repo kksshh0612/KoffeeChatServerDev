@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import teamkiim.koffeechat.domain.member.domain.Member;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -16,4 +15,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByIdWithSkillCategories(@Param("id") Long id);
 
     Optional<Member> findByEmail(String email);
+
+    @Query("SELECT m FROM Member m WHERE SUBSTRING(m.email, 1, LOCATE('@', m.email) - 1) = :memberEmailId")
+    Optional<Member> findByEmailId(@Param("memberEmailId") String memberEmailId);
 }

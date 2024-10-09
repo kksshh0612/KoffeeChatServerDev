@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
-import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
 import teamkiim.koffeechat.domain.member.domain.Member;
 
@@ -27,11 +26,11 @@ public class ChatRoomListResponse {
     private String profileImageUrl;
 
 
-    public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo, Member oppositeMember){
+    public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo, Member oppositeMember) {
 
         String roomName = chatRoomInfo.getMemberChatRoom().getChatRoom().getName();
 
-        if(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType().equals(ChatRoomType.DIRECT)){
+        if (chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType().equals(ChatRoomType.DIRECT)) {
             roomName = oppositeMember.getNickname();
         }
 
