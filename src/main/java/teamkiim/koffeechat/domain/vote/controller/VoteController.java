@@ -27,10 +27,10 @@ public class VoteController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/{postId}/votes")
     @VoteApiDocument.SaveVoteRecord
-    public ResponseEntity<?> saveVoteRecord(@PathVariable("postId") Long postId, @Valid @RequestBody SaveVoteRecordRequest saveVoteRecordRequest,
+    public ResponseEntity<?> saveVoteRecord(@PathVariable("postId") String postId, @Valid @RequestBody SaveVoteRecordRequest saveVoteRecordRequest,
                                             HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<SaveVoteRecordServiceDto> responses = voteService.saveVoteRecord(postId, saveVoteRecordRequest, memberId);
 

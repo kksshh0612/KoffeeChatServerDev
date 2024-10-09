@@ -184,10 +184,10 @@ public class OAuthService {
     /*
     소셜 로그인 회원의 로그인
      */
-    private void loginSocialMember(Member member, HttpServletResponse response) throws Exception {
+    private void loginSocialMember(Member member, HttpServletResponse response) {
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), aesCipher.encrypt(member.getId()));
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), aesCipher.encrypt(member.getId()));
+        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
 
         // 레디스 세팅
         redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);

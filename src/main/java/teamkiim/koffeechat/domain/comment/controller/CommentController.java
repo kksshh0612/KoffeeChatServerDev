@@ -6,10 +6,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.CommentRequest;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.ModifyCommentRequest;
-import teamkiim.koffeechat.domain.comment.controller.dto.response.MyCommentListResponse;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
+import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final AESCipher aesCipher;
 
     /**
      * 댓글 작성
@@ -31,7 +33,7 @@ public class CommentController {
     @CommentApiDocument.SaveCommentApiDoc
     public ResponseEntity<?> saveComment(@Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime currDateTime = LocalDateTime.now();
 
@@ -59,9 +61,9 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{commentId}")
     @CommentApiDocument.DeleteCommentApiDoc
-    public ResponseEntity<?> deleteComment(@PathVariable("commentId") Long commentId) {
+    public ResponseEntity<?> deleteComment(@PathVariable("commentId") String commentId) throws Exception {
 
-        commentService.deleteComment(commentId);
+        commentService.deleteComment(aesCipher.decrypt(commentId));
 
         return ResponseEntity.ok("댓글 삭제 완료");
     }
@@ -72,12 +74,12 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @GetMapping("")
     @CommentApiDocument.MyCommentListApiDoc
-    public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<MyCommentListResponse> myCommentListResponseList = commentService.findMyCommentList(memberId, page, size);
+        List<MyPostListResponse> myPostListResponseList = commentService.findMyCommentList(memberId, page, size);
 
-        return ResponseEntity.ok(myCommentListResponseList);
+        return ResponseEntity.ok(myPostListResponseList);
     }
 }

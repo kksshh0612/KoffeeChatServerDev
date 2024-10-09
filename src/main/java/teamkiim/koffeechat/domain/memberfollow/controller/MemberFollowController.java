@@ -28,7 +28,7 @@ public class MemberFollowController {
     @MemberFollowApiDocument.FollowMember
     public ResponseEntity<?> followMember(@PathVariable("memberId") String followingMemberId, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         memberFollowService.followMember(memberId, followingMemberId);
 
@@ -42,9 +42,9 @@ public class MemberFollowController {
     @GetMapping("/followers")
     @MemberFollowApiDocument.MyFollowerList
     public ResponseEntity<?> myFollowerList(@RequestParam("page") int page, @RequestParam("size") int size,
-                                            HttpServletRequest request) throws Exception {
+                                            HttpServletRequest request) {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.findMyFollowerList(loginMemberId, page, size);
@@ -61,7 +61,7 @@ public class MemberFollowController {
     public ResponseEntity<?> followerList(@PathVariable("memberId") String memberId, @RequestParam("page") int page,
                                           @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.findFollowerList(memberId, loginMemberId, page, size);
@@ -78,7 +78,7 @@ public class MemberFollowController {
     public ResponseEntity<?> myFollowingList(@RequestParam("page") int page, @RequestParam("size") int size,
                                              HttpServletRequest request) throws Exception {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList = memberFollowService.findMyFollowingList(loginMemberId, page, size);
 
@@ -94,7 +94,7 @@ public class MemberFollowController {
     public ResponseEntity<?> followingList(@PathVariable("memberId") String memberId, @RequestParam("page") int page,
                                            @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.findFollowingList(memberId, loginMemberId, page, size);
@@ -111,7 +111,7 @@ public class MemberFollowController {
     public ResponseEntity<?> searchMyFollowers(@RequestParam("keyword") String keyword, @RequestParam("page") int page,
                                                @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.searchMyFollowers(loginMemberId, keyword, page, size);
@@ -126,10 +126,9 @@ public class MemberFollowController {
     @GetMapping("/followers/{memberId}/search")
     @MemberFollowApiDocument.SearchFollowerList
     public ResponseEntity<?> searchFollowers(@PathVariable("memberId") String memberId, @RequestParam("keyword") String keyword,
-                                             @RequestParam("page") int page, @RequestParam("size") int size,
-                                             HttpServletRequest request) throws Exception {
+                                             @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.searchFollowers(memberId, loginMemberId, keyword, page, size);
@@ -146,7 +145,7 @@ public class MemberFollowController {
     public ResponseEntity<?> searchMyFollowings(@RequestParam("keyword") String keyword, @RequestParam("page") int page,
                                                 @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.searchMyFollowings(loginMemberId, keyword, page, size);
@@ -164,7 +163,7 @@ public class MemberFollowController {
                                               @RequestParam("page") int page, @RequestParam("size") int size,
                                               HttpServletRequest request) throws Exception {
 
-        String loginMemberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long loginMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MemberFollowListResponse> memberFollowListResponseList =
                 memberFollowService.searchFollowings(memberId, loginMemberId, keyword, page, size);

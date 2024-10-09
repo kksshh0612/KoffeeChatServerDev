@@ -43,12 +43,11 @@ public class PostService {
      * 게시글 삭제 (soft delete)
      *
      * @param postId 삭제할 게시글 PK
-     * @return ok
      */
     @Transactional
-    public void softDelete(Long postId) {
+    public void softDelete(String postId) throws Exception {
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         post.delete();
@@ -62,16 +61,16 @@ public class PostService {
      * @return long -> 게시물 좋아요 수
      */
     @Transactional
-    public long like(Long postId, String memberId) throws Exception {
+    public long like(String postId, Long memberId) throws Exception {
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (post.isDeleted() || post.isEditing()) {
             throw new CustomException(ErrorCode.POST_NOT_FOUND);
         }
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (postLikeService.isMemberLiked(post, member)) {        // 이미 좋아요 눌렀으면
@@ -93,16 +92,16 @@ public class PostService {
      * @return long -> 게시물 북마크 수
      */
     @Transactional
-    public long bookmark(Long postId, String memberId) throws Exception {
+    public long bookmark(String postId, Long memberId) throws Exception {
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (post.isDeleted() || post.isEditing()) {
             throw new CustomException(ErrorCode.POST_NOT_FOUND);
         }
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (bookmarkService.isMemberBookmarked(member, post)) {     // 이미 북마크 했으면
@@ -126,9 +125,9 @@ public class PostService {
      * @param size         페이지 당 조회할 데이터 수
      * @return List<BookmarkPostListResponse>
      */
-    public List<BookmarkPostListResponse> findBookmarkPostList(String memberId, PostCategory postCategory, SortCategory sortType, int page, int size) throws Exception {
+    public List<BookmarkPostListResponse> findBookmarkPostList(Long memberId, PostCategory postCategory, SortCategory sortType, int page, int size) throws Exception {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = sortBySortCategory(sortType, "id", "post.likeCount", "post.viewCount", page, size);
@@ -137,7 +136,13 @@ public class PostService {
 
         List<Post> bookmarkPostList = bookmarkList.stream().map(Bookmark::getPost).toList();
 
-        return bookmarkPostList.stream().map(BookmarkPostListResponse::of).toList();
+        return bookmarkPostList.stream().map(post -> {
+            try {
+                return BookmarkPostListResponse.of(aesCipher.encrypt(post.getId()), post);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+            }
+        }).toList();
 
     }
 
@@ -151,17 +156,22 @@ public class PostService {
      * @param size         페이지 당 조회할 데이터 수
      * @return List<BookmarkPostListResponse>
      */
-    public List<MyPostListResponse> findMyPostList(String memberId, PostCategory postCategory, SortCategory sortType, int page, int size) throws Exception {
+    public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postCategory, SortCategory sortType, int page, int size) throws Exception {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         List<Post> postList = postRepository.findAllByMemberAndPostCategory(member, postCategory, pageRequest).getContent();
 
-        return postList.stream().map(MyPostListResponse::of).toList();
-
+        return postList.stream().map(post -> {
+            try {
+                return MyPostListResponse.of(aesCipher.encrypt(post.getId()), post);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+            }
+        }).toList();
     }
 
     /**

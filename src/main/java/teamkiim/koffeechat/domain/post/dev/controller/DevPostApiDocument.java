@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostSearchListResponse;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -87,7 +86,7 @@ public @interface DevPostApiDocument {
     @Operation(summary = "게시글 목록 조회", description = "사용자가 개발 게시글 목록을 조회한다. 게시물 제목, 카테고리, 태그로 필터링 할 수 있다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "개발 게시글 리스트를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
-                    content = @Content(schema = @Schema(implementation = DevPostSearchListResponse.class))),
+                    content = @Content(schema = @Schema(implementation = DevPostListResponse.class))),
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)

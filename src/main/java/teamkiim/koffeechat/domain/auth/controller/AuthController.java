@@ -44,7 +44,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     @AuthApiDocument.loginApiDoc
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         TokenDto jwtTokenDto = authService.login(loginRequest.toServiceRequest());
 

@@ -19,8 +19,7 @@ import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
-import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
-import teamkiim.koffeechat.domain.notification.dto.response.NotificationResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.*;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
@@ -53,13 +52,13 @@ public class NotificationService {
      * @param memberId 연결할 회원 Id
      * @return SseEmitter
      */
-    public SseEmitter connectNotification(String memberId) throws Exception {
+    public SseEmitter connectNotification(Long memberId) throws Exception {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);   //연결 유지를 위한 적절한 타임 아웃 설정 필요
-        String emitterId = memberId + "_" + System.currentTimeMillis();  //암호화된 memberId + 연결된 시간으로 id 생성 -> memberId를 통해 알림 전송
+        String emitterId = aesCipher.encrypt(memberId) + "_" + System.currentTimeMillis();  //암호화된 memberId + 연결된 시간으로 id 생성 -> memberId를 통해 알림 전송
 
         SseEmitterWrapper emitterWrapper = emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
 
@@ -102,7 +101,7 @@ public class NotificationService {
             try {
                 createNotification(CreateNotificationRequest.ofForPost(NotificationType.POST, writer, post), follower);
             } catch (Exception e) {
-                throw new RuntimeException("Encryption failed", e);
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
             }
         });
     }
@@ -129,7 +128,7 @@ public class NotificationService {
             try {
                 createNotification(CreateNotificationRequest.ofForCorp(NotificationType.CORP, corp, verified), member);
             } catch (Exception e) {
-                throw new RuntimeException("Encryption failed", e);
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
             }
         });
     }
@@ -148,10 +147,21 @@ public class NotificationService {
         Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(receiverId);  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
 
         emitters.forEach((id, emitter) -> {
-            try {
-                sendNotification(id, emitter.getSseEmitter(), eventId, NotificationResponse.of(receiverId, aesCipher.encrypt(savedNotification.getSender().getId()), savedNotification, receiver.getUnreadNotifications()));
+            try {  // 알림 종류에 따른 response 전달
+                switch (savedNotification.getNotificationType()) {
+                    case POST -> sendNotification(id, emitter.getSseEmitter(), eventId,
+                            PostNotificationResponse.of(aesCipher.encrypt(savedNotification.getReceiver().getId()), aesCipher.encrypt(savedNotification.getSender().getId()),
+                                    aesCipher.encrypt(savedNotification.getUrlPK()), savedNotification, receiver.getUnreadNotifications()));
+                    case COMMENT -> sendNotification(id, emitter.getSseEmitter(), eventId,
+                            CommentNotificationResponse.of(aesCipher.encrypt(savedNotification.getReceiver().getId()), aesCipher.encrypt(savedNotification.getSender().getId()),
+                                    aesCipher.encrypt(savedNotification.getUrlPK()), aesCipher.encrypt(savedNotification.getCommentId()), savedNotification, receiver.getUnreadNotifications()));
+                    case FOLLOW -> sendNotification(id, emitter.getSseEmitter(), eventId, FollowNotificationResponse.of(aesCipher.encrypt(savedNotification.getReceiver().getId()),
+                            aesCipher.encrypt(savedNotification.getSender().getId()), savedNotification, receiver.getUnreadNotifications()));
+                    case CORP -> sendNotification(id, emitter.getSseEmitter(), eventId,
+                            CorpNotificationResponse.of(aesCipher.encrypt(savedNotification.getReceiver().getId()), savedNotification, receiver.getUnreadNotifications()));
+                }
             } catch (Exception e) {
-                throw new RuntimeException("Encryption failed", e);
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
             }
         });
     }
@@ -177,8 +187,8 @@ public class NotificationService {
      * @return 읽지 않은 알림 개수
      */
     @Transactional
-    public int getUnreadNotificationCount(String memberId) throws Exception {
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+    public int getUnreadNotificationCount(Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         int unreadNotificationCount = notificationRepository.countByReceiverAndIsReadFalse(member);
@@ -197,8 +207,8 @@ public class NotificationService {
      * @param size             페이지 당 조회할 데이터 수
      * @return List<NotificationListResponse>
      */
-    public List<NotificationListItemResponse> getNotificationList(NotificationType notificationType, String memberId, int page, int size) throws Exception {
-        Member receiver = memberRepository.findById(aesCipher.decrypt(memberId))
+    public List<NotificationListItemResponse> getNotificationList(NotificationType notificationType, Long memberId, int page, int size) {
+        Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  // 최신순 정렬
@@ -209,13 +219,25 @@ public class NotificationService {
 
         return notificationList.stream().map(notification -> {
             try {
-                if (notification.getNotificationType().equals(NotificationType.CORP)) {  //현직자 인증 알림에는 sender 미포함
-                    return NotificationListItemResponse.of(notification, null);
-                } else {
-                    return NotificationListItemResponse.of(notification, aesCipher.encrypt(notification.getSender().getId()));
+                switch (notification.getNotificationType()) {
+                    case POST -> {
+                        return NotificationListItemResponse.of(aesCipher.encrypt(notification.getId()), notification, aesCipher.encrypt(notification.getSender().getId()), aesCipher.encrypt(notification.getUrlPK()), null);
+                    }
+                    case COMMENT -> {
+                        return NotificationListItemResponse.of(aesCipher.encrypt(notification.getId()), notification, aesCipher.encrypt(notification.getSender().getId()), aesCipher.encrypt(notification.getUrlPK()), aesCipher.encrypt(notification.getCommentId()));
+                    }
+                    case FOLLOW -> {
+                        return NotificationListItemResponse.of(aesCipher.encrypt(notification.getId()), notification, aesCipher.encrypt(notification.getSender().getId()), null, null);
+                    }
+                    case CORP -> {
+                        return NotificationListItemResponse.of(aesCipher.encrypt(notification.getId()), notification, null, notification.getUrlPK().toString(), null);
+                    }
+                    default -> {
+                        throw new CustomException(ErrorCode.NOTIFICATION_TYPE_NOT_FOUND);
+                    }
                 }
             } catch (Exception e) {
-                throw new RuntimeException("Encryption failed", e);
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
             }
         }).toList();
     }
@@ -228,11 +250,11 @@ public class NotificationService {
      * @return 읽지 않은 알림 개수
      */
     @Transactional
-    public long updateNotificationIsRead(String memberId, Long notiId) throws Exception {
-        Member receiver = memberRepository.findById(aesCipher.decrypt(memberId))
+    public long updateNotificationIsRead(Long memberId, String notiId) throws Exception {
+        Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Notification notification = notificationRepository.findByIdAndReceiver(notiId, receiver)
+        Notification notification = notificationRepository.findByIdAndReceiver(aesCipher.decrypt(notiId), receiver)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.isRead()) {
@@ -251,11 +273,11 @@ public class NotificationService {
      * @return 읽지 않은 알림 개수
      */
     @Transactional
-    public long deleteNotification(String memberId, Long notiId) throws Exception {
-        Member receiver = memberRepository.findById(aesCipher.decrypt(memberId))
+    public long deleteNotification(Long memberId, String notiId) throws Exception {
+        Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Notification notification = notificationRepository.findById(notiId)
+        Notification notification = notificationRepository.findById(aesCipher.decrypt(notiId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.isRead()) {
@@ -272,8 +294,8 @@ public class NotificationService {
      * @param memberId member pk
      */
     @Transactional
-    public void deleteAllNotifications(String memberId) throws Exception {
-        Member receiver = memberRepository.findById(aesCipher.decrypt(memberId))
+    public void deleteAllNotifications(Long memberId) {
+        Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         notificationRepository.deleteAllByReceiver(receiver);     //알림 전체 삭제
@@ -286,8 +308,8 @@ public class NotificationService {
      * @param memberId member pk
      */
     @Transactional
-    public void updateAllNotificationsIsRead(String memberId) throws Exception {
-        Member receiver = memberRepository.findById(aesCipher.decrypt(memberId))
+    public void updateAllNotificationsIsRead(Long memberId) {
+        Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         notificationRepository.updateAllIsRead(receiver);     //알림 전체 읽음

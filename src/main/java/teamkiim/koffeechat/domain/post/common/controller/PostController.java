@@ -28,7 +28,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("delete/{postId}")
     @PostApiDocument.DeletePostApiDoc
-    public ResponseEntity<?> delete(@PathVariable("postId") Long postId) {
+    public ResponseEntity<?> delete(@PathVariable("postId") String postId) throws Exception {
 
         postService.softDelete(postId);
 
@@ -41,9 +41,9 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/like/{postId}")
     @PostApiDocument.LikeApiDoc
-    public ResponseEntity<?> like(@PathVariable("postId") Long postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> like(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         long likeCount = postService.like(postId, memberId);
 
@@ -56,9 +56,9 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/bookmark/{postId}")
     @PostApiDocument.BookmarkApiDoc
-    public ResponseEntity<?> bookmark(@PathVariable("postId") Long postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> bookmark(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         long bookmarkCount = postService.bookmark(postId, memberId);
 
@@ -74,7 +74,7 @@ public class PostController {
     public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
                                                     @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<BookmarkPostListResponse> bookmarkPostResponseList = postService.findBookmarkPostList(memberId, postType, sortType, page, size);
 
@@ -90,7 +90,7 @@ public class PostController {
     public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
                                             @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<MyPostListResponse> myPostListResponseList = postService.findMyPostList(memberId, postType, sortType, page, size);
 

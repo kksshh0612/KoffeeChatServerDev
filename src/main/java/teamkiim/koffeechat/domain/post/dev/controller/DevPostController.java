@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
@@ -37,11 +36,11 @@ public class DevPostController {
     @DevPostApiDocument.InitPostApiDoc
     public ResponseEntity<?> initPost(HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        Long postId = devPostService.saveInitDevPost(memberId);
+        String postId = devPostService.saveInitDevPost(memberId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(postId);
+        return ResponseEntity.ok(postId);
     }
 
     /**
@@ -50,7 +49,7 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{postId}")
     @DevPostApiDocument.CancelPostApiDoc
-    public ResponseEntity<?> cancelPost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<?> cancelPost(@PathVariable("postId") String postId) throws Exception {
 
         devPostService.cancelWriteDevPost(postId);
 
@@ -63,11 +62,11 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/{postId}")
     @DevPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(@PathVariable("postId") Long postId, @Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> savePost(@PathVariable("postId") String postId, @Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.saveDevPost(saveDevPostRequest.toServiceRequest(postId), memberId);
+        devPostService.saveDevPost(postId, saveDevPostRequest.toServiceRequest(), memberId);
 
         return ResponseEntity.ok("게시글 작성 완료");
     }
@@ -96,9 +95,9 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postId}")
     @DevPostApiDocument.ShowPostApiDoc
-    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> showPost(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         DevPostResponse postResponse = devPostService.findPost(postId, memberId, request);
 
@@ -111,12 +110,12 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{postId}")
     @DevPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@PathVariable("postId") Long postId, @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest,
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") String postId, @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest,
                                         HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        devPostService.modifyPost(modifyDevPostRequest.toServiceRequest(postId), memberId);
+        devPostService.modifyPost(postId, modifyDevPostRequest.toServiceRequest(), memberId);
 
         return ResponseEntity.ok("게시물 수정 완료");
     }

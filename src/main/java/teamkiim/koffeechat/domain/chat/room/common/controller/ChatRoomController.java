@@ -19,9 +19,9 @@ public class ChatRoomController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/")
     public ResponseEntity<?> findChatRoomByType(@RequestParam("page") int page, @RequestParam("size") int size,
-                                                HttpServletRequest request) throws Exception {
+                                                HttpServletRequest request) {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         return ResponseEntity.ok(chatRoomService.findChatRoomList(memberId, page, size));
     }
@@ -30,7 +30,7 @@ public class ChatRoomController {
     @GetMapping("/close/{chatRoomId}")
     public ResponseEntity<?> closeChatRoom(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime closeTime = LocalDateTime.now();
 

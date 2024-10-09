@@ -38,9 +38,9 @@ public class TechChatRoomService {
      * @param memberId                         채팅방 생성을 요청한 사용자 PK
      */
     @Transactional
-    public void createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, String memberId) throws Exception {
+    public void createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, Long memberId) {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity();
@@ -61,9 +61,9 @@ public class TechChatRoomService {
      * @param enterTechChatRoomServiceRequest
      * @param memberId                        채팅방 입장을 요청한 사용자 PK
      */
-    public void enterChatRoom(EnterTechChatRoomServiceRequest enterTechChatRoomServiceRequest, String memberId) throws Exception {
+    public void enterChatRoom(EnterTechChatRoomServiceRequest enterTechChatRoomServiceRequest, Long memberId) {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         TechChatRoom techChatRoom = techChatRoomRepository.findById(enterTechChatRoomServiceRequest.getChatRoomId())
@@ -94,9 +94,9 @@ public class TechChatRoomService {
      * @param exitTechChatRoomServiceRequest
      * @param memberId                       채팅방 입장을 요청한 사용자 PK
      */
-    public void exitChatRoom(ExitTechChatRoomServiceRequest exitTechChatRoomServiceRequest, String memberId) throws Exception {
+    public void exitChatRoom(ExitTechChatRoomServiceRequest exitTechChatRoomServiceRequest, Long memberId) {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         TechChatRoom techChatRoom = techChatRoomRepository.findById(exitTechChatRoomServiceRequest.getChatRoomId())

@@ -17,12 +17,12 @@ import java.util.List;
 @Builder
 public class CommunityPostResponse {
 
-    private Long id;
+    private String id;
     private String title;
     private String bodyContent;
     private VoteResponse voteResponse;
 
-    private Long memberId;
+    private String memberId;
     private String nickname;
     private String profileImagePath;
     private String profileImageName;
@@ -41,15 +41,15 @@ public class CommunityPostResponse {
     private List<TagInfoDto> tagInfoDtoList;
     private List<CommentInfoDto> commentInfoDtoList;
 
-    public static CommunityPostResponse of(CommunityPost communityPost, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
+    public static CommunityPostResponse of(String postId, String memberId, CommunityPost communityPost, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
                                            VoteResponse voteResponse, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return CommunityPostResponse.builder()
-                .id(communityPost.getId())
+                .id(postId)
                 .title(communityPost.getTitle())
                 .bodyContent(communityPost.getBodyContent())
                 .voteResponse(voteResponse)
-                .memberId(communityPost.getMember().getId())
+                .memberId(memberId)
                 .nickname(communityPost.getMember().getNickname())
                 .profileImagePath(communityPost.getMember().getProfileImagePath())
                 .profileImageName(communityPost.getMember().getProfileImageName())

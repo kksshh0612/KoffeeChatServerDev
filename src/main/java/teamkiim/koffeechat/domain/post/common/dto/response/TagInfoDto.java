@@ -12,12 +12,12 @@ import teamkiim.koffeechat.domain.tag.domain.Tag;
 @Builder
 public class TagInfoDto {
 
-    private Long id;
+    private String id;
     private String content;
 
-    public static TagInfoDto of(Tag tag) {
+    public static TagInfoDto of(String tagId, Tag tag) {
         return TagInfoDto.builder()
-                .id(tag.getId())
+                .id(tagId)
                 .content(tag.getContent())
                 .build();
     }

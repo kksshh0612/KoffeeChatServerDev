@@ -52,7 +52,7 @@ public class AuthService {
      *
      * @param loginServiceRequest 로그인 요청 dto
      */
-    public TokenDto login(LoginServiceRequest loginServiceRequest) throws Exception {
+    public TokenDto login(LoginServiceRequest loginServiceRequest) {
 
         Member member = memberRepository.findByEmail(loginServiceRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));

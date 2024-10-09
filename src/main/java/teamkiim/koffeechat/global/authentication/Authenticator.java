@@ -26,7 +26,6 @@ public class Authenticator {
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtil redisUtil;
-    private final AESCipher aesCipher;
 
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
@@ -111,10 +110,10 @@ public class Authenticator {
      *
      * @param member Domain Member
      */
-    public TokenDto authenticate(Member member) throws Exception {
+    public TokenDto authenticate(Member member) {
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), aesCipher.encrypt(member.getId()));
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), aesCipher.encrypt(member.getId()));
+        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
 
         // 레디스 세팅
         redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
@@ -153,7 +152,7 @@ public class Authenticator {
      * @param validAccessToken
      * @return memberId(PK)
      */
-    public String getMemberIdFromValidAccessToken(String validAccessToken) {
+    public Long getMemberIdFromValidAccessToken(String validAccessToken) {
 
         return jwtTokenProvider.getMemberPK(jwtTokenProvider.getTokenClaims(validAccessToken));
     }

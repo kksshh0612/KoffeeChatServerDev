@@ -50,15 +50,15 @@ public class JwtTokenProvider implements InitializingBean {
      * 로그인한 사용자의 정보로 Access Token 발급
      *
      * @param role     회원 권한
-     * @param memberId 암호화된 회원 PK
+     * @param memberId 회원 PK
      * @return JWT (Access Token)
      */
-    public String createAccessToken(String role, String memberId) {
+    public String createAccessToken(String role, Long memberId) {
 
         Date validity = new Date(System.currentTimeMillis() + accessTokenExpTime);    //현재시간 + 토큰 유효 시간 == 만료날짜
 
         return Jwts.builder()
-                .setSubject(memberId)
+                .setSubject(memberId.toString())
                 .claim(AUTHORITIES_KEY, role)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -72,12 +72,12 @@ public class JwtTokenProvider implements InitializingBean {
      * @param memberId 암호화된 회원 PK
      * @return JWT (Refresh Token)
      */
-    public String createRefreshToken(String role, String memberId) {
+    public String createRefreshToken(String role, Long memberId) {
 
         Date validity = new Date(System.currentTimeMillis() + refreshTokenExpTime);    //현재시간 + 토큰 유효 시간 == 만료날짜
 
         return Jwts.builder()
-                .setSubject(memberId)
+                .setSubject(memberId.toString())
                 .claim(AUTHORITIES_KEY, role)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -107,9 +107,9 @@ public class JwtTokenProvider implements InitializingBean {
      * @param claims
      * @return 사용자의 암호화된 PK
      */
-    public String getMemberPK(Claims claims) {
+    public Long getMemberPK(Claims claims) {
 
-        return claims.getSubject();
+        return Long.parseLong(claims.getSubject());
     }
 
     /**
@@ -184,7 +184,7 @@ public class JwtTokenProvider implements InitializingBean {
 
         Claims claims = getTokenClaims(refreshToken);
 
-        String id = claims.getSubject();                  // 멤버 PK
+        Long id = Long.parseLong(claims.getSubject());                  // 멤버 PK
         String memberRole = claims.get(AUTHORITIES_KEY).toString();     // 멤버 권한
 
         return createAccessToken(memberRole, id);
@@ -202,7 +202,7 @@ public class JwtTokenProvider implements InitializingBean {
         long expTime = claims.getExpiration().getTime();     //토큰의 만료 시각
         long now = new Date().getTime();                     //현재 시각
 
-        // 남은 엑세스토큰 유효 시간
+        // 남은 엑세스 토큰 유효 시간
         long remainTime = expTime - now;        // 테스트 사이트 : https://currentmillis.com/
 
         //레디스에 블랙리스트 등록

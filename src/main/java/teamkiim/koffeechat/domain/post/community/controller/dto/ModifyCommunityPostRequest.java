@@ -14,9 +14,8 @@ public class ModifyCommunityPostRequest {
     ModifyCommunityPostInfoRequest modifyCommunityPostInfoRequest;
     ModifyVoteRequest modifyVoteRequest;
 
-    public ModifyCommunityPostServiceRequest toPostServiceRequest(Long postId) {
+    public ModifyCommunityPostServiceRequest toPostServiceRequest() {
         return ModifyCommunityPostServiceRequest.builder()
-                .id(postId)
                 .title(this.modifyCommunityPostInfoRequest.getTitle())
                 .bodyContent(this.modifyCommunityPostInfoRequest.getBodyContent())
                 .fileIdList(this.getModifyCommunityPostInfoRequest().getFileIdList())

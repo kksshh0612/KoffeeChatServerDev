@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 public class DevPostResponse {
 
-    private Long id;
+    private String id;
     private String title;
     private String bodyContent;
 
@@ -43,11 +43,11 @@ public class DevPostResponse {
     private List<TagInfoDto> tagInfoDtoList;
     private List<CommentInfoDto> commentInfoDtoList;
 
-    public static DevPostResponse of(DevPost devPost, String memberId, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
+    public static DevPostResponse of(String postId, DevPost devPost, String memberId, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
                                      boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return DevPostResponse.builder()
-                .id(devPost.getId())
+                .id(postId)
                 .title(devPost.getTitle())
                 .bodyContent(devPost.getBodyContent())
                 .memberId(memberId)

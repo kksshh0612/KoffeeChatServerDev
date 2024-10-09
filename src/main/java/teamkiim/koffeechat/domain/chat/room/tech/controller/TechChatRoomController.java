@@ -28,7 +28,7 @@ public class TechChatRoomController {
     public ResponseEntity<?> create(@Valid @RequestBody CreateTechChatRoomRequest createTechChatRoomRequest,
                                     HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         techChatRoomService.createChatRoom(createTechChatRoomRequest.toServiceRequest(), memberId);
 
@@ -43,7 +43,7 @@ public class TechChatRoomController {
     public ResponseEntity<?> create(@Valid @RequestBody EnterTechChatRoomRequest enterTechChatRoomRequest,
                                     HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime currTime = LocalDateTime.now();
 
@@ -58,9 +58,9 @@ public class TechChatRoomController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/")
     public ResponseEntity<?> exit(@Valid @RequestBody ExitTechChatRoomRequest exitTechChatRoomRequest,
-                                  HttpServletRequest request) throws Exception {
+                                  HttpServletRequest request) {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         LocalDateTime currTime = LocalDateTime.now();
 

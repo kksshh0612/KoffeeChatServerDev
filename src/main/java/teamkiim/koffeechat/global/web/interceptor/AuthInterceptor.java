@@ -38,7 +38,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         String validAccessToken = authenticator.verify(request, response);
 
-        String memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);
+        Long memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);
 
         request.setAttribute("authenticatedMemberPK", memberId);
 

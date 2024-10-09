@@ -32,9 +32,9 @@ public class CommunityPostController {
     @CommunityPostApiDocument.InitPostApiDoc
     public ResponseEntity<?> initPost(HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        Long postId = communityPostService.saveInitCommunityPost(memberId);
+        String postId = communityPostService.saveInitCommunityPost(memberId);
 
         return ResponseEntity.ok(postId);
     }
@@ -45,7 +45,7 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{postId}")
     @CommunityPostApiDocument.CancelPostApiDoc
-    public ResponseEntity<?> CancelPostApiDoc(@PathVariable("postId") Long postId) {
+    public ResponseEntity<?> CancelPostApiDoc(@PathVariable("postId") String postId) throws Exception {
 
         communityPostService.cancelWriteCommunityPost(postId);
 
@@ -58,10 +58,10 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/{postId}")
     @CommunityPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(@PathVariable("postId") Long postId, @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest,
+    public ResponseEntity<?> savePost(@PathVariable("postId") String postId, @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest,
                                       HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         communityPostService.saveCommunityPost(postId, saveCommunityPostRequest, memberId);
 
@@ -88,9 +88,9 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postId}")
     @CommunityPostApiDocument.ShowPostApiDoc
-    public ResponseEntity<?> showPost(@PathVariable("postId") Long postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> showPost(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         CommunityPostResponse postResponse = communityPostService.findPost(postId, memberId, request);
 
@@ -103,12 +103,12 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{postId}")
     @CommunityPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@PathVariable("postId") Long postId, @Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") String postId, @Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
                                         HttpServletRequest request) throws Exception {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        communityPostService.modifyPost(modifyCommunityPostRequest.toPostServiceRequest(postId), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
+        communityPostService.modifyPost(postId, modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
 
         return ResponseEntity.ok("게시물 수정 완료");
     }

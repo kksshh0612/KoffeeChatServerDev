@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.aescipher.AESCipher;
-import teamkiim.koffeechat.domain.comment.controller.dto.response.MyCommentListResponse;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.comment.dto.request.CommentServiceRequest;
 import teamkiim.koffeechat.domain.comment.dto.request.ModifyCommentServiceRequest;
@@ -14,7 +13,9 @@ import teamkiim.koffeechat.domain.comment.repository.CommentRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.post.common.controller.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
+import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -40,11 +41,11 @@ public class CommentService {
      * @param memberId              댓글 작성자 PK
      */
     @Transactional
-    public void saveComment(CommentServiceRequest commentServiceRequest, String memberId) throws Exception {
+    public void saveComment(CommentServiceRequest commentServiceRequest, Long memberId) throws Exception {
 
         System.out.println("여기 ::  " + commentServiceRequest.getPostId());
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Post post = postRepository.findById(commentServiceRequest.getPostId())
@@ -59,7 +60,6 @@ public class CommentService {
 
         //글쓴이에게 댓글 알림 전송
         notificationService.createCommentNotification(post, member, comment);
-
     }
 
     /**
@@ -98,15 +98,33 @@ public class CommentService {
      * @param size     페이지 당 조회할 데이터 수
      * @return List<MyCommentListResponse>
      */
-    public List<MyCommentListResponse> findMyCommentList(String memberId, int page, int size) throws Exception {
+    public List<MyPostListResponse> findMyCommentList(Long memberId, int page, int size) {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  //최근 작성한 댓글부터
 
-        List<Comment> commentList = commentRepository.findAllByMember(member, pageRequest).getContent();
+        List<Post> postList = postRepository.findAllByCommentMember(member, pageRequest).getContent();
 
-        return commentList.stream().map(comment -> MyCommentListResponse.of(comment, !(comment.getPost().isEditing() || comment.getPost().isDeleted()))).toList();
+        return postList.stream().map(post -> {
+            try {
+                return MyPostListResponse.of(aesCipher.encrypt(post.getId()), post);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+            }
+        }).toList();
+    }
+
+    public List<CommentInfoDto> toCommentDtoList(Post post, Long memberId) {
+        return post.getCommentList().stream()
+                .map(comment -> {
+                    boolean isMemberWritten = comment.getMember().getId().equals(memberId);
+                    try {
+                        return CommentInfoDto.of(aesCipher.encrypt(comment.getId()), comment, isMemberWritten);
+                    } catch (Exception e) {
+                        throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+                    }
+                }).toList();
     }
 }

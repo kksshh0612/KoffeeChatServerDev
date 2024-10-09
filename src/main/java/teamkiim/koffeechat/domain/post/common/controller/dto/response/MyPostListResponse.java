@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Schema(description = "내가 작성한 게시글 Response")
 public class MyPostListResponse {
 
-    private Long id;                                // PK
+    private String id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
     private long viewCount;                         // 조회수
@@ -31,9 +31,9 @@ public class MyPostListResponse {
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
 
-    public static MyPostListResponse of(Post post) {
+    public static MyPostListResponse of(String postId, Post post) {
         return MyPostListResponse.builder()
-                .id(post.getId())
+                .id(postId)
                 .title(post.getTitle())
                 .bodyContent(post.getBodyContent())
                 .viewCount(post.getViewCount())

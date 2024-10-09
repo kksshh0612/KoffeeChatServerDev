@@ -3,6 +3,7 @@ package teamkiim.koffeechat.domain.corp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;
@@ -31,6 +32,8 @@ public class CorpService {
     private final EmailAuthRepository emailAuthRepository;
     private final EmailSendService emailSendService;
 
+    private final AESCipher aesCipher;
+
     /**
      * 회사 도메인 등록 요청 대기 상태로 저장
      * 거절된 도메인에 대해 요청하면 -> 요청 거절
@@ -38,7 +41,8 @@ public class CorpService {
     @Transactional
     public String createWaitingCorp(Long memberId, String corpName, String corpDomain) {
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Optional<Corp> corp = corpRepository.findByNameAndEmailDomain(corpName, corpDomain);
 
@@ -95,9 +99,9 @@ public class CorpService {
      * @return 인증 이메일 전송 상태 메시지
      */
     @Transactional
-    public String createEmailAuth(String corpName, String email, Long memberId) {
+    public String createEmailAuth(String corpName, String email, String memberId) throws Exception {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         String domain = email.substring(email.indexOf('@') + 1);
@@ -140,8 +144,8 @@ public class CorpService {
      * @param code  회사 이메일 인증 코드
      */
     @Transactional
-    public void checkEmailAuthCode(Long memberId, String corpName, String email, String code) {
-        Member member = memberRepository.findById(memberId)
+    public void checkEmailAuthCode(String memberId, String corpName, String email, String code) throws Exception {
+        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         EmailAuth emailAuth = emailAuthRepository.findByEmailAndCode(email, code)

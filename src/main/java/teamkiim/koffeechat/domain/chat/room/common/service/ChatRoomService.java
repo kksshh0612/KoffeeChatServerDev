@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
@@ -32,8 +31,6 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageService chatMessageService;
 
-    private final AESCipher aesCipher;
-
     /**
      * 참여중인 채팅방 목록 조회
      * -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
@@ -43,9 +40,9 @@ public class ChatRoomService {
      * @param size
      * @return
      */
-    public List<ChatRoomListResponse> findChatRoomList(String memberId, int page, int size) throws Exception {
+    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "closeTime"));
@@ -71,9 +68,9 @@ public class ChatRoomService {
 
 
     @Transactional
-    public void close(Long chatRoomId, String memberId, LocalDateTime closeTime) throws Exception {
+    public void close(Long chatRoomId, Long memberId, LocalDateTime closeTime) throws Exception {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)

@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 public class CommunityPostListResponse {
 
-    private Long id;                                // PK
+    private String id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
     private List<TagInfoDto> tagDtoList;            //태그 리스트
@@ -34,13 +34,13 @@ public class CommunityPostListResponse {
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
 
-    public static CommunityPostListResponse of(CommunityPost communityPost) {
+    public static CommunityPostListResponse of(String postId, CommunityPost communityPost, List<TagInfoDto> tagInfoDto) {
 
         CommunityPostListResponse response = CommunityPostListResponse.builder()
-                .id(communityPost.getId())
+                .id(postId)
                 .title(communityPost.getTitle())
                 .bodyContent(communityPost.getBodyContent())
-                .tagDtoList(communityPost.getPostTagList().stream().map(postTag -> TagInfoDto.of(postTag.getTag())).toList())
+                .tagDtoList(tagInfoDto)
                 .viewCount(communityPost.getViewCount())
                 .likeCount(communityPost.getLikeCount())
                 .bookmarkCount(communityPost.getBookmarkCount())

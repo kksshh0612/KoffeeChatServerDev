@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
+import teamkiim.koffeechat.domain.comment.service.CommentService;
 import teamkiim.koffeechat.domain.file.service.FileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -49,6 +50,7 @@ public class DevPostService {
     private final NotificationService notificationService;
     private final PostService postService;
     private final TagService tagService;
+    private final CommentService commentService;
 
     private final AESCipher aesCipher;
 
@@ -56,12 +58,12 @@ public class DevPostService {
      * 게시글 최초 임시 저장
      *
      * @param memberId 작성자 PK
-     * @return Long 게시글 PK
+     * @return String 암호화된 게시글 PK
      */
     @Transactional
-    public Long saveInitDevPost(String memberId) throws Exception {
+    public String saveInitDevPost(Long memberId) throws Exception {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DevPost devPost = DevPost.builder()
@@ -71,7 +73,7 @@ public class DevPostService {
 
         DevPost saveDevPost = devPostRepository.save(devPost);
 
-        return saveDevPost.getId();
+        return aesCipher.encrypt(saveDevPost.getId());
     }
 
     /**
@@ -80,9 +82,9 @@ public class DevPostService {
      * @param postId 게시글 PK
      */
     @Transactional
-    public void cancelWriteDevPost(Long postId) {
+    public void cancelWriteDevPost(String postId) throws Exception {
 
-        DevPost devPost = devPostRepository.findById(postId)
+        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         fileService.deleteImageFiles(devPost);
@@ -96,12 +98,12 @@ public class DevPostService {
      * @param saveDevPostServiceRequest 게시글 저장 dto
      */
     @Transactional
-    public void saveDevPost(SaveDevPostServiceRequest saveDevPostServiceRequest, String memberId) throws Exception {
+    public void saveDevPost(String postId, SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId) throws Exception {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        DevPost devPost = devPostRepository.findById(saveDevPostServiceRequest.getId())
+        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         tagService.addTags(devPost, saveDevPostServiceRequest.getTagContentList());  //해시태그 추가
@@ -133,7 +135,14 @@ public class DevPostService {
 
         Page<DevPost> devPostList = searchFilter(keyword, childSkillCategoryList, tagContents, pageRequest);
 
-        return devPostList.stream().map(DevPostListResponse::of).toList();
+        return devPostList.stream().map(post -> {
+            try {
+                List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
+                return DevPostListResponse.of(aesCipher.encrypt(post.getId()), post, tagList);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+            }
+        }).toList();
     }
 
     private Page<DevPost> searchFilter(String keyword, List<ChildSkillCategory> childSkillCategoryList, List<String> tagContents, PageRequest pageRequest) {
@@ -162,34 +171,29 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public DevPostResponse findPost(Long postId, String memberId, HttpServletRequest request) throws Exception {
+    public DevPostResponse findPost(String postId, Long memberId, HttpServletRequest request) throws Exception {
 
-        Long memberPk = aesCipher.decrypt(memberId);
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        DevPost devPost = devPostRepository.findById(postId)
+        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        List<CommentInfoDto> commentInfoDtoList = devPost.getCommentList().stream()
-                .map(comment -> {
-                    boolean isMemberWritten = comment.getMember().getId().equals(memberPk);
-                    return CommentInfoDto.of(comment, isMemberWritten);
-                }).toList();
+        List<CommentInfoDto> commentInfoDtoList = commentService.toCommentDtoList(devPost, memberId);
 
-        List<TagInfoDto> tagInfoDtoList = devPost.getPostTagList().stream()
-                .map(postTag -> TagInfoDto.of(postTag.getTag())).toList();
+        List<TagInfoDto> tagInfoDtoList = tagService.toTagInfoDtoList(devPost);
 
         boolean isMemberLiked = postLikeService.isMemberLiked(devPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, devPost);
-        boolean isMemberWritten = memberPk.equals(devPost.getMember().getId());
+        boolean isMemberWritten = memberId.equals(devPost.getMember().getId());
 
         //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
         if (!isMemberWritten) {
             postService.viewPost(devPost, request);
         }
 
-        return DevPostResponse.of(devPost, aesCipher.encrypt(devPost.getMember().getId()), tagInfoDtoList, commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return DevPostResponse.of(aesCipher.encrypt(devPost.getId()), devPost, aesCipher.encrypt(devPost.getMember().getId()), tagInfoDtoList,
+                commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
@@ -198,18 +202,18 @@ public class DevPostService {
      * @param modifyDevPostServiceRequest 게시글 수정 dto
      */
     @Transactional
-    public void modifyPost(ModifyDevPostServiceRequest modifyDevPostServiceRequest, String memberId) throws Exception {
+    public void modifyPost(String postId, ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) throws Exception {
 
-        memberRepository.findById(aesCipher.decrypt(memberId))
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        DevPost devPost = devPostRepository.findById(modifyDevPostServiceRequest.getId())
+        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         tagService.updateTags(devPost, modifyDevPostServiceRequest.getTagContentList());  //해시태그 수정
 
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
-                modifyDevPostServiceRequest.getVisualData(), modifyDevPostServiceRequest.combineSkillCategory());
+                modifyDevPostServiceRequest.getVisualData(), modifyDevPostServiceRequest.getSkillCategoryList());
 
     }
 
@@ -226,6 +230,13 @@ public class DevPostService {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  // 최신순 정렬
         Page<DevPost> skillPostList = devPostRepository.findAllCompletePostBySkillCategory(skillCategory, pageRequest);
 
-        return skillPostList.stream().map(DevPostListResponse::of).toList();
+        return skillPostList.stream().map(post -> {
+            try {
+                List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
+                return DevPostListResponse.of(aesCipher.encrypt(post.getId()), post, tagList);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+            }
+        }).toList();
     }
 }

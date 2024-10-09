@@ -98,11 +98,11 @@ public class VoteService {
      * @return isVoted 필드를 포함한 dto
      */
     @Transactional
-    public List<SaveVoteRecordServiceDto> saveVoteRecord(Long postId, SaveVoteRecordRequest saveVoteRecordRequest, String memberId) throws Exception {
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+    public List<SaveVoteRecordServiceDto> saveVoteRecord(String postId, SaveVoteRecordRequest saveVoteRecordRequest, Long memberId) throws Exception {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         Vote vote = voteRepository.findByPost(post)
@@ -133,7 +133,13 @@ public class VoteService {
             }
         }
 
-        return vote.getVoteItems().stream().map(SaveVoteRecordServiceDto::of).toList();
+        return vote.getVoteItems().stream().map(voteItem -> {
+            try {
+                return SaveVoteRecordServiceDto.of(aesCipher.encrypt(voteItem.getId()), voteItem);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+            }
+        }).toList();
     }
 
 }

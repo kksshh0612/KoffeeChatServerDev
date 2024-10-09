@@ -78,9 +78,9 @@ public class CorpController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/email-auth")
     @CorpApiDocument.CreateEmailAuth
-    public ResponseEntity<?> createEmailAuth(@Valid @RequestBody CorpAuthRequest corpRequest, HttpServletRequest request) {
+    public ResponseEntity<?> createEmailAuth(@Valid @RequestBody CorpAuthRequest corpRequest, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
         String response = corpService.createEmailAuth(corpRequest.getName(), corpRequest.getEmail(), memberId);
 
         return ResponseEntity.ok(response);
@@ -92,9 +92,9 @@ public class CorpController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/email-auth/code")
     @CorpApiDocument.CheckEmailAuthCode
-    public ResponseEntity<?> checkEmailAuthCode(@Valid @RequestBody CorpAuthCodeCheckRequest codeCheckRequest, HttpServletRequest request) {
+    public ResponseEntity<?> checkEmailAuthCode(@Valid @RequestBody CorpAuthCodeCheckRequest codeCheckRequest, HttpServletRequest request) throws Exception {
 
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
         corpService.checkEmailAuthCode(memberId, codeCheckRequest.getName(), codeCheckRequest.getEmail(), codeCheckRequest.getCode());
 
         return ResponseEntity.ok("인증 되었습니다.");

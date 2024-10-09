@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 public class DevPostListResponse {
 
-    private Long id;                                // PK
+    private String id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
     private List<TagInfoDto> tagDtoList;            //태그 리스트
@@ -37,13 +37,13 @@ public class DevPostListResponse {
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
 
-    public static DevPostListResponse of(DevPost devPost) {
+    public static DevPostListResponse of(String postId, DevPost devPost, List<TagInfoDto> tagInfoDto) {
 
         DevPostListResponse response = DevPostListResponse.builder()
-                .id(devPost.getId())
+                .id(postId)
                 .title(devPost.getTitle())
                 .bodyContent(devPost.getBodyContent())
-                .tagDtoList(devPost.getPostTagList().stream().map(postTag -> TagInfoDto.of(postTag.getTag())).toList())
+                .tagDtoList(tagInfoDto)
                 .skillCategoryList(devPost.getSkillCategoryList())
                 .viewCount(devPost.getViewCount())
                 .likeCount(devPost.getLikeCount())
