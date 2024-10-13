@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.domain.aescipher.AESCipher;
+import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.CommentRequest;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.ModifyCommentRequest;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
