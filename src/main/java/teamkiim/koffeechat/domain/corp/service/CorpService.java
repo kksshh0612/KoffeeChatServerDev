@@ -3,7 +3,7 @@ package teamkiim.koffeechat.domain.corp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.domain.aescipher.AESCipher;
+import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;

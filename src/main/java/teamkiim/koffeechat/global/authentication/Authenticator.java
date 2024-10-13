@@ -9,7 +9,6 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
-import teamkiim.koffeechat.domain.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.auth.dto.TokenDto;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.global.cookie.CookieProvider;

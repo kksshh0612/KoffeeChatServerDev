@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.aescipher;
+package teamkiim.koffeechat.global.aescipher;
 
 
 import org.springframework.beans.factory.annotation.Value;
