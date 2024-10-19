@@ -65,7 +65,7 @@ public class ChatRoomService {
 
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 
-        List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
+        List<ChatRoomListResponse> chatRoomListResponseList= new ArrayList<>();
 
         for(ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList){
             MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
@@ -73,7 +73,7 @@ public class ChatRoomService {
             MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(memberChatRoom.getChatRoom(), memberChatRoom.getMember())
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
-            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(chatRoomInfoDto, oppositeMemberChatRoom.getMember());
+            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(chatRoomInfoDto, oppositeMemberChatRoom.getMember(), memberId);
 
             chatRoomListResponseList.add(chatRoomListResponse);
         }

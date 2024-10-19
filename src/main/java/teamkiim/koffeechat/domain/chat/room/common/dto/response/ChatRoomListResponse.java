@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
-import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
 import teamkiim.koffeechat.domain.member.domain.Member;
 
@@ -17,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatRoomListResponse {
 
+    private Long memberId;
     private Long chatRoomId;
     private ChatRoomType chatRoomType;
     private String chatRoomName;
@@ -27,7 +27,7 @@ public class ChatRoomListResponse {
     private String profileImageUrl;
 
 
-    public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo, Member oppositeMember){
+    public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo, Member oppositeMember, Long memberId){
 
         String roomName = chatRoomInfo.getMemberChatRoom().getChatRoom().getName();
 
@@ -36,6 +36,7 @@ public class ChatRoomListResponse {
         }
 
         return ChatRoomListResponse.builder()
+                .memberId(memberId)
                 .chatRoomId(chatRoomInfo.getMemberChatRoom().getChatRoom().getId())
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
                 .chatRoomName(roomName)
