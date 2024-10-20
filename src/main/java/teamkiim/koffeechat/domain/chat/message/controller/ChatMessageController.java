@@ -22,7 +22,6 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
     private final ChatNotificationService chatNotificationService;
     private final ChatRoomManager chatRoomManager;
-    private final ChatRoomService chatRoomService;
 
     @MessageMapping("/chat/text/{chatRoomId}")
     public void sendTextMessage(@DestinationVariable("chatRoomId") Long chatRoomId, ChatMessageRequest chatMessageRequest,
