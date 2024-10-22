@@ -59,6 +59,5 @@ public class LocalChatFileService implements ChatFileService {
                 .build();
 
         chatMessageService.saveImageMessage(chatMessageServiceRequest, chatRoomId, memberId);
-        chatMessageService.send(chatMessageServiceRequest, chatRoomId, memberId);
     }
 }

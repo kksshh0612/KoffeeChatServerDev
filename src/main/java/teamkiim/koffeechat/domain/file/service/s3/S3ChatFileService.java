@@ -54,6 +54,5 @@ public class S3ChatFileService implements ChatFileService {
                 .build();
 
         chatMessageService.saveImageMessage(chatMessageServiceRequest, chatRoomId, memberId);
-        chatMessageService.send(chatMessageServiceRequest, chatRoomId, memberId);
     }
 }

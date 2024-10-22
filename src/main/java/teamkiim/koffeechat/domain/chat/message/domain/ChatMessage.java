@@ -32,8 +32,9 @@ public class ChatMessage {
     private LocalDateTime createdTime;        // 작성 시간
 
     @Builder
-    public ChatMessage(Long chatRoomId, String content, Long senderId, MessageType messageType, LocalDateTime createdTime) {
-
+    public ChatMessage(Long seqId, Long chatRoomId, String content, Long senderId, MessageType messageType,
+                       LocalDateTime createdTime) {
+        this.seqId = seqId;
         this.chatRoomId = chatRoomId;
         this.content = content;
         this.senderId = senderId;

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatRoomListResponse {
 
+    private Long memberId;
     private Long chatRoomId;
     private ChatRoomType chatRoomType;
     private String chatRoomName;
@@ -26,15 +27,16 @@ public class ChatRoomListResponse {
     private String profileImageUrl;
 
 
-    public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo, Member oppositeMember) {
+    public static ChatRoomListResponse of(ChatRoomInfoDto chatRoomInfo, Member oppositeMember, Long memberId){
 
         String roomName = chatRoomInfo.getMemberChatRoom().getChatRoom().getName();
 
-        if (chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType().equals(ChatRoomType.DIRECT)) {
+        if(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType().equals(ChatRoomType.DIRECT)){
             roomName = oppositeMember.getNickname();
         }
 
         return ChatRoomListResponse.builder()
+                .memberId(memberId)
                 .chatRoomId(chatRoomInfo.getMemberChatRoom().getChatRoom().getId())
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
                 .chatRoomName(roomName)

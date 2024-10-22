@@ -4,8 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import teamkiim.koffeechat.domain.chat.message.controller.ChatMessageController;
+import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.service.ChatRoomService;
+import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.time.LocalDateTime;
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
 
     /**
      * 회원이 현재 속해있는 채팅방 목록 페이징 조회
@@ -38,15 +42,21 @@ public class ChatRoomController {
         return ResponseEntity.ok(chatRoomService.findChatRoomList(memberId, page, size, chatRoomType));
     }
 
-//    @AuthenticatedMemberPrincipal
-//    @GetMapping("/{chatRoomId}")
-//    @ChatRoomApiDocument.FindChatRoomByChatRoomIdApiDoc
-//    public ResponseEntity<?> findChatRoomByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
-//
-//        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-//
-////        return ResponseEntity.ok(chatRoomService.findChatRoom(chatRoomId, memberId));
-//    }
+    /**
+     * 채팅 메세지 조회 (커서 기반 페이징)
+     */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
+    @GetMapping("/message/{chatRoomId}")
+    public ResponseEntity<?> open(@PathVariable("chatRoomId") Long chatRoomId,
+                                  @RequestParam("cursor") Long cursor, @RequestParam("size") int size,
+                                  HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        return ResponseEntity.ok(chatMessageService.getChatMessages(chatRoomId, cursor, size, memberId));
+    }
+
 
     /**
      * 채팅방 종료 (채팅창을 닫을 때 호출하는 API)

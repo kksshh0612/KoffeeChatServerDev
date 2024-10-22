@@ -10,7 +10,14 @@ import java.time.LocalDateTime;
 
 public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
 
-    Page<ChatMessage> findAllByChatRoomId(Long chatRoomId, Pageable pageable);
+
+    // 커서 기반 페이징 조회
+    @Query(value = "{ 'chatRoomId': chatRoomId, 'seqId': { $lt: cursorId } }", sort = "{ 'seqId': -1 }")
+    Page<ChatMessage> findByCursor(Long chatRoomId, Long cursorId, Pageable pageable);
+
+    // 가장 최신의 메세지 페이징 조회
+    @Query(value = "{ 'chatRoomId': chatRoomId}", sort = "{ 'seqId': -1 }")
+    Page<ChatMessage> findLatestMessage(Long chatRoomId, Pageable pageable);
 
     @Query(value = "{ 'chatRoomId': chatRoomId, 'createdTime': { $gt: lastReadTime } }", count = true)
     long findCountByChatRoomId(Long chatRoomId, LocalDateTime lastReadTime);
