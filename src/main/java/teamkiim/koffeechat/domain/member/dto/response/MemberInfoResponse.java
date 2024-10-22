@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 public class MemberInfoResponse {
 
-    private Long memberId;
+    private String memberId;
     private String email;
     private String nickname;
     private MemberRole memberRole;
@@ -30,10 +30,9 @@ public class MemberInfoResponse {
     private boolean isCorpVerified;  // 현직자 인증 여부
     private String corpName;
 
-    public static MemberInfoResponse of(Member member, boolean isLoginMember, Boolean isFollowingMember, boolean isCorpVerified) {
-
+    public static MemberInfoResponse of(Member member, String memberId, boolean isLoginMember, Boolean isFollowingMember, boolean isCorpVerified) {
         return MemberInfoResponse.builder()
-                .memberId(member.getId())
+                .memberId(memberId)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .memberRole(member.getMemberRole())
@@ -46,6 +45,5 @@ public class MemberInfoResponse {
                 .isCorpVerified(isCorpVerified)
                 .corpName(isCorpVerified ? member.getCorpName() : null)
                 .build();
-
     }
 }

@@ -28,7 +28,7 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/subscribe")
     @NotificationApiDocument.SubscribeApiDoc
-    public SseEmitter subscribe(HttpServletRequest request) {
+    public SseEmitter subscribe(HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -56,8 +56,8 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("")
     @NotificationApiDocument.ShowNotificationListApiDoc
-    public ResponseEntity<?> showNotificationList(@RequestParam("notificationType") NotificationType notiType,
-                                                  @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    public ResponseEntity<?> showNotificationList(@RequestParam("notificationType") NotificationType notiType, @RequestParam("page") int page,
+                                                  @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -72,7 +72,7 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{notificationId}")
     @NotificationApiDocument.UpdateNotificationIsReadApiDoc
-    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") String notiId, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -87,7 +87,7 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{notificationId}")
     @NotificationApiDocument.DeleteNotificationApiDoc
-    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") Long notiId, HttpServletRequest request) {
+    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") String notiId, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

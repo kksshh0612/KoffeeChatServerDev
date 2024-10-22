@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
-import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.tag.domain.PostTag;

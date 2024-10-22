@@ -1,7 +1,6 @@
 package teamkiim.koffeechat.domain.file.service.s3;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +65,7 @@ public class S3PostFileService implements PostFileService {
 
         List<PostFile> fileList = postFileRepository.findAllByPost(post);
 
-        for(PostFile postFile : fileList) {
+        for (PostFile postFile : fileList) {
             fileStorageService.deleteFile(postFile.getUrl());
         }
 

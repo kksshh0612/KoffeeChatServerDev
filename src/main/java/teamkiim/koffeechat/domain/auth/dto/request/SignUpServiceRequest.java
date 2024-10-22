@@ -18,7 +18,7 @@ public class SignUpServiceRequest {
     private String nickname;
     private MemberRole memberRole;
 
-    public Member toEntity(String basicProfileImageUrl){
+    public Member toEntity(String basicProfileImageUrl) {
         return Member.builder()
                 .email(this.email)
                 .password(this.password)

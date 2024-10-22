@@ -16,7 +16,6 @@ import teamkiim.koffeechat.global.authentication.Authenticator;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.io.File;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -39,14 +38,15 @@ public class AuthService {
      * 회원가입
      *
      * @param signUpServiceRequest 회원가입 요청 dto
-     * @return HttpStatus.CREATED
      */
     @Transactional
     public void signUp(SignUpServiceRequest signUpServiceRequest) {
 
         Optional<Member> existMember = memberRepository.findByEmail(signUpServiceRequest.getEmail());
 
-        if (existMember.isPresent()) throw new CustomException(ErrorCode.EMAIL_ALREADY_EXIST);
+        if (existMember.isPresent()) {  // 이미 존재하는 이메일로 회원가입 요청
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXIST);
+        }
 
         Member member = signUpServiceRequest.toEntity(Paths.get(baseFilePath, basicProfileImageUrl).toString());
 
@@ -59,7 +59,6 @@ public class AuthService {
      * 로그인
      *
      * @param loginServiceRequest 로그인 요청 dto
-     * @return ok
      */
     public TokenDto login(LoginServiceRequest loginServiceRequest) {
 
@@ -78,7 +77,6 @@ public class AuthService {
      *
      * @param request  HttpServletRequest
      * @param response HttpServletResponse
-     * @return ok
      */
     public void logout(HttpServletRequest request, HttpServletResponse response) {
 

@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 @Schema(description = "회원이 북마크한 게시글 리스트 Response")
 public class BookmarkPostListResponse {
-    
-    private Long id;                                // PK
+
+    private String id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
     private Long viewCount;                         // 조회수
@@ -30,9 +30,9 @@ public class BookmarkPostListResponse {
     private String imagePath;                       // 이미지 경로
     private String imageName;                       // 이미지 이름
 
-    public static BookmarkPostListResponse of(Post post) {
-        BookmarkPostListResponse response= BookmarkPostListResponse.builder()
-                .id(post.getId())
+    public static BookmarkPostListResponse of(String postId, Post post) {
+        return BookmarkPostListResponse.builder()
+                .id(postId)
                 .title(post.getTitle())
                 .bodyContent(post.getBodyContent())
                 .viewCount(post.getViewCount())
@@ -44,8 +44,6 @@ public class BookmarkPostListResponse {
                 .imagePath(null)
                 .imageName(null)
                 .build();
-
-        return response;
     }
 
 }

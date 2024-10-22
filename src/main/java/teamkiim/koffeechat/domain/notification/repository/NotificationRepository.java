@@ -21,9 +21,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Page<Notification> findAllByReceiver(Member receiver, Pageable pageable);
 
     @Query("SELECT n FROM Notification n WHERE n.receiver = :receiver AND n.notificationType = :notificationType ")
-    Page<Notification> findALLByReceiverIdAndNotificationType(@Param("receiver") Member receiver, @Param("notificationType") NotificationType notificationType, PageRequest pageRequest);
+    Page<Notification> findAllByReceiverAndNotificationType(@Param("receiver") Member receiver, @Param("notificationType") NotificationType notificationType, PageRequest pageRequest);
 
-    Optional<Notification> findByIdAndReceiverId(Long notiId, Long memberId);
+    Optional<Notification> findByIdAndReceiver(Long notiId, Member member);
 
     int countByReceiverAndIsReadFalse(Member member);
 

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.domain.MemberRole;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -20,7 +21,6 @@ import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 @Service
@@ -33,6 +33,7 @@ public class OAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtil redisUtil;
     private final RestTemplate restTemplate;
+    private final AESCipher aesCipher;
 
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
@@ -48,10 +49,11 @@ public class OAuthService {
 
     /**
      * Access Token으로 네이버 회원 정보 조회
+     *
      * @param accessToken 네이버 인증 서버에서 발급해준 Access Token
      * @return SocialMemberInfoResponse
      */
-    public ResponseEntity<?> getMemberInfoFromNaver(String accessToken){
+    public ResponseEntity<?> getMemberInfoFromNaver(String accessToken) {
 
         String requestURL = "https://openapi.naver.com/v1/nid/me";
 
@@ -68,10 +70,11 @@ public class OAuthService {
 
     /**
      * Access Token으로 카카오 회원 정보 조회
+     *
      * @param accessToken 카카오 인증 서버에서 발급해준 Access Token
      * @return SocialMemberInfoResponse
      */
-    public ResponseEntity<?> getMemberInfoFromKakao(String accessToken){
+    public ResponseEntity<?> getMemberInfoFromKakao(String accessToken) {
 
         String requestURL = "https://kapi.kakao.com/v2/user/me";        //https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api
 
@@ -88,10 +91,11 @@ public class OAuthService {
 
     /**
      * Access Token으로 구글 회원 정보 조회
+     *
      * @param accessToken 구글 인증 서버에서 발급해준 Access Token
      * @return SocialMemberInfoResponse
      */
-    public ResponseEntity<?> getMemberInfoFromGoogle(String accessToken){
+    public ResponseEntity<?> getMemberInfoFromGoogle(String accessToken) {
 
         String requestURL = "https://www.googleapis.com/oauth2/v2/userinfo";
 
@@ -108,10 +112,11 @@ public class OAuthService {
 
     /**
      * 카카오 인증 코드로 Access / Refresh 토큰 발급
+     *
      * @param kakaoAuthServiceRequest 토큰을 발급받기 위해 카카오 인증 서버로 보내야 할 정보들이 담긴 dto
      * @return 구글 인증 서버로 부터 받은 Access, Refresh Token 정보
      */
-    public ResponseEntity<?> getKakaoJWT(KakaoAuthServiceRequest kakaoAuthServiceRequest){
+    public ResponseEntity<?> getKakaoJWT(KakaoAuthServiceRequest kakaoAuthServiceRequest) {
 
         String requestUrl = "https://kauth.kakao.com/oauth/token";
 
@@ -135,10 +140,11 @@ public class OAuthService {
 
     /**
      * 구글 인증 코드로 Access / Refresh 토큰 발급
+     *
      * @param googleAuthServiceRequest 토큰을 발급받기 위해 구글 인증 서버로 보내야 할 정보들이 담긴 dto
      * @return 구글 인증 서버로 부터 받은 Access, Refresh Token 정보
      */
-    public ResponseEntity<?> getGoogleJWT(GoogleAuthServiceRequest googleAuthServiceRequest){
+    public ResponseEntity<?> getGoogleJWT(GoogleAuthServiceRequest googleAuthServiceRequest) {
 
         String requestUrl = "https://oauth2.googleapis.com/token";
 
@@ -161,20 +167,20 @@ public class OAuthService {
 
     /**
      * 소셜 로그인 회원 정보로 회원가입/로그인
+     *
      * @param memberInfoServiceRequest 소셜 로그인 회원의 email, nickname 정보
-     * @param response HttpServletResponse
+     * @param response                 HttpServletResponse
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> loginOrSignUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoServiceRequest, HttpServletResponse response){
+    public ResponseEntity<?> loginOrSignUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoServiceRequest, HttpServletResponse response) throws Exception {
 
         // 만약 가입된 이메일이 있다면 로그인 처리
         Optional<Member> member = memberRepository.findByEmail(memberInfoServiceRequest.getEmail());
 
-        if(member.isPresent()){         // 로그인
+        if (member.isPresent()) {         // 로그인
             loginSocialMember(member.get(), response);
-        }
-        else{                           // 회원가입
+        } else {                           // 회원가입
             Member joinMember = signUpSocialMember(memberInfoServiceRequest);
             loginSocialMember(joinMember, response);
         }
@@ -185,7 +191,7 @@ public class OAuthService {
     /*
     소셜 로그인 회원의 로그인
      */
-    private void loginSocialMember(Member member,HttpServletResponse response){
+    private void loginSocialMember(Member member, HttpServletResponse response) {
 
         String accessToken = jwtTokenProvider.createAccessToken(member.getMemberRole().toString(), member.getId());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
@@ -201,7 +207,7 @@ public class OAuthService {
     /*
     소셜 로그인 회원의 회원가입
      */
-    private Member signUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoSaveRequest){
+    private Member signUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoSaveRequest) {
 
         Member member = Member.builder()
                 .email(memberInfoSaveRequest.getEmail())

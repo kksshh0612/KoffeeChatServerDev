@@ -3,11 +3,15 @@ package teamkiim.koffeechat.domain.tag.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
+import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.tag.domain.PostTag;
 import teamkiim.koffeechat.domain.tag.domain.Tag;
 import teamkiim.koffeechat.domain.tag.repository.PostTagRepository;
 import teamkiim.koffeechat.domain.tag.repository.TagRepository;
+import teamkiim.koffeechat.global.exception.CustomException;
+import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.List;
 
@@ -21,6 +25,7 @@ public class TagService {
 
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
+    private final AESCipher aesCipher;
 
     /**
      * 게시글 태그 추가
@@ -56,5 +61,17 @@ public class TagService {
 
         addTags(post, tagsToAdd);
 
+    }
+
+    public List<TagInfoDto> toTagInfoDtoList(Post post) {
+        return post.getPostTagList().stream()
+                .map(postTag -> {
+                    try {
+                        return TagInfoDto.of(aesCipher.encrypt(postTag.getId()), postTag.getTag());
+                    } catch (Exception e) {
+                        throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+                    }
+
+                }).toList();
     }
 }

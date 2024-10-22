@@ -9,10 +9,6 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.authentication.Authenticator;
-import teamkiim.koffeechat.global.cookie.CookieProvider;
-import teamkiim.koffeechat.global.exception.CustomException;
-import teamkiim.koffeechat.global.exception.ErrorCode;
-import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 
 @Slf4j
 @Component
@@ -31,14 +27,14 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         log.info("AuthInterceptor / preHandle 진입 요청 URI: " + request.getRequestURI());
 
-        if(!(handler instanceof HandlerMethod)) return true;
+        if (!(handler instanceof HandlerMethod)) return true;
 
         HandlerMethod handlerMethod = (HandlerMethod) handler;
 
         Auth auth = handlerMethod.getMethodAnnotation(Auth.class);
 
         // @Auth가 없는 경우 인증 해당 인터셉터에서 인가 작업을 수행하지 않음.
-        if(auth == null) return true;
+        if (auth == null) return true;
 
         String validAccessToken = authenticator.verify(request, response);
 

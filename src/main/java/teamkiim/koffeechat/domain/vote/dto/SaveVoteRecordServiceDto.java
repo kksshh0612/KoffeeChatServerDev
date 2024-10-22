@@ -12,13 +12,13 @@ import teamkiim.koffeechat.domain.vote.domain.VoteItem;
 @Builder
 public class SaveVoteRecordServiceDto {
 
-    private Long id;                                        // 투표 항목 id
+    private String id;                                        // 투표 항목 id
     private String itemText;
     private Long voteCount;
 
-    public static SaveVoteRecordServiceDto of(VoteItem voteItem) {
+    public static SaveVoteRecordServiceDto of(String voteItemId, VoteItem voteItem) {
         return SaveVoteRecordServiceDto.builder()
-                .id(voteItem.getId())
+                .id(voteItemId)
                 .itemText(voteItem.getItemText())
                 .voteCount(voteItem.getVoteCount())
                 .build();

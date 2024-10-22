@@ -146,7 +146,7 @@ public class Authenticator {
     }
 
     /**
-     * 인증이 완료된 유효한 accessToken에서 memberId를 추출
+     * 인증이 완료된 유효한 accessToken에서 암호화된 memberId를 추출
      *
      * @param validAccessToken
      * @return memberId(PK)

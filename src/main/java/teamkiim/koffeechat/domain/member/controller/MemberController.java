@@ -19,7 +19,6 @@ import teamkiim.koffeechat.domain.member.service.MemberService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,13 +30,23 @@ public class MemberController {
     private final AuthService authService;
 
     /**
+     * 사용자 닉네임으로 암호화된 pk 요청
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/{memberId}")
+    @MemberApiDocument.GetMemberPK
+    public ResponseEntity<?> getMemberPK(@PathVariable(value = "memberId") String memberEmailId) throws Exception {
+
+        return ResponseEntity.ok(memberService.getMemberPK(memberEmailId));
+    }
+
+    /**
      * 프로필 사진 등록 (Local 환경)
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/enroll-profile-image/local")
     @MemberApiDocument.SaveProfileImage
-    public ResponseEntity<?> saveProfileImageToLocal(@RequestPart(value = "file") MultipartFile multipartFile,
-                                              HttpServletRequest request) {
+    public ResponseEntity<?> saveProfileImageToLocal(@RequestPart(value = "file") MultipartFile multipartFile, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -64,14 +73,12 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/enroll-skills")
     @MemberApiDocument.EnrollSkills
-    public ResponseEntity<?> enrollSkills(@Valid @RequestBody List<EnrollSkillCategoryRequest> enrollSkillCategoryRequest,
-                                          HttpServletRequest request) {
+    public ResponseEntity<?> enrollSkills(@Valid @RequestBody List<EnrollSkillCategoryRequest> enrollSkillCategoryRequest, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
         List<EnrollSkillCategoryServiceRequest> serviceRequestList = enrollSkillCategoryRequest.stream()
-                .map(EnrollSkillCategoryRequest::toServiceRequest)
-                .collect(Collectors.toList());
+                .map(EnrollSkillCategoryRequest::toServiceRequest).toList();
 
         memberService.enrollSkillCategory(memberId, serviceRequestList);
 
@@ -100,7 +107,7 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile")
     @MemberApiDocument.FindProfile
-    public ResponseEntity<?> findProfile(HttpServletRequest request) {
+    public ResponseEntity<?> findProfile(HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -113,7 +120,7 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile/{profileMemberId}")
     @MemberApiDocument.FindMemberProfile
-    public ResponseEntity<?> findProfile(@PathVariable(value = "profileMemberId") Long profileMemberId, HttpServletRequest request) {
+    public ResponseEntity<?> findProfile(@PathVariable("profileMemberId") String profileMemberId, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -126,7 +133,7 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/email")
     @MemberApiDocument.SendNewAuthEmail
-    public ResponseEntity<?> sendNewAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest, HttpServletRequest request) {
+    public ResponseEntity<?> sendNewAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -175,7 +182,8 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/password")
     @MemberApiDocument.UpdatePasswordApiDoc
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest passwordRequest, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody UpdatePasswordRequest passwordRequest,
+                                            HttpServletRequest request, HttpServletResponse response) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

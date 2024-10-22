@@ -18,11 +18,11 @@ import java.util.List;
 @Builder
 public class DevPostResponse {
 
-    private Long id;
+    private String id;
     private String title;
     private String bodyContent;
 
-    private Long memberId;
+    private String memberId;  //글 작성자의 암호화된 pk
     private String nickname;
     private String profileImageUrl;
     private boolean isMemberWritten;
@@ -41,14 +41,14 @@ public class DevPostResponse {
     private List<TagInfoDto> tagInfoDtoList;
     private List<CommentInfoDto> commentInfoDtoList;
 
-    public static DevPostResponse of(DevPost devPost, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
+    public static DevPostResponse of(String postId, DevPost devPost, String memberId, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
                                      boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
 
         return DevPostResponse.builder()
-                .id(devPost.getId())
+                .id(postId)
                 .title(devPost.getTitle())
                 .bodyContent(devPost.getBodyContent())
-                .memberId(devPost.getMember().getId())
+                .memberId(memberId)
                 .nickname(devPost.getMember().getNickname())
                 .profileImageUrl(devPost.getMember().getProfileImageUrl())
                 .isMemberWritten(isMemberWritten)

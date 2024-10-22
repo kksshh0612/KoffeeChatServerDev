@@ -6,7 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
+import teamkiim.koffeechat.domain.comment.service.CommentService;
 import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -33,7 +35,6 @@ import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,15 +53,18 @@ public class CommunityPostService {
     private final NotificationService notificationService;
     private final PostService postService;
     private final TagService tagService;
+    private final CommentService commentService;
+
+    private final AESCipher aesCipher;
 
     /**
      * 게시글 최초 임시 저장
      *
      * @param memberId 작성자 PK
-     * @return Long 게시글 PK
+     * @return 암호화된 게시글 PK
      */
     @Transactional
-    public Long saveInitCommunityPost(Long memberId) {
+    public String saveInitCommunityPost(Long memberId) throws Exception {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -72,7 +76,7 @@ public class CommunityPostService {
 
         CommunityPost saveCommunityPost = communityPostRepository.save(communityPost);
 
-        return saveCommunityPost.getId();
+        return aesCipher.encrypt(saveCommunityPost.getId());
     }
 
     /**
@@ -81,9 +85,9 @@ public class CommunityPostService {
      * @param postId 게시글 PK
      */
     @Transactional
-    public void cancelWriteCommunityPost(Long postId) {
+    public void cancelWriteCommunityPost(String postId) throws Exception {
 
-        CommunityPost communityPost = communityPostRepository.findById(postId)
+        CommunityPost communityPost = communityPostRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         postFileService.deleteImageFiles(communityPost);
@@ -95,15 +99,14 @@ public class CommunityPostService {
      * 게시글 저장
      *
      * @param postRequest 게시글 저장 dto
-     * @return CommunityPostResponse
      */
     @Transactional
-    public void saveCommunityPost(Long postId, SaveCommunityPostRequest postRequest, Long memberId, LocalDateTime createdTime) {
+    public void saveCommunityPost(String postId, SaveCommunityPostRequest postRequest, Long memberId, LocalDateTime createdTime) throws Exception {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        SaveCommunityPostServiceRequest postServiceRequest = postRequest.toPostServiceRequest(postId);
+        SaveCommunityPostServiceRequest postServiceRequest = postRequest.toPostServiceRequest(aesCipher.decrypt(postId));
 
         CommunityPost communityPost = communityPostRepository.findById(postServiceRequest.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -146,7 +149,14 @@ public class CommunityPostService {
 
         Page<CommunityPost> communityPostList = searchFilter(keyword, tagContents, pageRequest);
 
-        return communityPostList.stream().map(CommunityPostListResponse::of).toList();
+        return communityPostList.stream().map(post -> {
+            try {
+                List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
+                return CommunityPostListResponse.of(aesCipher.encrypt(post.getId()), post, tagList);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
+            }
+        }).toList();
     }
 
     private Page<CommunityPost> searchFilter(String keyword, List<String> tagContents, PageRequest pageRequest) {
@@ -168,51 +178,51 @@ public class CommunityPostService {
      * @return CommunityPostResponse
      */
     @Transactional
-    public CommunityPostResponse findPost(Long postId, Long memberId, HttpServletRequest request) {
+    public CommunityPostResponse findPost(String postId, Long memberId, HttpServletRequest request) throws Exception {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        CommunityPost communityPost = communityPostRepository.findById(postId)
+        CommunityPost communityPost = communityPostRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (communityPost.isEditing() || communityPost.isDeleted()) {
             throw new CustomException(ErrorCode.POST_NOT_FOUND);
         }
 
-        List<CommentInfoDto> commentInfoDtoList = communityPost.getCommentList().stream()
-                .map(comment -> CommentInfoDto.of(comment, memberId)).toList();
+        List<CommentInfoDto> commentInfoDtoList = commentService.toCommentDtoList(communityPost, memberId);
 
         Optional<Vote> vote = voteRepository.findByPost(communityPost);
         VoteResponse voteResponse = vote.map(value -> VoteResponse.of(value, voteService.hasMemberVoted(value, member))).orElse(null);
 
-        List<TagInfoDto> tagInfoDtoList = communityPost.getPostTagList().stream()
-                .map(postTag -> TagInfoDto.of(postTag.getTag())).toList();
+        List<TagInfoDto> tagInfoDtoList = tagService.toTagInfoDtoList(communityPost);
 
         boolean isMemberLiked = postLikeService.isMemberLiked(communityPost, member);
         boolean isMemberBookmarked = bookmarkService.isMemberBookmarked(member, communityPost);
         boolean isMemberWritten = memberId.equals(communityPost.getMember().getId());
 
         //글 작성자 이외의 회원이 글을 읽었을 때 조회수 관리
-        if (!isMemberWritten) postService.viewPost(communityPost, request);
+        if (!isMemberWritten) {
+            postService.viewPost(communityPost, request);
+        }
 
-        return CommunityPostResponse.of(communityPost, tagInfoDtoList, commentInfoDtoList, voteResponse, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return CommunityPostResponse.of(aesCipher.encrypt(communityPost.getId()), aesCipher.encrypt(communityPost.getMember().getId()), communityPost,
+                tagInfoDtoList, commentInfoDtoList, voteResponse, isMemberLiked, isMemberBookmarked, isMemberWritten);
     }
 
     /**
      * 게시글 수정
      *
      * @param modifyCommunityPostServiceRequest 게시글 수정 dto
-     * @return CommunityPostResponse
      */
     @Transactional
-    public void modifyPost(ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest,
-                           ModifyVoteServiceRequest modifyVoteServiceRequest, Long memberId) {
+    public void modifyPost(String postId, ModifyCommunityPostServiceRequest modifyCommunityPostServiceRequest,
+                           ModifyVoteServiceRequest modifyVoteServiceRequest, Long memberId) throws Exception {
 
         memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        CommunityPost communityPost = communityPostRepository.findById(modifyCommunityPostServiceRequest.getId())
+        CommunityPost communityPost = communityPostRepository.findById(aesCipher.decrypt(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (communityPost.isEditing() || communityPost.isDeleted()) {

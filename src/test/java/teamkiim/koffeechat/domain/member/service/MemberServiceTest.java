@@ -6,14 +6,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.TestSupport;
-import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.service.local.LocalFileStorageControlService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.domain.MemberRole;
@@ -31,8 +27,6 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest extends TestSupport {
@@ -265,7 +259,7 @@ class MemberServiceTest extends TestSupport {
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBER_NOT_FOUND);
     }
 
-    private Member createMember(String email){
+    private Member createMember(String email) {
         return Member.builder()
                 .email(email)
                 .password("test")

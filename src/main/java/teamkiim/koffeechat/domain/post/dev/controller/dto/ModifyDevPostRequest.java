@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
-import teamkiim.koffeechat.domain.post.dev.domain.ParentSkillCategory;
+import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceRequest;
 
 import java.util.List;
@@ -29,11 +28,9 @@ public class ModifyDevPostRequest {
     @Schema(description = "시각 자료", example = "")      // 필수 아님
     private String visualData;
 
-    @Schema(description = "개발 게시글 연관 카테고리")
+    @Schema(description = "개발 게시글 연관 기술 카테고리")
     @NotEmpty(message = "기술 카테고리는 최소 하나 이상 선택해야 합니다.")
-    private List<ParentSkillCategory> parentSkillCategoryList;
-    @NotEmpty(message = "기술 카테고리는 최소 하나 이상 선택해야 합니다.")
-    private List<ChildSkillCategory> childSkillCategoryList;
+    private List<SkillCategory> skillCategoryList;
 
     @Schema(description = "게시글 관련 파일 리스트")
     private List<Long> fileIdList;
@@ -41,14 +38,12 @@ public class ModifyDevPostRequest {
     @Schema(description = "개발 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
 
-    public ModifyDevPostServiceRequest toServiceRequest(Long postId) {
+    public ModifyDevPostServiceRequest toServiceRequest() {
         return ModifyDevPostServiceRequest.builder()
-                .id(postId)
                 .title(this.title)
                 .bodyContent(this.bodyContent)
                 .visualData(this.visualData)
-                .parentSkillCategoryList(this.parentSkillCategoryList)
-                .childSkillCategoryList(this.childSkillCategoryList)
+                .skillCategoryList(this.skillCategoryList)
                 .fileIdList(this.fileIdList)
                 .tagContentList(this.tagContentList)
                 .build();

@@ -29,7 +29,7 @@ public class ChatNotificationService {
      */
     private void sendNotification(String emitterId, SseEmitter emitter, String eventId, Object response) {
         try {
-            emitter.send(SseEmitter.event().name("chat").id(eventId).data(response));
+            emitter.send(SseEmitter.event().id(eventId).name("chat").data(response));
         } catch (IOException e) {
             log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId, e.getMessage());
             emitter.completeWithError(e);
@@ -43,7 +43,7 @@ public class ChatNotificationService {
     public void createChatNotification(ChatMessageServiceRequest chatMessageServiceRequest,
                                        Long chatRoomId, Long senderId, List<Long> receiverIds) {
 
-        for(Long receiverId : receiverIds) {
+        for (Long receiverId : receiverIds) {
             String eventId = receiverId + "_" + System.currentTimeMillis();   //eventId 생성
 
             Map<String, SseEmitterWrapper> emitters = emitterRepository.findReceiveEmitterByReceiverId(String.valueOf(receiverId));  //알림 수신 설정 되어있는 emitter 확인

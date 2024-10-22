@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.repository.Query;
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
 
