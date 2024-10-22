@@ -47,19 +47,4 @@ public class DirectChatRoomController {
         return ResponseEntity.ok(directChatRoomService.openChatRoom(chatRoomId, size, memberId));
     }
 
-    /**
-     * 채팅방 닫기
-     */
-    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
-            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @GetMapping("/close/{chatRoomId}")
-    public ResponseEntity<?> close(@PathVariable Long chatRoomId, HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-        LocalDateTime now = LocalDateTime.now();
-
-        directChatRoomService.closeChatRoom(chatRoomId, memberId, now);
-
-        return ResponseEntity.ok("");
-    }
 }

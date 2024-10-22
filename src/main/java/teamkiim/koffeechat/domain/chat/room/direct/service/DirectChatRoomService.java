@@ -92,7 +92,7 @@ public class DirectChatRoomService {
     }
 
     /**
-     * 일대일 채팅방 오픈 (존재하면 채팅 데이터 조회 / 존재하지 않으면 생성)
+     * 일대일 채팅방 오픈 - 입장 시 채팅 데이터 조회
      * @param chatRoomId
      * @return List<ChatMessageResponse>
      */
@@ -125,21 +125,6 @@ public class DirectChatRoomService {
         chatNotificationService.offChatRoomNotification(member.getId(), directChatRoom.getId());
 
         return chatMessageResponseList;
-    }
-
-    @Transactional
-    public void closeChatRoom(Long chatRoomId, Long memberId, LocalDateTime closeTime){
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        ChatRoom chatRoom = directChatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
-
-        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndChatRoom(member, chatRoom)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
-
-        memberChatRoom.updateCloseTime(closeTime);
     }
 
 }
