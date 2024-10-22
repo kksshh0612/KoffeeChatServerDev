@@ -54,14 +54,10 @@ public class ChatRoomService {
 
         chatNotificationService.startNotifications(memberId);
 
-//        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Order.desc("lastMessageTime").nullsLast()));      // 커서 기반이기 때문에 page 설정 안하기 위함.
-
-        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         List<MemberChatRoom> memberChatRoomList =
                 memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, pageRequest).getContent();
 
-//        List<MemberChatRoom> memberChatRoomList =
-//                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, cursorId, pageRequest).getContent();
 
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 
@@ -158,7 +154,6 @@ public class ChatRoomService {
                 .build();
 
         chatMessageService.saveTextMessage(chatMessageServiceRequest, chatRoomId, memberId);
-        chatMessageService.send(chatMessageServiceRequest, chatRoomId, memberId);
 
         // memberChatRoom 삭제
         memberChatRoomRepository.delete(memberChatRoom);

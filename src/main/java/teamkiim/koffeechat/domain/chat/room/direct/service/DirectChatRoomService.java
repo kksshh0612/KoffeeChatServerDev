@@ -97,15 +97,13 @@ public class DirectChatRoomService {
      * @return List<ChatMessageResponse>
      */
     @Transactional
-    public List<ChatMessageResponse> openChatRoom(Long chatRoomId, int page, int size, Long memberId){
+    public List<ChatMessageResponse> openChatRoom(Long chatRoomId, int size, Long memberId){
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         DirectChatRoom directChatRoom = directChatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
         List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByChatRoom(directChatRoom);
 
@@ -114,7 +112,10 @@ public class DirectChatRoomService {
                 .map(MemberChatRoom::getMember)
                 .toList();
 
-        List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(directChatRoom.getId(), pageRequest).getContent();
+        PageRequest pageRequest = PageRequest.of(0, size);
+
+        // cursor 기반 페이징
+        List<ChatMessage> messageList = chatMessageRepository.findLatestMessage(chatRoomId, pageRequest).getContent();
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
                 .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList, memberId))
