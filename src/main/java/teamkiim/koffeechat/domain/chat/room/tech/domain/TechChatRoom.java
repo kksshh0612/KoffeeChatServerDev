@@ -16,16 +16,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class TechChatRoom extends ChatRoom {
 
-    private int memberCount;                // 채팅방 참여자 수
+    private int currentMemberSize;                // 채팅방 참여자 수
+
+    private int maxMemberSize;             // 최대 참여자 수
 
     @Embedded
     private SkillCategory skillCategory;
 
     @Builder
-    public TechChatRoom(ChatRoomType chatRoomType, String name, LocalDateTime lastMessageTime, int memberCount, SkillCategory skillCategory) {
-
+    public TechChatRoom(ChatRoomType chatRoomType, String name, LocalDateTime lastMessageTime, int currentMemberSize,
+                        int maxMemberSize, SkillCategory skillCategory) {
         super(chatRoomType, name, lastMessageTime);
-        this.memberCount = memberCount;
+        this.currentMemberSize = currentMemberSize;
+        this.maxMemberSize = maxMemberSize;
         this.skillCategory = skillCategory;
     }
 
@@ -35,13 +38,13 @@ public class TechChatRoom extends ChatRoom {
      * 채팅방 참여자 수 증가
      */
     public void increaseMemberCount(){
-        memberCount++;
+        currentMemberSize++;
     }
 
     /**
      * 채팅방 참여자 수 감소
      */
     public void decreaseMemberCount(){
-        memberCount--;
+        currentMemberSize--;
     }
 }

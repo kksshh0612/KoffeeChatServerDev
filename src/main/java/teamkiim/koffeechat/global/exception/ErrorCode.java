@@ -51,6 +51,7 @@ public enum ErrorCode {
     VOTE_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 투표되었습니다."),
     CORP_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 회사 도메인입니다."),
     CORP_DOMAIN_WAITING(HttpStatus.CONFLICT, "등록 요청이 되어있는 도메인입니다. 도메인 승인이 되면 다시 인증해주세요."),
+    CHAT_ROOM_ALREADY_FULL(HttpStatus.CONFLICT, "이미 가득 찬 채팅방입니다. 관리자에게 문의하세요."),
 
     // 500 INTERNAL_SERVER_ERROR
     JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "소셜 로그인 사용자 정보 json 파싱 에러"),

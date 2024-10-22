@@ -16,16 +16,16 @@ import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 @Builder
 public class CreateTechChatRoomServiceRequest {
 
-    private String name;
     private ParentSkillCategory parentSkillCategory;
     private ChildSkillCategory childSkillCategory;
 
-    public TechChatRoom toEntity(){
+    public TechChatRoom toEntity(int maxMemberSize){
         return TechChatRoom.builder()
                 .chatRoomType(ChatRoomType.TECH)
-                .name(name)
+                .name(childSkillCategory.getName())
                 .lastMessageTime(null)
-                .memberCount(1)
+                .currentMemberSize(0)
+                .maxMemberSize(maxMemberSize)
                 .skillCategory(new SkillCategory(parentSkillCategory, childSkillCategory))
                 .build();
     }

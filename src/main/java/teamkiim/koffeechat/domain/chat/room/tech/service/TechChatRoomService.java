@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.domain.chat.room.tech.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,9 @@ public class TechChatRoomService {
     private final MemberChatRoomRepository memberChatRoomRepository;
     private final ChatMessageService chatMessageService;
 
+    private final static int MAX_MEMBER_SIZE = 100;
+    private final static int MIN_REQUIRED_MEMBER_SIZE = 90;
+
     /**
      * 기술 채팅방 생성
      * @param createTechChatRoomServiceRequest
@@ -41,7 +45,16 @@ public class TechChatRoomService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity();
+        List<TechChatRoom> existTechChatRoomList = techChatRoomRepository.findByChildSkillCategory(
+                createTechChatRoomServiceRequest.getChildSkillCategory());
+
+        for(TechChatRoom techChatRoom : existTechChatRoomList){
+            if(techChatRoom.getCurrentMemberSize() < MIN_REQUIRED_MEMBER_SIZE){
+                throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_EXIST);
+            }
+        }
+
+        TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity(MAX_MEMBER_SIZE);
 
         techChatRoomRepository.save(techChatRoom);
 
@@ -65,6 +78,10 @@ public class TechChatRoomService {
 
         TechChatRoom techChatRoom = techChatRoomRepository.findById(enterTechChatRoomServiceRequest.getChatRoomId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        if(techChatRoom.getCurrentMemberSize() >= MAX_MEMBER_SIZE){
+            throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_FULL);
+        }
 
         MemberChatRoom memberChatRoom = MemberChatRoom.builder()
                 .chatRoom(techChatRoom)
