@@ -20,8 +20,9 @@ public class ChatMessageServiceRequest {
     private String content;
     private LocalDateTime createdTime;
 
-    public ChatMessage toEntity(Long chatRoomId, Long senderId){
+    public ChatMessage toEntity(Long seqId, Long chatRoomId, Long senderId){
         return ChatMessage.builder()
+                .seqId(seqId)
                 .chatRoomId(chatRoomId)
                 .content(this.content)
                 .senderId(senderId)

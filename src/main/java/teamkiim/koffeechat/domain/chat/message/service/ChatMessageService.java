@@ -30,6 +30,7 @@ public class ChatMessageService {
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
     /**
      * 채팅 메세지 저장
@@ -40,7 +41,10 @@ public class ChatMessageService {
     @Transactional
     public ChatMessageServiceRequest saveTextMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
 
-        ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
+        Long seqId = sequenceGeneratorService.generateSequence("chat_message_seq");         // 순차 id 부여
+
+        ChatMessage chatMessage = messageRequest.toEntity(seqId, chatRoomId, senderId);
+
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
@@ -49,18 +53,23 @@ public class ChatMessageService {
         chatRoom.updateLastMessageTime(messageRequest.getCreatedTime());            // 가장 최근 메세지 전송 시간 업데이트
 
         messageRequest.setMessageId(savedMessage.getId());
+
         return messageRequest;
     }
 
     public void saveSourceCodeMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
 
-        ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
+        Long seqId = sequenceGeneratorService.generateSequence("chat_message_seq");         // 순차 id 부여
+
+        ChatMessage chatMessage = messageRequest.toEntity(seqId, chatRoomId, senderId);
         chatMessageRepository.save(chatMessage);
     }
 
     public void saveImageMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId){
 
-        ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
+        Long seqId = sequenceGeneratorService.generateSequence("chat_message_seq");         // 순차 id 부여
+
+        ChatMessage chatMessage = messageRequest.toEntity(seqId, chatRoomId, senderId);
         chatMessageRepository.save(chatMessage);
     }
 
@@ -93,8 +102,4 @@ public class ChatMessageService {
         return dtoList;
     }
 
-    public long countUnreadMessageCount(MemberChatRoom memberChatRoom) {
-
-        return chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(), memberChatRoom.getCloseTime());
-    }
 }
