@@ -82,7 +82,6 @@ public class TechChatRoomService {
                 .build();
 
         chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), null);
-        chatMessageService.send(messageRequest, techChatRoom.getId(), null);
     }
 
     /**
@@ -112,6 +111,5 @@ public class TechChatRoomService {
                 .build();
 
         chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), member.getId());
-        chatMessageService.send(messageRequest, techChatRoom.getId(), member.getId());
     }
 }

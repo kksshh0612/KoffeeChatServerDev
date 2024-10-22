@@ -30,12 +30,6 @@ public class ChatMessageResponse {
 
         Member sender = joinMembers.stream().filter(m -> m.getId().equals(chatMessage.getSenderId())).findFirst().orElse(null);
 
-//        String senderNickname = members.stream()
-//                .filter(member -> member.getId().equals(chatMessage.getSenderId()))
-//                .map(Member::getNickname)
-//                .findFirst()
-//                .orElse("(Unknown)");
-
         boolean isLoginMember = chatMessage.getSenderId().equals(loginMemberId);
 
         return ChatMessageResponse.builder()
@@ -49,5 +43,18 @@ public class ChatMessageResponse {
                 .createdTime(chatMessage.getCreatedTime())
                 .build();
 
+    }
+
+    public static ChatMessageResponse of(ChatMessage chatMessage, Member sender) {
+        return ChatMessageResponse.builder()
+                .messageId(chatMessage.getId())
+                .messageType(chatMessage.getMessageType())
+                .content(chatMessage.getContent())
+                .senderId(chatMessage.getSenderId())
+                .senderNickname(sender.getNickname())
+                .profileImageUrl(sender.getProfileImageUrl())
+                .isLoginMember(true)
+                .createdTime(chatMessage.getCreatedTime())
+                .build();
     }
 }
