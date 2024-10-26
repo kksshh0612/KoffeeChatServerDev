@@ -42,3 +42,5 @@ logging:
 #    org.springframework.data.mongodb.core: info
 #    org.mongodb.driver: debug
 
+file-path: 'C:\coffeeChatFile'
+basic-profile-image-url: 'PROFILE\basic_profile_image.png'
