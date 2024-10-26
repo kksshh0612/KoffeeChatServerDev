@@ -21,9 +21,8 @@ spring:
       host: localhost
       port: 27017
       database: koffeechat
-      username: kksshh0612
-      password: kksshh1735
-      #      uri: mongodb://kksshh0612:kksshh1735@localhost:27017/koffeechat_test
+      username: ${SPRING_DATA_MONGODB_USERNAME}
+      password: ${SPRING_DATA_MONGODB_PASSWORD}
       authentication-database: admin
 
   jpa:
@@ -44,4 +43,5 @@ logging:
 #    org.mongodb.driver: debug
 
 file-path: 'C:\coffeeChatFile'
-basic-profile-image-url: 'PROFILE\basic_profile_image.png'
+basic-profile-image-url: ${BASIC_PROFILE_IMAGE_URL}
+
