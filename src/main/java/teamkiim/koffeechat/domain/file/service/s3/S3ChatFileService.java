@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Profile("dev")
+@Profile("prod")
 public class S3ChatFileService implements ChatFileService {
 
     private final ChatFileRepository chatFileRepository;

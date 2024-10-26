@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Component
 @RequiredArgsConstructor
-@Profile("dev")
+@Profile("prod")
 public class S3FileStorageControlService implements FileStorageService {
 
     private final AmazonS3Client amazonS3Client;
