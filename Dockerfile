@@ -15,10 +15,13 @@ FROM openjdk:21-jdk-slim AS runner
 
 WORKDIR /app
 
-# 프로젝트를 빌드한 파일을 첫 번째 단계에서 복사
-COPY --from=builder /app/build/libs/koffeeChat-0.0.1-SNAPSHOT.jar koffeecChat-server.jar
+ARG JAR_FILE=./build/libs/koffeeChat-0.0.1-SNAPSHOT.jar
 
-EXPOSE 8080
+# 컨테이너 WORKDIR 위치에 jar 파일 복사
+COPY ${JAR_FILE} koffeeChat-server.jar
+
+# 프로젝트를 빌드한 파일을 첫 번째 단계에서 복사
+#COPY --from=builder /app/build/libs/koffeeChat-0.0.1-SNAPSHOT.jar koffeecChat-server.jar
 
 # Entry point 설정
 ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILE}", "-jar", "koffeeChat-server.jar"]
