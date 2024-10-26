@@ -1,5 +1,5 @@
 # 빌드 단계 - 별칭 builder
-FROM gradle:8.5-jdk21-alpine as builder
+FROM gradle:8.5-jdk21-alpine AS builder
 
 WORKDIR /app
 COPY . .
@@ -11,7 +11,7 @@ RUN chmod +x gradlew
 RUN ./gradlew clean build -x test
 
 # 실행 단계 - 별칭 runner
-FROM openjdk:21-jdk-slim as runner
+FROM openjdk:21-jdk-slim AS runner
 
 WORKDIR /app
 
@@ -21,4 +21,4 @@ COPY --from=builder /app/build/libs/koffeeChat-0.0.1-SNAPSHOT.jar koffeecChat-se
 EXPOSE 8080
 
 # Entry point 설정
-ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILE}", "-jar", "koffeechat-server.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILE}", "-jar", "koffeeChat-server.jar"]
