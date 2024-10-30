@@ -19,6 +19,7 @@ spring:
 
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI}
+      username: ${SPRING_DATA_MONGO_USERNAME}
 
   jpa:
     hibernate:
@@ -37,3 +38,5 @@ logging:
 #    org.springframework.data.mongodb.core: info
 #    org.mongodb.driver: debug
 
+file-path: ${FILE_PATH}
+basic-profile-image-url: ${BASIC_PROFILE_IMAGE_URL}
