@@ -35,8 +35,9 @@ logging:
   level:
     org.hibernate.SQL: info    # 하이버네이트가 생성하는 sql 로그로 출력
     org.hibernate.orm.jdbc.bind: info    # 쿼리 파라미터 로그 남김
-#    org.springframework.data.mongodb.core: info
-#    org.mongodb.driver: debug
+    org.springframework.data.mongodb.core: off
+    org.mongodb.driver: off
+    root: debug
 
 file-path: ${FILE_PATH}
 basic-profile-image-url: ${BASIC_PROFILE_IMAGE_URL}
