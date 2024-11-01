@@ -55,8 +55,8 @@ public class CookieProvider {
                 .domain("koffeechat.site")
                 .maxAge(expTime)
                 .httpOnly(true)
-                .secure(false)
-//                .sameSite("None")
+                .secure(true)
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
@@ -85,8 +85,8 @@ public class CookieProvider {
                 .domain("koffeechat.site")
                 .maxAge(expTime)
                 .httpOnly(true)
-                .secure(false)
-//                .sameSite("None")
+                .secure(true)
+                .sameSite("None")
                 .build();
 
         response.getHeaders().add(HttpHeaders.SET_COOKIE, cookie.toString());
