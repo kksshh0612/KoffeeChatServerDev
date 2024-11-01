@@ -14,7 +14,7 @@ import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
+import teamkiim.koffeechat.domain.post.common.domain.SortType;
 import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
@@ -128,10 +128,10 @@ public class DevPostService {
      * @param tagContents            검색된 태그들
      * @return DevPostSearchListResponse
      */
-    public List<DevPostListResponse> getDevPostList(SortCategory sortType, int page, int size,
+    public List<DevPostListResponse> getDevPostList(String sortType, int page, int size,
                                                     String keyword, List<ChildSkillCategory> childSkillCategoryList, List<String> tagContents) {
 
-        PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
+        PageRequest pageRequest = postService.sortBySortCategory(SortType.valueOf(sortType), "id", "likeCount", "viewCount", page, size);
 
         Page<DevPost> devPostList = searchFilter(keyword, childSkillCategoryList, tagContents, pageRequest);
 

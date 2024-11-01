@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
 import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
+import teamkiim.koffeechat.domain.post.common.domain.SortType;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
@@ -71,7 +71,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/bookmark/{postType}/{sortType}")
     @PostApiDocument.BookmarkedPostListApiDoc
-    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
+    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortType sortType,
                                                     @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
@@ -87,7 +87,7 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postType}/{sortType}")
     @PostApiDocument.MyPostListApiDoc
-    public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
+    public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortType sortType,
                                             @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
