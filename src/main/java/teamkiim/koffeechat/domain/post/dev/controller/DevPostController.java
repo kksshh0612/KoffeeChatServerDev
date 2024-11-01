@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
+import teamkiim.koffeechat.domain.post.common.domain.SortType;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -79,7 +79,7 @@ public class DevPostController {
      */
     @GetMapping("")
     @DevPostApiDocument.GetDevPostList
-    public ResponseEntity<?> getDevPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
+    public ResponseEntity<?> getDevPostList(@RequestParam("sortType") String sortType, @RequestParam("page") int page, @RequestParam("size") int size,
                                             @RequestParam(value = "word", required = false) String keyword,
                                             @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList,
                                             @RequestParam(value = "tag", required = false) List<String> tagContents) {
