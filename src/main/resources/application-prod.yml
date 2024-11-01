@@ -39,5 +39,8 @@ logging:
     org.mongodb.driver: off
     root: debug
 
+server:
+  forward-headers-strategy: framework
+
 file-path: ${FILE_PATH}
 basic-profile-image-url: ${BASIC_PROFILE_IMAGE_URL}

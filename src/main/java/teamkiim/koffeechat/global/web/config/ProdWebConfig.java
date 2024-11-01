@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.*;
@@ -35,6 +36,11 @@ public class ProdWebConfig implements WebMvcConfigurer {
     @Bean
     public MultipartResolver multipartResolver(){
         return new StandardServletMultipartResolver();
+    }
+
+    @Bean
+    ForwardedHeaderFilter forwardedHeaderFilter(){
+        return new ForwardedHeaderFilter();
     }
 
     @Override
