@@ -49,12 +49,12 @@ public class ChatRoomController {
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @GetMapping("/message/{chatRoomId}")
     public ResponseEntity<?> open(@PathVariable("chatRoomId") Long chatRoomId,
-                                  @RequestParam("cursor") Long cursor, @RequestParam("size") int size,
+                                  @RequestParam(value = "cursor", required = false) Long cursorId, @RequestParam("size") int size,
                                   HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(chatMessageService.getChatMessages(chatRoomId, cursor, size, memberId));
+        return ResponseEntity.ok(chatMessageService.getChatMessages(chatRoomId, cursorId, size, memberId));
     }
 
 
