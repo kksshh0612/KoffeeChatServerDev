@@ -133,9 +133,7 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        String originalFilename = multipartFile.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String fileName = UUID.randomUUID() + "_" + originalFilename + extension;
+        String fileName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
 
         // 이미 등록된 프로필 이미지 있으면 삭제
         if (member.getProfileImageUrl() != null && !member.getProfileImageUrl().equals("koffeechat.site/basic_profile_image.png")) {
