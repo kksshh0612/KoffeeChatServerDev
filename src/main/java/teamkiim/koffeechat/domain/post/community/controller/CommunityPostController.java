@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListResponse;
@@ -89,7 +88,7 @@ public class CommunityPostController {
      */
     @GetMapping("")
     @CommunityPostApiDocument.GetCommunityPostListApiDoc
-    public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortCategory sortType,
+    public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortType sortType,
                                                   @RequestParam("page") int page, @RequestParam("size") int size,
                                                   @RequestParam(value = "word", required = false) String keyword,
                                                   @RequestParam(value = "tag", required = false) List<String> tagContents) {

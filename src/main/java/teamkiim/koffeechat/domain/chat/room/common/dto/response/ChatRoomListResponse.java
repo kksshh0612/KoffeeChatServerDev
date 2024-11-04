@@ -15,6 +15,7 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 @Builder
 public class ChatRoomListResponse {
 
+    private String memberId;
     private String chatRoomId;
     private ChatRoomType chatRoomType;
     private String chatRoomName;
@@ -25,7 +26,7 @@ public class ChatRoomListResponse {
     private String profileImageUrl;
 
     public static ChatRoomListResponse of(String chatRoomId, ChatRoomInfoDto chatRoomInfo, String oppositeMemberId,
-                                          Member oppositeMember) {
+                                          Member oppositeMember, String memberId) {
 
         String roomName = chatRoomInfo.getMemberChatRoom().getChatRoom().getName();
 
@@ -34,6 +35,7 @@ public class ChatRoomListResponse {
         }
 
         return ChatRoomListResponse.builder()
+                .memberId(memberId)
                 .chatRoomId(chatRoomId)
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
                 .chatRoomName(roomName)

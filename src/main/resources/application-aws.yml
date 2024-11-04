@@ -10,4 +10,4 @@ cloud:
     stack:
       auto: false       # AWS 리소스 자동 설정 false
 
-domain-name: "domain"
+domain-name: 'koffeechat.site'

@@ -16,12 +16,10 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
 import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
-import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
@@ -125,7 +123,7 @@ public class PostService {
      * @return List<BookmarkPostListResponse>
      */
     public List<BookmarkPostListResponse> findBookmarkPostList(Long memberId, PostCategory postCategory,
-                                                               SortCategory sortType, int page, int size) {
+                                                               SortType sortType, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -152,7 +150,7 @@ public class PostService {
      * @param size         페이지 당 조회할 데이터 수
      * @return List<BookmarkPostListResponse>
      */
-    public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postCategory, SortCategory sortType,
+    public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postCategory, SortType sortType,
                                                    int page, int size) {
 
         Member member = memberRepository.findById(memberId)
@@ -183,7 +181,7 @@ public class PostService {
     /**
      * 게시글 정렬 (최신순 | 좋아요순 | 조회순)
      */
-    public PageRequest sortBySortCategory(SortCategory sortType, String newRequest, String likeRequest,
+    public PageRequest sortBySortCategory(SortType sortType, String newRequest, String likeRequest,
                                           String viewRequest, int page, int size) {
         return switch (sortType) {
             case NEW -> PageRequest.of(page, size, Sort.by(DESC, newRequest));

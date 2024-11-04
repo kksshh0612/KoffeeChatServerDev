@@ -1,7 +1,7 @@
 package teamkiim.koffeechat.domain.chat.room.tech.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
@@ -20,11 +20,13 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TechChatRoomService {
+
+    private final static int MAX_MEMBER_SIZE = 100;
+    private final static int MIN_REQUIRED_MEMBER_SIZE = 90;
 
     private final TechChatRoomRepository techChatRoomRepository;
     private final MemberRepository memberRepository;
@@ -40,14 +42,23 @@ public class TechChatRoomService {
      * @param memberId                         채팅방 생성을 요청한 사용자 PK
      */
     @Transactional
-    public String createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, Long memberId) {
+    public void createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity();
+        List<TechChatRoom> existTechChatRoomList = techChatRoomRepository.findByChildSkillCategory(
+                createTechChatRoomServiceRequest.getChildSkillCategory());
 
-        TechChatRoom techChatRoom1 = techChatRoomRepository.save(techChatRoom);
+        for (TechChatRoom techChatRoom : existTechChatRoomList) {
+            if (techChatRoom.getCurrentMemberSize() < MIN_REQUIRED_MEMBER_SIZE) {
+                throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_EXIST);
+            }
+        }
+
+        TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity(MAX_MEMBER_SIZE);
+
+        techChatRoomRepository.save(techChatRoom);
 
         MemberChatRoom memberChatRoom = MemberChatRoom.builder()
                 .chatRoom(techChatRoom)
@@ -55,8 +66,6 @@ public class TechChatRoomService {
                 .build();
 
         memberChatRoomRepository.save(memberChatRoom);
-
-        return aesCipherUtil.encrypt(techChatRoom1.getId());
     }
 
     /**
@@ -74,6 +83,10 @@ public class TechChatRoomService {
         TechChatRoom techChatRoom = techChatRoomRepository.findById(enterTechChatRoomServiceRequest.getChatRoomId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
+        if (techChatRoom.getCurrentMemberSize() >= MAX_MEMBER_SIZE) {
+            throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_FULL);
+        }
+
         MemberChatRoom memberChatRoom = MemberChatRoom.builder()
                 .chatRoom(techChatRoom)
                 .member(member)
@@ -90,7 +103,6 @@ public class TechChatRoomService {
                 .build();
 
         chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), memberId);
-        chatMessageService.send(messageRequest, techChatRoom.getId(), memberId);
     }
 
     /**
@@ -122,6 +134,5 @@ public class TechChatRoomService {
                 .build();
 
         chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), member.getId());
-        chatMessageService.send(messageRequest, techChatRoom.getId(), member.getId());
     }
 }

@@ -3,7 +3,6 @@ package teamkiim.koffeechat.domain.chat.room.direct.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +45,7 @@ public class DirectChatRoomController {
     }
 
     /**
-     * 채팅방 열기
+     * 채팅방 입장
      */
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
@@ -58,22 +57,7 @@ public class DirectChatRoomController {
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
         Long decryptedChatRoomId = aesCipherUtil.decrypt(chatRoomId);
 
-        return ResponseEntity.ok(directChatRoomService.openChatRoom(decryptedChatRoomId, page, size, memberId));
+        return ResponseEntity.ok(directChatRoomService.openChatRoom(decryptedChatRoomId, size, memberId));
     }
 
-    /**
-     * 채팅방 닫기
-     */
-    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
-            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
-    @GetMapping("/close/{chatRoomId}")
-    public ResponseEntity<?> close(@PathVariable Long chatRoomId, HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-        LocalDateTime now = LocalDateTime.now();
-
-        directChatRoomService.closeChatRoom(chatRoomId, memberId, now);
-
-        return ResponseEntity.ok("");
-    }
 }

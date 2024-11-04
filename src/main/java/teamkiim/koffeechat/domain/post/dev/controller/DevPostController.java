@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
@@ -94,7 +93,7 @@ public class DevPostController {
      */
     @GetMapping("")
     @DevPostApiDocument.GetDevPostList
-    public ResponseEntity<?> getDevPostList(@RequestParam("sortType") SortCategory sortType,
+    public ResponseEntity<?> getDevPostList(@RequestParam("sortType") String sortType,
                                             @RequestParam("page") int page, @RequestParam("size") int size,
                                             @RequestParam(value = "word", required = false) String keyword,
                                             @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList,

@@ -11,7 +11,6 @@ import teamkiim.koffeechat.domain.chat.message.controller.dto.ChatMessageRequest
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
-import teamkiim.koffeechat.domain.chat.room.common.service.ChatRoomService;
 import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
@@ -22,7 +21,6 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
     private final ChatNotificationService chatNotificationService;
     private final ChatRoomManager chatRoomManager;
-    private final ChatRoomService chatRoomService;
 
     private final AESCipherUtil aesCipherUtil;
 
@@ -41,7 +39,8 @@ public class ChatMessageController {
 
         ChatMessageServiceRequest chatMessageServiceRequest = chatMessageService.saveTextMessage(
                 chatMessageRequest.toServiceRequest(createdTime), decryptedChatRoomId, senderId);
-        chatMessageService.send(chatMessageServiceRequest, decryptedChatRoomId, senderId);
+
+        chatMessageService.saveTextMessage(chatMessageServiceRequest, decryptedChatRoomId, senderId);
         chatNotificationService.createChatNotification(chatMessageRequest.toServiceRequest(createdTime),
                 decryptedChatRoomId, senderId, chatRoomMemberIds);
     }
@@ -60,9 +59,7 @@ public class ChatMessageController {
 
         chatMessageService.saveSourceCodeMessage(chatMessageRequest.toServiceRequest(createdTime), decryptedChatRoomId,
                 senderId);
-        chatMessageService.send(chatMessageRequest.toServiceRequest(createdTime), decryptedChatRoomId, senderId);
         chatNotificationService.createChatNotification(chatMessageRequest.toServiceRequest(createdTime),
-                decryptedChatRoomId,
-                senderId, chatRoomMemberIds);
+                decryptedChatRoomId, senderId, chatRoomMemberIds);
     }
 }

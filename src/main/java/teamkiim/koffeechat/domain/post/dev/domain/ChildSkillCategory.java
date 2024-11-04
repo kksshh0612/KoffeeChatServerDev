@@ -17,7 +17,7 @@ public enum ChildSkillCategory {
     SWIFT_UI("SwiftUI"),
     C_SHARP("C#"),
     C("C"),
-    CPP("cpp"),
+    CPP("C++"),
 
     // 프레임워크&라이브러리
     REACT("React"),
@@ -47,12 +47,12 @@ public enum ChildSkillCategory {
     UNREAL_CPP("언리언 C++"),
 
     // 데이터베이스
-    MYSQL("Mysql"),
+    MYSQL("MySQL"),
     ORACLE("Oracle"),
     MONGODB("MongoDB"),
-    POSTGRE_SQL("Postgre_SQL"),
+    POSTGRE_SQL("PostgreSQL"),
     MARIA_DB("MariaDB"),
-    MS_SQL("MS SQL"),
+    MS_SQL("MSSQL[SQL Server]"),
     REDIS("Redis"),
     NEO4J("Neo4j"),
     APOLLO("Apollo"),
@@ -84,7 +84,7 @@ public enum ChildSkillCategory {
     // 데이터 엔지니어링
     PANDAS("Pandas"),
     EXCEL("Excel"),
-    WEB_CRAWLING("웹크롤링"),
+    WEB_CRAWLING("웹 크롤링"),
     DATA_LITERACY("데이터 리터러시"),
     R("R"),
     DATA_ENGINEERING("데이터 엔지니어링"),

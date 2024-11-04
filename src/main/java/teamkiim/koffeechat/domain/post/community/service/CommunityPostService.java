@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
@@ -39,7 +37,6 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -143,7 +140,7 @@ public class CommunityPostService {
      * @param tagContents 검색된 태그들
      * @return CommunityPostSearchListResponse
      */
-    public List<CommunityPostListResponse> findCommunityPostList(SortCategory sortType, int page, int size,
+    public List<CommunityPostListResponse> findCommunityPostList(SortType sortType, int page, int size,
                                                                  String keyword, List<String> tagContents) {
 
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);

@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Profile("dev")
+@Profile("prod")
 public class S3ChatFileService implements ChatFileService {
 
     private final ChatFileRepository chatFileRepository;
@@ -54,6 +54,5 @@ public class S3ChatFileService implements ChatFileService {
                 .build();
 
         chatMessageService.saveImageMessage(chatMessageServiceRequest, chatRoomId, memberId);
-        chatMessageService.send(chatMessageServiceRequest, chatRoomId, memberId);
     }
 }

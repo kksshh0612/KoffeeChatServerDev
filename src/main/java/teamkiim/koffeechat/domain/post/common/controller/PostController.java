@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
 import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
@@ -83,7 +82,7 @@ public class PostController {
     @GetMapping("/bookmark/{postType}/{sortType}")
     @PostApiDocument.BookmarkedPostListApiDoc
     public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType,
-                                                    @PathVariable("sortType") SortCategory sortType,
+                                                    @PathVariable("sortType") SortType sortType,
                                                     @RequestParam("page") int page, @RequestParam("size") int size,
                                                     HttpServletRequest request) {
 
@@ -102,7 +101,7 @@ public class PostController {
     @GetMapping("/{postType}/{sortType}")
     @PostApiDocument.MyPostListApiDoc
     public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType,
-                                            @PathVariable("sortType") SortCategory sortType,
+                                            @PathVariable("sortType") SortType sortType,
                                             @RequestParam("page") int page, @RequestParam("size") int size,
                                             HttpServletRequest request) {
 

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Profile("dev")
+@Profile("prod")
 public class S3PostFileService implements PostFileService {
 
     private final FileRepository fileRepository;

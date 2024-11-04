@@ -1,14 +1,13 @@
 package teamkiim.koffeechat.domain.post.dev.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
 import teamkiim.koffeechat.domain.file.service.PostFileService;
@@ -32,6 +31,9 @@ import teamkiim.koffeechat.domain.tag.service.TagService;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 개발 게시글 관련 서비스
@@ -129,11 +131,11 @@ public class DevPostService {
      * @param tagContents            검색된 태그들
      * @return DevPostSearchListResponse
      */
-    public List<DevPostListResponse> getDevPostList(SortCategory sortType, int page, int size,
+    public List<DevPostListResponse> getDevPostList(String sortType, int page, int size,
                                                     String keyword, List<ChildSkillCategory> childSkillCategoryList,
                                                     List<String> tagContents) {
 
-        PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
+        PageRequest pageRequest = postService.sortBySortCategory(SortType.valueOf(sortType), "id", "likeCount", "viewCount", page, size);
 
         Page<DevPost> devPostList = searchFilter(keyword, childSkillCategoryList, tagContents, pageRequest);
 
@@ -169,7 +171,7 @@ public class DevPostService {
             return devPostRepository.findAllCompletePostByKeywordAndSkillCategory(keyword, childSkillCategoryList,
                     pageRequest);
         }
-        return null;
+        return devPostRepository.findAllCompletePost(pageRequest);  //전체 게시글
     }
 
     /**

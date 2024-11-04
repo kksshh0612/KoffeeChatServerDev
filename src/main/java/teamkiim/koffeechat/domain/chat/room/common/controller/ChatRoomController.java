@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.service.ChatRoomService;
+import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
@@ -23,6 +25,7 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
 
     private final AESCipherUtil aesCipherUtil;
 
@@ -47,15 +50,22 @@ public class ChatRoomController {
         return ResponseEntity.ok(chatRoomService.findChatRoomList(memberId, page, size, chatRoomType));
     }
 
-//    @AuthenticatedMemberPrincipal
-//    @GetMapping("/{chatRoomId}")
-//    @ChatRoomApiDocument.FindChatRoomByChatRoomIdApiDoc
-//    public ResponseEntity<?> findChatRoomByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
-//
-//        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-//
-////        return ResponseEntity.ok(chatRoomService.findChatRoom(chatRoomId, memberId));
-//    }
+    /**
+     * 채팅 메세지 조회 (커서 기반 페이징)
+     */
+    @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
+            Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
+    @GetMapping("/message/{chatRoomId}")
+    public ResponseEntity<?> open(@PathVariable("chatRoomId") String chatRoomId,
+                                  @RequestParam("cursor") Long cursor, @RequestParam("size") int size,
+                                  HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedChatRoomId = aesCipherUtil.decrypt(chatRoomId);
+
+        return ResponseEntity.ok(chatMessageService.getChatMessages(decryptedChatRoomId, cursor, size, memberId));
+    }
+
 
     /**
      * 채팅방 종료 (채팅창을 닫을 때 호출하는 API)

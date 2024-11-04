@@ -1,10 +1,6 @@
 package teamkiim.koffeechat.domain.chat.room.common.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -27,7 +23,10 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-@Slf4j
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -43,7 +42,8 @@ public class ChatRoomService {
     private final AESCipherUtil aesCipherUtil;
 
     /**
-     * 참여중인 채팅방 목록 조회 -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
+     * 참여중인 채팅방 목록 조회
+     * -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
      *
      * @param memberId
      * @param page
@@ -58,14 +58,10 @@ public class ChatRoomService {
 
         chatNotificationService.startNotifications(memberId);
 
-//        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Order.desc("lastMessageTime").nullsLast()));      // 커서 기반이기 때문에 page 설정 안하기 위함.
-
-        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         List<MemberChatRoom> memberChatRoomList =
                 memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, pageRequest).getContent();
 
-//        List<MemberChatRoom> memberChatRoomList =
-//                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, cursorId, pageRequest).getContent();
 
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 
@@ -74,8 +70,7 @@ public class ChatRoomService {
         for (ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList) {
             MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
 
-            MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(
-                            memberChatRoom.getChatRoom(), memberChatRoom.getMember())
+            MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(memberChatRoom.getChatRoom(), memberChatRoom.getMember())
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
             ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(
@@ -168,7 +163,6 @@ public class ChatRoomService {
                 .build();
 
         chatMessageService.saveTextMessage(chatMessageServiceRequest, chatRoomId, memberId);
-        chatMessageService.send(chatMessageServiceRequest, chatRoomId, memberId);
 
         // memberChatRoom 삭제
         memberChatRoomRepository.delete(memberChatRoom);
