@@ -17,12 +17,12 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 public class ChatMessageResponse {
 
     private String messageId;
+    private Long seqId;
     private MessageType messageType;
     private String content;
     private String senderId;
     private String senderNickname;
     private String profileImageUrl;
-    private boolean isLoginMember;
     private LocalDateTime createdTime;
 
     public static ChatMessageResponse of(ChatMessage chatMessage, List<Member> joinMembers, String senderId,
@@ -31,30 +31,29 @@ public class ChatMessageResponse {
         Member sender = joinMembers.stream().filter(m -> m.getId().equals(chatMessage.getSenderId())).findFirst()
                 .orElse(null);
 
-        boolean isLoginMember = chatMessage.getSenderId().equals(loginMemberId);
-
         return ChatMessageResponse.builder()
                 .messageId(chatMessage.getId())
+                .seqId(chatMessage.getSeqId())
                 .messageType(chatMessage.getMessageType())
                 .content(chatMessage.getContent())
                 .senderId(senderId)
                 .senderNickname(sender.getNickname())
                 .profileImageUrl(sender.getProfileImageUrl())
-                .isLoginMember(isLoginMember)
                 .createdTime(chatMessage.getCreatedTime())
                 .build();
 
     }
 
     public static ChatMessageResponse of(ChatMessage chatMessage, String senderId, Member sender) {
+
         return ChatMessageResponse.builder()
                 .messageId(chatMessage.getId())
+                .seqId(chatMessage.getSeqId())
                 .messageType(chatMessage.getMessageType())
                 .content(chatMessage.getContent())
                 .senderId(senderId)
                 .senderNickname(sender.getNickname())
                 .profileImageUrl(sender.getProfileImageUrl())
-                .isLoginMember(true)
                 .createdTime(chatMessage.getCreatedTime())
                 .build();
     }

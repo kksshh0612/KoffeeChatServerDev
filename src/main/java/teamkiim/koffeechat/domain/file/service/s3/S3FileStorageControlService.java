@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Profile("prod")
+@Slf4j
 public class S3FileStorageControlService implements FileStorageService {
 
     private final AmazonS3Client amazonS3Client;
@@ -63,7 +65,7 @@ public class S3FileStorageControlService implements FileStorageService {
      */
     public void deleteFile(String url) {
 
-        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucketName, url);
+        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucketName, parseObjectName(url));
 
         try {
             amazonS3Client.deleteObject(deleteObjectRequest);
@@ -80,7 +82,7 @@ public class S3FileStorageControlService implements FileStorageService {
     public void deleteFiles(List<teamkiim.koffeechat.domain.file.domain.File> fileList) {
 
         List<DeleteObjectsRequest.KeyVersion> keysToDelete = fileList.stream()
-                .map(file -> new DeleteObjectsRequest.KeyVersion(file.getUrl()))
+                .map(file -> new DeleteObjectsRequest.KeyVersion(parseObjectName(file.getUrl())))
                 .toList();
 
         DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName)
@@ -92,5 +94,9 @@ public class S3FileStorageControlService implements FileStorageService {
             throw new CustomException(ErrorCode.FILE_IO_FAILED);
         }
 
+    }
+
+    private String parseObjectName(String url){
+        return url.substring(url.lastIndexOf("/") + 1);
     }
 }
