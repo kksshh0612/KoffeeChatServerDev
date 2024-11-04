@@ -3,12 +3,13 @@ package teamkiim.koffeechat.domain.chat.message.service;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.domain.chat.message.controller.dto.ChatMessageResponse;
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
+import teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse;
 import teamkiim.koffeechat.domain.chat.message.repository.ChatMessageRepository;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
@@ -128,7 +129,7 @@ public class ChatMessageService {
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
                 .map(chatMessage -> teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse.of(
-                        chatMessage, joinMemberList, memberId))
+                        chatMessage, joinMemberList, aesCipherUtil.encrypt(chatMessage.getSenderId()), memberId))
                 .toList();
 
         return chatMessageResponseList;

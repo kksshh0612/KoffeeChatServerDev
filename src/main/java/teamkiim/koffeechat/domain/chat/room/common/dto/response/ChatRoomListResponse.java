@@ -25,8 +25,9 @@ public class ChatRoomListResponse {
     private String oppositeMemberId;
     private String profileImageUrl;
 
-    public static ChatRoomListResponse of(String chatRoomId, ChatRoomInfoDto chatRoomInfo, String oppositeMemberId,
-                                          Member oppositeMember, String memberId) {
+    public static ChatRoomListResponse of(String memberId, String chatRoomId, ChatRoomInfoDto chatRoomInfo,
+                                          String oppositeMemberId,
+                                          Member oppositeMember) {
 
         String roomName = chatRoomInfo.getMemberChatRoom().getChatRoom().getName();
 

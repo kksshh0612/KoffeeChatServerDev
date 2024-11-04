@@ -8,7 +8,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import teamkiim.koffeechat.domain.chat.message.controller.dto.ChatMessageRequest;
-import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
 import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
@@ -37,10 +36,9 @@ public class ChatMessageController {
 
         List<Long> chatRoomMemberIds = chatRoomManager.getMemberIds(decryptedChatRoomId);
 
-        ChatMessageServiceRequest chatMessageServiceRequest = chatMessageService.saveTextMessage(
-                chatMessageRequest.toServiceRequest(createdTime), decryptedChatRoomId, senderId);
+        chatMessageService.saveTextMessage(chatMessageRequest.toServiceRequest(createdTime), decryptedChatRoomId,
+                senderId);
 
-        chatMessageService.saveTextMessage(chatMessageServiceRequest, decryptedChatRoomId, senderId);
         chatNotificationService.createChatNotification(chatMessageRequest.toServiceRequest(createdTime),
                 decryptedChatRoomId, senderId, chatRoomMemberIds);
     }

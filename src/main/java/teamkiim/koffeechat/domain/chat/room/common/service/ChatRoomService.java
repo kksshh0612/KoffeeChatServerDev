@@ -1,5 +1,8 @@
 package teamkiim.koffeechat.domain.chat.room.common.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,10 +26,6 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -42,8 +41,7 @@ public class ChatRoomService {
     private final AESCipherUtil aesCipherUtil;
 
     /**
-     * 참여중인 채팅방 목록 조회
-     * -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
+     * 참여중인 채팅방 목록 조회 -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수, 마지막 메세지 리턴
      *
      * @param memberId
      * @param page
@@ -62,7 +60,6 @@ public class ChatRoomService {
         List<MemberChatRoom> memberChatRoomList =
                 memberChatRoomRepository.findAllByMemberAndChatRoomType(member, chatRoomType, pageRequest).getContent();
 
-
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(memberChatRoomList);
 
         List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
@@ -70,10 +67,11 @@ public class ChatRoomService {
         for (ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList) {
             MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
 
-            MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(memberChatRoom.getChatRoom(), memberChatRoom.getMember())
+            MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(
+                            memberChatRoom.getChatRoom(), memberChatRoom.getMember())
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
-            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(
+            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(aesCipherUtil.encrypt(memberId),
                     aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()), chatRoomInfoDto,
                     aesCipherUtil.encrypt(oppositeMemberChatRoom.getMember().getId()),
                     oppositeMemberChatRoom.getMember());

@@ -15,6 +15,7 @@ import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.domain.post.common.domain.SortType;
 import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.common.service.PostService;

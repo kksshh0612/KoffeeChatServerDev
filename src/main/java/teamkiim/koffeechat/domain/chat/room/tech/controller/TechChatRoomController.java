@@ -36,9 +36,9 @@ public class TechChatRoomController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        String chatRoomId = techChatRoomService.createChatRoom(createTechChatRoomRequest.toServiceRequest(), memberId);
+        techChatRoomService.createChatRoom(createTechChatRoomRequest.toServiceRequest(), memberId);
 
-        return ResponseEntity.ok(chatRoomId);
+        return ResponseEntity.ok("채팅방 생성 완료");
     }
 
     /**

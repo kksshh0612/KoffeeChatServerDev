@@ -1,20 +1,21 @@
 package teamkiim.koffeechat.domain.post.dev.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
 import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
-import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
+import teamkiim.koffeechat.domain.post.common.domain.SortType;
 import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
@@ -31,9 +32,6 @@ import teamkiim.koffeechat.domain.tag.service.TagService;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 개발 게시글 관련 서비스
@@ -135,7 +133,8 @@ public class DevPostService {
                                                     String keyword, List<ChildSkillCategory> childSkillCategoryList,
                                                     List<String> tagContents) {
 
-        PageRequest pageRequest = postService.sortBySortCategory(SortType.valueOf(sortType), "id", "likeCount", "viewCount", page, size);
+        PageRequest pageRequest = postService.sortBySortCategory(SortType.valueOf(sortType), "id", "likeCount",
+                "viewCount", page, size);
 
         Page<DevPost> devPostList = searchFilter(keyword, childSkillCategoryList, tagContents, pageRequest);
 

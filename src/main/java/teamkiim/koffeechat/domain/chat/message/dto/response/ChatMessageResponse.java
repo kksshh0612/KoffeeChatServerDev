@@ -46,12 +46,12 @@ public class ChatMessageResponse {
 
     }
 
-    public static ChatMessageResponse of(ChatMessage chatMessage, Member sender) {
+    public static ChatMessageResponse of(ChatMessage chatMessage, String senderId, Member sender) {
         return ChatMessageResponse.builder()
                 .messageId(chatMessage.getId())
                 .messageType(chatMessage.getMessageType())
                 .content(chatMessage.getContent())
-                .senderId(chatMessage.getSenderId())
+                .senderId(senderId)
                 .senderNickname(sender.getNickname())
                 .profileImageUrl(sender.getProfileImageUrl())
                 .isLoginMember(true)
