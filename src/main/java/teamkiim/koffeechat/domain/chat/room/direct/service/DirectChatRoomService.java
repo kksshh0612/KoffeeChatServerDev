@@ -1,30 +1,27 @@
 package teamkiim.koffeechat.domain.chat.room.direct.service;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
-import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
-import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
-import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
-import teamkiim.koffeechat.domain.chat.room.direct.domain.DirectChatRoom;
-import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse;
 import teamkiim.koffeechat.domain.chat.message.repository.ChatMessageRepository;
+import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
+import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
+import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
+import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
+import teamkiim.koffeechat.domain.chat.room.direct.domain.DirectChatRoom;
 import teamkiim.koffeechat.domain.chat.room.direct.dto.response.CreateDirectChatRoomResponse;
 import teamkiim.koffeechat.domain.chat.room.direct.repository.DirectChatRoomRepository;
-import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,14 +35,17 @@ public class DirectChatRoomService {
     private final ChatRoomManager chatRoomManager;
     private final ChatNotificationService chatNotificationService;
 
+    private final AESCipherUtil aesCipherUtil;
+
     /**
      * 일대일 채팅방 생성
+     *
      * @param memberId1
      * @param memberId2
      * @return
      */
     @Transactional
-    public CreateDirectChatRoomResponse createChatRoom(Long memberId1, Long memberId2){
+    public CreateDirectChatRoomResponse createChatRoom(Long memberId1, Long memberId2) {
 
         Member member1 = memberRepository.findById(memberId1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -54,8 +54,8 @@ public class DirectChatRoomService {
 
         Optional<DirectChatRoom> existChatRoom = directChatRoomRepository.findDirectChatRoomByMembers(member1, member2);
 
-        if(existChatRoom.isPresent()){
-            return new CreateDirectChatRoomResponse(existChatRoom.get().getId());
+        if (existChatRoom.isPresent()) {
+            return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(existChatRoom.get().getId()));
         }
 
         DirectChatRoom directChatRoom = DirectChatRoom.builder()
@@ -88,16 +88,17 @@ public class DirectChatRoomService {
         chatNotificationService.addChatRoomNotification(memberId1, saveChatRoom.getId());
         chatNotificationService.addChatRoomNotification(memberId2, saveChatRoom.getId());
 
-        return new CreateDirectChatRoomResponse(saveChatRoom.getId());
+        return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(saveChatRoom.getId()));
     }
 
     /**
      * 일대일 채팅방 오픈 - 입장 시 채팅 데이터 조회
+     *
      * @param chatRoomId
      * @return List<ChatMessageResponse>
      */
     @Transactional
-    public List<ChatMessageResponse> openChatRoom(Long chatRoomId, int size, Long memberId){
+    public List<ChatMessageResponse> openChatRoom(Long chatRoomId, int size, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -118,7 +119,8 @@ public class DirectChatRoomService {
         List<ChatMessage> messageList = chatMessageRepository.findLatestMessage(chatRoomId, pageRequest).getContent();
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
-                .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList, memberId))
+                .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList,
+                        aesCipherUtil.encrypt(chatMessage.getSenderId()), memberId))
                 .toList();
 
         // 채팅 알림 off

@@ -1,14 +1,13 @@
 package teamkiim.koffeechat.domain.vote.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
-import teamkiim.koffeechat.domain.vote.controller.dto.SaveVoteRecordRequest;
 import teamkiim.koffeechat.domain.vote.domain.Vote;
 import teamkiim.koffeechat.domain.vote.domain.VoteItem;
 import teamkiim.koffeechat.domain.vote.domain.VoteRecord;
@@ -18,10 +17,9 @@ import teamkiim.koffeechat.domain.vote.dto.request.SaveVoteServiceRequest;
 import teamkiim.koffeechat.domain.vote.repository.VoteItemRepository;
 import teamkiim.koffeechat.domain.vote.repository.VoteRecordRepository;
 import teamkiim.koffeechat.domain.vote.repository.VoteRepository;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,7 +32,7 @@ public class VoteService {
     private final VoteItemRepository voteItemRepository;
     private final VoteRecordRepository voteRecordRepository;
 
-    private final AESCipher aesCipher;
+    private final AESCipherUtil aesCipherUtil;
 
     //멤버가 투표를 했는지 안했는지
     public boolean hasMemberVoted(Vote vote, Member member) {
@@ -49,20 +47,19 @@ public class VoteService {
      * @return Vote
      */
     @Transactional
-    public Vote saveVote(SaveVoteServiceRequest saveVoteServiceRequest, Long postId) {
+    public void saveVote(SaveVoteServiceRequest saveVoteServiceRequest, Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 작성 중이 아니라면 투표를 생성할 수 없다.
-        if (post.isEditing()) throw new CustomException(ErrorCode.VOTE_FORBIDDEN);
+        if (post.isEditing()) {
+            throw new CustomException(ErrorCode.VOTE_FORBIDDEN);
+        }
 
         Vote vote = saveVoteServiceRequest.toEntity(post, saveVoteServiceRequest.getTitle());  //투표 생성
-        Vote savedVote = voteRepository.save(vote);
-
+        voteRepository.save(vote);
         voteItemRepository.saveAll(vote.getVoteItems());
-
-        return savedVote;
     }
 
     /**
@@ -74,8 +71,12 @@ public class VoteService {
     @Transactional
     public void modifyVote(ModifyVoteServiceRequest modifyVoteServiceRequest, Vote vote) {
 
-        if (modifyVoteServiceRequest == null) return;
-        if (modifyVoteServiceRequest.getItems() == null) throw new CustomException(ErrorCode.INVALID_VOTE_REQUEST);
+        if (modifyVoteServiceRequest == null) {
+            return;
+        }
+        if (modifyVoteServiceRequest.getItems() == null) {
+            throw new CustomException(ErrorCode.INVALID_VOTE_REQUEST);
+        }
 
         List<VoteItem> voteItemList = voteItemRepository.findByVote(vote);
         List<String> newVoteItemList = modifyVoteServiceRequest.getItems();
@@ -98,19 +99,21 @@ public class VoteService {
      * @return isVoted 필드를 포함한 dto
      */
     @Transactional
-    public List<SaveVoteRecordServiceDto> saveVoteRecord(String postId, SaveVoteRecordRequest saveVoteRecordRequest, Long memberId) throws Exception {
+    public List<SaveVoteRecordServiceDto> saveVoteRecord(Long postId, List<Long> saveVoteRecordRequest,
+                                                         Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Post post = postRepository.findById(aesCipher.decrypt(postId))
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         Vote vote = voteRepository.findByPost(post)
                 .orElseThrow(() -> new CustomException(ErrorCode.VOTE_NOT_FOUND));
 
-        List<VoteItem> voteItemList = voteItemRepository.findAllByPostAndIds(post, saveVoteRecordRequest.getItems());  //투표한 항목 존재 여부 확인
+        List<VoteItem> voteItemList = voteItemRepository.findAllByPostAndIds(post,
+                saveVoteRecordRequest);  //투표한 항목 존재 여부 확인
 
-        if (!saveVoteRecordRequest.getItems().isEmpty() && voteItemList.isEmpty()) {
+        if (!saveVoteRecordRequest.isEmpty() && voteItemList.isEmpty()) {
             throw new CustomException(ErrorCode.VOTE_ITEM_NOT_FOUND);
         }
 
@@ -125,7 +128,7 @@ public class VoteService {
         }
 
         //재투표 항목들에 대해 투표 기록 생성
-        if (!saveVoteRecordRequest.getItems().isEmpty()) {
+        if (!saveVoteRecordRequest.isEmpty()) {
             for (VoteItem votedItem : voteItemList) {
                 VoteRecord saveVoteRecord = voteRecordRepository.save(VoteRecord.create(member, votedItem));
                 votedItem.addVoteRecord(saveVoteRecord);  //연관관계 주입
@@ -133,13 +136,9 @@ public class VoteService {
             }
         }
 
-        return vote.getVoteItems().stream().map(voteItem -> {
-            try {
-                return SaveVoteRecordServiceDto.of(aesCipher.encrypt(voteItem.getId()), voteItem);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
-        }).toList();
+        return vote.getVoteItems().stream()
+                .map(voteItem -> SaveVoteRecordServiceDto.of(aesCipherUtil.encrypt(voteItem.getId()), voteItem))
+                .toList();
     }
 
 }

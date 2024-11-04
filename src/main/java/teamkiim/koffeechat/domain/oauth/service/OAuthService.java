@@ -1,15 +1,20 @@
 package teamkiim.koffeechat.domain.oauth.service;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.domain.MemberRole;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -19,9 +24,6 @@ import teamkiim.koffeechat.domain.oauth.dto.request.SaveSocialLoginMemberInfoSer
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
-
-import java.io.File;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,7 +35,6 @@ public class OAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtil redisUtil;
     private final RestTemplate restTemplate;
-    private final AESCipher aesCipher;
 
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
@@ -173,7 +174,8 @@ public class OAuthService {
      * @return ok
      */
     @Transactional
-    public ResponseEntity<?> loginOrSignUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoServiceRequest, HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> loginOrSignUpSocialMember(SaveSocialLoginMemberInfoServiceRequest memberInfoServiceRequest,
+                                                       HttpServletResponse response) {
 
         // 만약 가입된 이메일이 있다면 로그인 처리
         Optional<Member> member = memberRepository.findByEmail(memberInfoServiceRequest.getEmail());

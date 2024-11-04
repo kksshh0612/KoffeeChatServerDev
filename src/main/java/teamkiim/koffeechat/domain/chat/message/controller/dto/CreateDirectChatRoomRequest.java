@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateDirectChatRoomRequest {
 
-    private Long memberId;
+    private String memberId;
 }

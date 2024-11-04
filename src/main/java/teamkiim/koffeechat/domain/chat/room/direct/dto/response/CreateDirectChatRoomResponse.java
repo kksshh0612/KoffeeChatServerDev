@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateDirectChatRoomResponse {
 
-    private Long chatRoomId;
+    private String chatRoomId;
 }

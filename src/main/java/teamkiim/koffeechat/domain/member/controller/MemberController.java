@@ -4,9 +4,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.auth.service.AuthService;
 import teamkiim.koffeechat.domain.email.dto.request.EmailAuthRequest;
@@ -17,8 +25,7 @@ import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceR
 import teamkiim.koffeechat.domain.member.dto.request.UpdatePasswordRequest;
 import teamkiim.koffeechat.domain.member.service.MemberService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.util.List;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,13 +36,15 @@ public class MemberController {
     private final MemberService memberService;
     private final AuthService authService;
 
+    private final AESCipherUtil aesCipherUtil;
+
     /**
      * 사용자 닉네임으로 암호화된 pk 요청
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/{memberId}")
     @MemberApiDocument.GetMemberPK
-    public ResponseEntity<?> getMemberPK(@PathVariable(value = "memberId") String memberEmailId) throws Exception {
+    public ResponseEntity<?> getMemberPK(@PathVariable(value = "memberId") String memberEmailId) {
 
         return ResponseEntity.ok(memberService.getMemberPK(memberEmailId));
     }
@@ -46,7 +55,8 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/enroll-profile-image/local")
     @MemberApiDocument.SaveProfileImage
-    public ResponseEntity<?> saveProfileImageToLocal(@RequestPart(value = "file") MultipartFile multipartFile, HttpServletRequest request) {
+    public ResponseEntity<?> saveProfileImageToLocal(@RequestPart(value = "file") MultipartFile multipartFile,
+                                                     HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -73,7 +83,9 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/enroll-skills")
     @MemberApiDocument.EnrollSkills
-    public ResponseEntity<?> enrollSkills(@Valid @RequestBody List<EnrollSkillCategoryRequest> enrollSkillCategoryRequest, HttpServletRequest request) {
+    public ResponseEntity<?> enrollSkills(
+            @Valid @RequestBody List<EnrollSkillCategoryRequest> enrollSkillCategoryRequest,
+            HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -91,7 +103,8 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/profile")
     @MemberApiDocument.ModifyProfile
-    public ResponseEntity<?> modifyProfile(@Valid @RequestBody ModifyProfileRequest modifyProfileRequest, HttpServletRequest request) {
+    public ResponseEntity<?> modifyProfile(@Valid @RequestBody ModifyProfileRequest modifyProfileRequest,
+                                           HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -107,7 +120,7 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile")
     @MemberApiDocument.FindProfile
-    public ResponseEntity<?> findProfile(HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> findProfile(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -120,11 +133,13 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/profile/{profileMemberId}")
     @MemberApiDocument.FindMemberProfile
-    public ResponseEntity<?> findProfile(@PathVariable("profileMemberId") String profileMemberId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> findProfile(@PathVariable("profileMemberId") String profileMemberId,
+                                         HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedProfileMemberId = aesCipherUtil.decrypt(profileMemberId);
 
-        return ResponseEntity.ok(memberService.findMemberInfo(profileMemberId, memberId));
+        return ResponseEntity.ok(memberService.findMemberInfo(decryptedProfileMemberId, memberId));
     }
 
     /**
@@ -133,7 +148,8 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/email")
     @MemberApiDocument.SendNewAuthEmail
-    public ResponseEntity<?> sendNewAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> sendNewAuthEmail(@Valid @RequestBody EmailAuthRequest emailAuthRequest,
+                                              HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -167,7 +183,8 @@ public class MemberController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/password")
     @MemberApiDocument.CheckCurrentPasswordApiDoc
-    public ResponseEntity<?> checkCurrentPassword(@RequestBody CheckPasswordRequest password, HttpServletRequest request) {
+    public ResponseEntity<?> checkCurrentPassword(@RequestBody CheckPasswordRequest password,
+                                                  HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

@@ -1,12 +1,11 @@
 package teamkiim.koffeechat.domain.notification.dto.response;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -34,11 +33,12 @@ public class NotificationListItemResponse {
 
     private LocalDateTime createdTime;
 
-    public static NotificationListItemResponse of(String notificationId, Notification notification, String senderId, String urlPK, String commentId) {
+    public static NotificationListItemResponse of(String id, String senderId, String urlPK, String commentId,
+                                                  Notification notification) {
 
         if (notification.getNotificationType().equals(NotificationType.POST)) {  // 글 알림
             return NotificationListItemResponse.builder()
-                    .id(notificationId)
+                    .id(id)
                     .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
                     .profileImageUrl(notification.getSender().getProfileImageUrl())
@@ -49,9 +49,10 @@ public class NotificationListItemResponse {
                     .notificationType(notification.getNotificationType())
                     .createdTime(notification.getCreatedTime())
                     .build();
-        } else if (notification.getNotificationType().equals(NotificationType.COMMENT)) {
+        }
+        if (notification.getNotificationType().equals(NotificationType.COMMENT)) {
             return NotificationListItemResponse.builder()
-                    .id(notificationId)
+                    .id(id)
                     .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
                     .profileImageUrl(notification.getSender().getProfileImageUrl())
@@ -65,9 +66,10 @@ public class NotificationListItemResponse {
                     .createdTime(notification.getCreatedTime())
                     .build();
 
-        } else if (notification.getNotificationType().equals(NotificationType.FOLLOW)) {
+        }
+        if (notification.getNotificationType().equals(NotificationType.FOLLOW)) {
             return NotificationListItemResponse.builder()
-                    .id(notificationId)
+                    .id(id)
                     .senderId(senderId)
                     .senderNickname(notification.getSender().getNickname())
                     .profileImageUrl(notification.getSender().getProfileImageUrl())
@@ -75,9 +77,11 @@ public class NotificationListItemResponse {
                     .notificationType(notification.getNotificationType())
                     .createdTime(notification.getCreatedTime())
                     .build();
-        } else {  //현직자 인증 알림
+        }
+        if (notification.getNotificationType().equals(NotificationType.CORP)) {
             return NotificationListItemResponse.builder()
-                    .id(notificationId)
+                    .id(id)
+                    .senderId(senderId)
                     .title(notification.getTitle())
                     .content(notification.getContent())
                     .url(urlPK)
@@ -86,5 +90,6 @@ public class NotificationListItemResponse {
                     .createdTime(notification.getCreatedTime())
                     .build();
         }
+        return null;
     }
 }

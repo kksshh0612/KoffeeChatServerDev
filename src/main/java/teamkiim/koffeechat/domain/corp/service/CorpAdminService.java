@@ -1,5 +1,7 @@
 package teamkiim.koffeechat.domain.corp.service;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,11 +13,9 @@ import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
 import teamkiim.koffeechat.domain.corp.repository.WaitingCorpRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,6 +25,8 @@ public class CorpAdminService {
     private final CorpRepository corpRepository;
     private final WaitingCorpRepository waitingCorpRepository;
     private final NotificationService notificationService;
+
+    private final AESCipherUtil aesCipherUtil;
 
     /**
      * 관리자가 인증된 회사 도메인 등록
@@ -85,7 +87,8 @@ public class CorpAdminService {
     public List<AdminCorpDomainListResponse> listCorp() {
         List<Corp> corpList = corpRepository.findAll();
 
-        return corpList.stream().map(AdminCorpDomainListResponse::of).toList();
+        return corpList.stream().map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
+                .toList();
     }
 
     /**
@@ -96,6 +99,7 @@ public class CorpAdminService {
     public List<AdminCorpDomainListResponse> findCorpByKeyword(String keyword) {
         List<Corp> corpList = corpRepository.findByKeyword(keyword);
 
-        return corpList.stream().map(AdminCorpDomainListResponse::of).toList();
+        return corpList.stream().map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
+                .toList();
     }
 }
