@@ -1,11 +1,10 @@
 package teamkiim.koffeechat.domain.notification.dto.response;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -18,7 +17,7 @@ public class CorpNotificationResponse {
 
     private String content;
 
-    private Long url;  //현직자 인증 pk
+    private String url;  //현직자 인증 pk
 
     private boolean isRead;
 
@@ -26,14 +25,14 @@ public class CorpNotificationResponse {
 
     private LocalDateTime createdTime;
 
-    public static CorpNotificationResponse of(String receiverId, Notification notification, long unreadNotifications) {
+    public static CorpNotificationResponse of(String receiverId, String corpId, Notification notification) {
 
         return CorpNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(unreadNotifications)
+                .unreadNotifications(notification.getReceiver().getUnreadNotifications())
                 .title(notification.getTitle())
                 .content(notification.getContent())
-                .url(notification.getUrlPK())
+                .url(corpId)
                 .isRead(false)
                 .notificationType(notification.getNotificationType())
                 .createdTime(notification.getCreatedTime())

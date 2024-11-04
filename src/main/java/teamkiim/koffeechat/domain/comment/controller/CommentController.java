@@ -3,18 +3,25 @@ package teamkiim.koffeechat.domain.comment.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.CommentRequest;
 import teamkiim.koffeechat.domain.comment.controller.dto.request.ModifyCommentRequest;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
 import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +30,9 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    private final AESCipher aesCipher;
+
+    private final AESCipherUtil aesCipherUtil;
+
 
     /**
      * 댓글 작성
@@ -31,13 +40,15 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @PostMapping("")
     @CommentApiDocument.SaveCommentApiDoc
-    public ResponseEntity<?> saveComment(@Valid @RequestBody CommentRequest commentRequest, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> saveComment(@Valid @RequestBody CommentRequest commentRequest,
+                                         HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(commentRequest.getPostId());
 
         LocalDateTime currDateTime = LocalDateTime.now();
 
-        commentService.saveComment(commentRequest.toServiceRequest(currDateTime), memberId);
+        commentService.saveComment(commentRequest.toServiceRequest(decryptedPostId, currDateTime), memberId);
 
         return ResponseEntity.ok("댓글 저장 완료");
     }
@@ -50,7 +61,9 @@ public class CommentController {
     @CommentApiDocument.ModifyCommentApiDoc
     public ResponseEntity<?> modifyComment(@Valid @RequestBody ModifyCommentRequest modifyCommentRequest) {
 
-        commentService.modifyComment(modifyCommentRequest.toServiceRequest());
+        Long decryptedCommentId = aesCipherUtil.decrypt(modifyCommentRequest.getId());
+
+        commentService.modifyComment(modifyCommentRequest.toServiceRequest(decryptedCommentId));
 
         return ResponseEntity.ok("댓글 수정 완료");
     }
@@ -61,9 +74,9 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{commentId}")
     @CommentApiDocument.DeleteCommentApiDoc
-    public ResponseEntity<?> deleteComment(@PathVariable("commentId") String commentId) throws Exception {
+    public ResponseEntity<?> deleteComment(@PathVariable("commentId") String commentId) {
 
-        commentService.deleteComment(aesCipher.decrypt(commentId));
+        commentService.deleteComment(aesCipherUtil.decrypt(commentId));
 
         return ResponseEntity.ok("댓글 삭제 완료");
     }
@@ -74,7 +87,8 @@ public class CommentController {
     @AuthenticatedMemberPrincipal
     @GetMapping("")
     @CommentApiDocument.MyCommentListApiDoc
-    public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) {
+    public ResponseEntity<?> findMyCommentList(@RequestParam("page") int page, @RequestParam("size") int size,
+                                               HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

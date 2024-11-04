@@ -1,18 +1,24 @@
 package teamkiim.koffeechat.domain.chat.room.common.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.domain.chat.message.controller.ChatMessageController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.service.ChatRoomService;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
-import java.time.LocalDateTime;
-
+@Tag(name = "채팅방 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat-room")
@@ -20,6 +26,8 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final ChatMessageService chatMessageService;
+
+    private final AESCipherUtil aesCipherUtil;
 
     /**
      * 회원이 현재 속해있는 채팅방 목록 페이징 조회
@@ -48,13 +56,14 @@ public class ChatRoomController {
     @Auth(role = {Auth.MemberRole.COMPANY_EMPLOYEE, Auth.MemberRole.FREELANCER, Auth.MemberRole.STUDENT,
             Auth.MemberRole.COMPANY_EMPLOYEE_TEMP, Auth.MemberRole.MANAGER, Auth.MemberRole.ADMIN})
     @GetMapping("/message/{chatRoomId}")
-    public ResponseEntity<?> open(@PathVariable("chatRoomId") Long chatRoomId,
-                                  @RequestParam(value = "cursor", required = false) Long cursorId, @RequestParam("size") int size,
+    public ResponseEntity<?> open(@PathVariable("chatRoomId") String chatRoomId,
+                                  @RequestParam("cursor") Long cursor, @RequestParam("size") int size,
                                   HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedChatRoomId = aesCipherUtil.decrypt(chatRoomId);
 
-        return ResponseEntity.ok(chatMessageService.getChatMessages(chatRoomId, cursorId, size, memberId));
+        return ResponseEntity.ok(chatMessageService.getChatMessages(decryptedChatRoomId, cursor, size, memberId));
     }
 
 
@@ -67,13 +76,14 @@ public class ChatRoomController {
      */
     @AuthenticatedMemberPrincipal
     @PatchMapping("/close/{chatRoomId}")
-    public ResponseEntity<?> closeChatRoom(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
+    public ResponseEntity<?> closeChatRoom(@PathVariable("chatRoomId") String chatRoomId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedChatRoomId = aesCipherUtil.decrypt(chatRoomId);
 
         LocalDateTime closeTime = LocalDateTime.now();
 
-        chatRoomService.close(chatRoomId, memberId, closeTime);
+        chatRoomService.close(decryptedChatRoomId, memberId, closeTime);
 
         return ResponseEntity.ok().build();
     }
@@ -87,13 +97,14 @@ public class ChatRoomController {
      */
     @AuthenticatedMemberPrincipal
     @PatchMapping("/exit/{chatRoomId}")
-    public ResponseEntity<?> exitChatRoom(@PathVariable("chatRoomId") Long chatRoomId, HttpServletRequest request) {
+    public ResponseEntity<?> exitChatRoom(@PathVariable("chatRoomId") String chatRoomId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedChatRoomId = aesCipherUtil.decrypt(chatRoomId);
 
         LocalDateTime exitTime = LocalDateTime.now();
 
-        chatRoomService.exit(chatRoomId, memberId, exitTime);
+        chatRoomService.exit(decryptedChatRoomId, memberId, exitTime);
 
         return ResponseEntity.ok().build();
     }

@@ -1,5 +1,7 @@
 package teamkiim.koffeechat.domain.chat.message.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,11 +18,9 @@ import teamkiim.koffeechat.domain.chat.room.common.repository.ChatRoomRepository
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +33,11 @@ public class ChatMessageService {
     private final SimpMessagingTemplate messagingTemplate;
     private final SequenceGeneratorService sequenceGeneratorService;
 
+    private final AESCipherUtil aesCipherUtil;
+
     /**
      * 채팅 메세지 저장
+     *
      * @param messageRequest
      * @param chatRoomId
      * @param senderId
@@ -68,7 +71,7 @@ public class ChatMessageService {
         send(chatMessage, chatRoomId, senderId);
     }
 
-    public void saveImageMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId){
+    public void saveImageMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
 
         Long seqId = sequenceGeneratorService.generateSequence("chat_message_seq");         // 순차 id 부여
 
@@ -80,6 +83,7 @@ public class ChatMessageService {
 
     /**
      * subscribers에게 채팅 메세지 전송
+     *
      * @param chatMessage
      * @param chatRoomId
      * @param senderId
@@ -89,18 +93,20 @@ public class ChatMessageService {
         Member member = memberRepository.findById(senderId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        ChatMessageResponse chatMessageResponse = ChatMessageResponse.of(chatMessage, member);
+        ChatMessageResponse chatMessageResponse = ChatMessageResponse.of(chatMessage,
+                aesCipherUtil.encrypt(member.getId()), member);
 
         messagingTemplate.convertAndSend("/sub/chat/" + chatRoomId, chatMessageResponse);
     }
 
     /**
      * 채팅 메세지 커서 기반 페이징 조회
+     *
      * @param chatRoomId
      * @return List<ChatMessageResponse>
      */
     @Transactional
-    public List<ChatMessageResponse> getChatMessages(Long chatRoomId, Long cursorId, int size, Long memberId){
+    public List<ChatMessageResponse> getChatMessages(Long chatRoomId, Long cursorId, int size, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -120,10 +126,12 @@ public class ChatMessageService {
         if(cursorId == null) cursorId = Long.MAX_VALUE;
 
         // cursor 기반 페이징
-        List<ChatMessage> messageList = chatMessageRepository.findByCursor(chatRoomId, cursorId, pageRequest).getContent();
+        List<ChatMessage> messageList = chatMessageRepository.findByCursor(chatRoomId, cursorId, pageRequest)
+                .getContent();
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
-                .map(chatMessage -> teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse.of(chatMessage, joinMemberList, memberId))
+                .map(chatMessage -> teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse.of(
+                        chatMessage, joinMemberList, aesCipherUtil.encrypt(chatMessage.getSenderId()), memberId))
                 .toList();
 
         return chatMessageResponseList;
@@ -133,8 +141,9 @@ public class ChatMessageService {
 
         List<ChatRoomInfoDto> dtoList = new ArrayList<>();
 
-        for(MemberChatRoom memberChatRoom : memberChatRoomList) {
-            long unreadMessageCount = chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(), memberChatRoom.getCloseTime());
+        for (MemberChatRoom memberChatRoom : memberChatRoomList) {
+            long unreadMessageCount = chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(),
+                    memberChatRoom.getCloseTime());
 
             dtoList.add(new ChatRoomInfoDto(memberChatRoom, unreadMessageCount));
         }

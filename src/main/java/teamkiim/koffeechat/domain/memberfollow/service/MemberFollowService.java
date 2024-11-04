@@ -1,11 +1,11 @@
 package teamkiim.koffeechat.domain.memberfollow.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.domain.MemberFollow;
@@ -13,10 +13,9 @@ import teamkiim.koffeechat.domain.memberfollow.dto.MemberAndLoginMemberDto;
 import teamkiim.koffeechat.domain.memberfollow.dto.MemberFollowListResponse;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,7 +26,7 @@ public class MemberFollowService {
     private final MemberFollowRepository memberFollowRepository;
     private final NotificationService notificationService;
 
-    private final AESCipher aesCipher;
+    private final AESCipherUtil aesCipherUtil;
 
     public boolean isMemberFollowed(Member member, Member followingMember) {
         return memberFollowRepository.findByFollowerAndFollowing(member, followingMember).isPresent();
@@ -40,12 +39,12 @@ public class MemberFollowService {
      * @param followingId member가 팔로우한 회원 PK
      */
     @Transactional
-    public void followMember(Long followerId, String followingId) throws Exception {
+    public void followMember(Long followerId, Long followingId) {
 
         Member follower = memberRepository.findById(followerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Member following = memberRepository.findById(aesCipher.decrypt(followingId))
+        Member following = memberRepository.findById(followingId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (isMemberFollowed(follower, following)) {            // 팔로우 취소
@@ -111,15 +110,14 @@ public class MemberFollowService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Member> followerList = memberFollowRepository.findFollowersByFollowing(loginMember, pageRequest).stream().toList();
+        List<Member> followerList = memberFollowRepository.findFollowersByFollowing(loginMember, pageRequest).stream()
+                .toList();
 
         return followerList.stream().map(follower -> {
-            boolean isFollowedByLoginMember = memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(follower.getId()), follower, isFollowedByLoginMember, false);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+            boolean isFollowedByLoginMember = memberFollowRepository.existsByFollowerAndFollowing(loginMember,
+                    follower);
+            return MemberFollowListResponse.of(aesCipherUtil.encrypt(follower.getId()), follower,
+                    isFollowedByLoginMember, false);
         }).toList();
     }
 
@@ -132,23 +130,22 @@ public class MemberFollowService {
      * @param size          페이지 당 조회할 데이터 수
      * @return List<MemberFollowListResponse>
      */
-    public List<MemberFollowListResponse> findFollowerList(String memberId, Long loginMemberId, int page, int size) throws Exception {
+    public List<MemberFollowListResponse> findFollowerList(Long memberId, Long loginMemberId, int page, int size) {
 
-        MemberAndLoginMemberDto dto = findMemberInfo(aesCipher.decrypt(memberId), loginMemberId);
+        MemberAndLoginMemberDto dto = findMemberInfo(memberId, loginMemberId);
         Member member = dto.getMember();
         Member loginMember = dto.getLoginMember();
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Member> followerList = memberFollowRepository.findFollowersByFollowing(member, pageRequest).stream().toList();
+        List<Member> followerList = memberFollowRepository.findFollowersByFollowing(member, pageRequest).stream()
+                .toList();
 
         return followerList.stream().map(follower -> {
-            boolean isFollowedByLoginMember = (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
+            boolean isFollowedByLoginMember =
+                    (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
             boolean isLoginMember = follower.equals(loginMember);
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(follower.getId()), follower, isFollowedByLoginMember, isLoginMember);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+            return MemberFollowListResponse.of(aesCipherUtil.encrypt(follower.getId()), follower,
+                    isFollowedByLoginMember, isLoginMember);
         }).toList();
     }
 
@@ -165,15 +162,12 @@ public class MemberFollowService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Member> followerList = memberFollowRepository.findFollowingsByFollower(loginMember, pageRequest).stream().toList();
+        List<Member> followingList = memberFollowRepository.findFollowingsByFollower(loginMember, pageRequest).stream()
+                .toList();
 
-        return followerList.stream().map(follower -> {
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(follower.getId()), follower, true, false);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
-        }).toList();
+        return followingList.stream()
+                .map(following -> MemberFollowListResponse.of(aesCipherUtil.encrypt(following.getId()), following, true,
+                        false)).toList();
     }
 
     /**
@@ -185,9 +179,9 @@ public class MemberFollowService {
      * @param size          페이지 당 조회할 데이터 수
      * @return List<MemberFollowListResponse>
      */
-    public List<MemberFollowListResponse> findFollowingList(String memberId, Long loginMemberId, int page, int size) throws Exception {
+    public List<MemberFollowListResponse> findFollowingList(Long memberId, Long loginMemberId, int page, int size) {
 
-        MemberAndLoginMemberDto dto = findMemberInfo(aesCipher.decrypt(memberId), loginMemberId);
+        MemberAndLoginMemberDto dto = findMemberInfo(memberId, loginMemberId);
         Member member = dto.getMember();
         Member loginMember = dto.getLoginMember();
 
@@ -197,13 +191,12 @@ public class MemberFollowService {
                 .map(MemberFollow::getFollowing).toList();
 
         return followingList.stream().map(following -> {
-            boolean isFollowedByLoginMember = (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, following);
+            boolean isFollowedByLoginMember =
+                    (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember,
+                            following);
             boolean isLoginMember = following.equals(loginMember);
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(following.getId()), following, isFollowedByLoginMember, isLoginMember);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+            return MemberFollowListResponse.of(aesCipherUtil.encrypt(following.getId()), following,
+                    isFollowedByLoginMember, isLoginMember);
         }).toList();
     }
 
@@ -221,15 +214,13 @@ public class MemberFollowService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Member> searchList = memberFollowRepository.findByFollowingAndKeyword(member, keyword, pageRequest).stream().toList();
+        List<Member> searchList = memberFollowRepository.findByFollowingAndKeyword(member, keyword, pageRequest)
+                .stream().toList();
 
         return searchList.stream().map(follower -> {
             boolean isFollowedByLoginMember = memberFollowRepository.existsByFollowerAndFollowing(member, follower);
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(follower.getId()), follower, isFollowedByLoginMember, false);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+            return MemberFollowListResponse.of(aesCipherUtil.encrypt(follower.getId()), follower,
+                    isFollowedByLoginMember, false);
         }).toList();
     }
 
@@ -242,23 +233,23 @@ public class MemberFollowService {
      * @param size          페이지 당 조회할 데이터 수
      * @return List<MemberFollowListResponse>
      */
-    public List<MemberFollowListResponse> searchFollowers(String memberId, Long loginMemberId, String keyword, int page, int size) throws Exception {
+    public List<MemberFollowListResponse> searchFollowers(Long memberId, Long loginMemberId, String keyword, int page,
+                                                          int size) {
 
-        MemberAndLoginMemberDto dto = findMemberInfo(aesCipher.decrypt(memberId), loginMemberId);
+        MemberAndLoginMemberDto dto = findMemberInfo(memberId, loginMemberId);
         Member member = dto.getMember();  // 팔로워 리스트 주인
         Member loginMember = dto.getLoginMember();
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Member> searchList = memberFollowRepository.findByFollowingAndKeyword(member, keyword, pageRequest).stream().toList();
+        List<Member> searchList = memberFollowRepository.findByFollowingAndKeyword(member, keyword, pageRequest)
+                .stream().toList();
 
         return searchList.stream().map(follower -> {
-            boolean isFollowedByLoginMember = (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
+            boolean isFollowedByLoginMember =
+                    (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
             boolean isLoginMember = follower.equals(loginMember);
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(follower.getId()), follower, isFollowedByLoginMember, isLoginMember);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+            return MemberFollowListResponse.of(aesCipherUtil.encrypt(follower.getId()), follower,
+                    isFollowedByLoginMember, isLoginMember);
         }).toList();
     }
 
@@ -276,15 +267,12 @@ public class MemberFollowService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Member> searchList = memberFollowRepository.findByFollowerAndKeyword(member, keyword, pageRequest).stream().toList();
+        List<Member> searchList = memberFollowRepository.findByFollowerAndKeyword(member, keyword, pageRequest).stream()
+                .toList();
 
-        return searchList.stream().map(follower -> {
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(follower.getId()), follower, true, false);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
-        }).toList();
+        return searchList.stream()
+                .map(following -> MemberFollowListResponse.of(aesCipherUtil.encrypt(following.getId()), following, true,
+                        false)).toList();
 
     }
 
@@ -297,22 +285,23 @@ public class MemberFollowService {
      * @param size          페이지 당 조회할 데이터 수
      * @return List<MemberFollowListResponse>
      */
-    public List<MemberFollowListResponse> searchFollowings(String memberId, Long loginMemberId, String keyword, int page, int size) throws Exception {
-        MemberAndLoginMemberDto dto = findMemberInfo(aesCipher.decrypt(memberId), loginMemberId);
+    public List<MemberFollowListResponse> searchFollowings(Long memberId, Long loginMemberId, String keyword, int page,
+                                                           int size) {
+        MemberAndLoginMemberDto dto = findMemberInfo(memberId, loginMemberId);
         Member member = dto.getMember();  // 팔로잉 리스트 주인
         Member loginMember = dto.getLoginMember();
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        List<Member> searchList = memberFollowRepository.findByFollowerAndKeyword(member, keyword, pageRequest).stream().toList();
+        List<Member> searchList = memberFollowRepository.findByFollowerAndKeyword(member, keyword, pageRequest).stream()
+                .toList();
 
-        return searchList.stream().map(follower -> {
-            boolean isFollowedByLoginMember = (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember, follower);
-            boolean isLoginMember = follower.equals(loginMember);
-            try {
-                return MemberFollowListResponse.of(aesCipher.encrypt(follower.getId()), follower, isFollowedByLoginMember, isLoginMember);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+        return searchList.stream().map(following -> {
+            boolean isFollowedByLoginMember =
+                    (loginMember != null) && memberFollowRepository.existsByFollowerAndFollowing(loginMember,
+                            following);
+            boolean isLoginMember = following.equals(loginMember);
+            return MemberFollowListResponse.of(aesCipherUtil.encrypt(following.getId()), following,
+                    isFollowedByLoginMember, isLoginMember);
         }).toList();
     }
 

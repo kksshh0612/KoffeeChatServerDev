@@ -1,5 +1,7 @@
 package teamkiim.koffeechat.domain.post.community.dto.response;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,9 +9,6 @@ import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.post.common.dto.response.CommentInfoDto;
 import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -39,8 +38,11 @@ public class CommunityPostResponse {
     private List<TagInfoDto> tagInfoDtoList;
     private List<CommentInfoDto> commentInfoDtoList;
 
-    public static CommunityPostResponse of(String postId, String memberId, CommunityPost communityPost, List<TagInfoDto> tagInfoDtoList, List<CommentInfoDto> commentInfoDtoList,
-                                           VoteResponse voteResponse, boolean isMemberLiked, boolean isMemberBookmarked, boolean isMemberWritten) {
+    public static CommunityPostResponse of(String postId, CommunityPost communityPost, String memberId,
+                                           List<TagInfoDto> tagInfoDtoList,
+                                           List<CommentInfoDto> commentInfoDtoList,
+                                           VoteResponse voteResponse, boolean isMemberLiked, boolean isMemberBookmarked,
+                                           boolean isMemberWritten) {
 
         return CommunityPostResponse.builder()
                 .id(postId)

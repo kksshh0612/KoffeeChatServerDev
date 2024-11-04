@@ -14,15 +14,15 @@ import teamkiim.koffeechat.domain.comment.dto.request.ModifyCommentServiceReques
 public class ModifyCommentRequest {
 
     @Schema(description = "댓글 pk", example = "1")
-    private Long id;
+    private String id;
 
     @Schema(description = "댓글 내용", example = "댓글 내용 수정입니다.")
     @NotBlank(message = "댓글을 작성해주세요.")
     private String content;
 
-    public ModifyCommentServiceRequest toServiceRequest() {
+    public ModifyCommentServiceRequest toServiceRequest(Long commentId) {
         return ModifyCommentServiceRequest.builder()
-                .id(this.id)
+                .id(commentId)
                 .content(this.content)
                 .build();
     }

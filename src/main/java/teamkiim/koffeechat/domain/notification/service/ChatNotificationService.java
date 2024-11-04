@@ -1,5 +1,8 @@
 package teamkiim.koffeechat.domain.notification.service;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,10 +12,7 @@ import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceReq
 import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateChatNotificationRequest;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @Slf4j
 @Service
@@ -21,6 +21,8 @@ import java.util.Map;
 public class ChatNotificationService {
 
     private final EmitterRepository emitterRepository;
+
+    private final AESCipherUtil aesCipherUtil;
 
     /**
      * 알림 발송
@@ -31,7 +33,8 @@ public class ChatNotificationService {
         try {
             emitter.send(SseEmitter.event().id(eventId).name("chat").data(response));
         } catch (IOException e) {
-            log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId, e.getMessage());
+            log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId,
+                    e.getMessage());
             emitter.completeWithError(e);
             emitterRepository.deleteById(emitterId);
         }
@@ -44,14 +47,15 @@ public class ChatNotificationService {
                                        Long chatRoomId, Long senderId, List<Long> receiverIds) {
 
         for (Long receiverId : receiverIds) {
-            String eventId = receiverId + "_" + System.currentTimeMillis();   //eventId 생성
+            String eventId = aesCipherUtil.encrypt(receiverId) + "_" + System.currentTimeMillis();   //eventId 생성
 
-            Map<String, SseEmitterWrapper> emitters = emitterRepository.findReceiveEmitterByReceiverId(String.valueOf(receiverId));  //알림 수신 설정 되어있는 emitter 확인
+            Map<String, SseEmitterWrapper> emitters = emitterRepository.findReceiveEmitterByReceiverId(
+                    aesCipherUtil.encrypt(receiverId));  //알림 수신 설정 되어있는 emitter 확인
 
             CreateChatNotificationRequest createChatNotificationRequest = CreateChatNotificationRequest.builder()
-                    .chatRoomId(chatRoomId)
+                    .chatRoomId(aesCipherUtil.encrypt(chatRoomId))
                     .content(chatMessageServiceRequest.getContent())
-                    .senderId(senderId)
+                    .senderId(aesCipherUtil.encrypt(senderId))
                     .messageType(chatMessageServiceRequest.getMessageType())
                     .createdTime(chatMessageServiceRequest.getCreatedTime())
                     .build();
@@ -68,15 +72,22 @@ public class ChatNotificationService {
      * 채팅방 접속/미접속 시 sse 알림 상태 on/off
      */
     public void onChatRoomNotification(Long receiverId, Long chatRoomId) {  // 채팅방 미접속시 : 알림 on
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiverId));
-
+        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
+                aesCipherUtil.encrypt(receiverId));
+        log.info(aesCipherUtil.encrypt(receiverId));
         emitters.forEach((id, emitter) -> {
             emitter.onChatRoomNotificationStatus(chatRoomId);
+            emitter.getChatRoomNotificationStatusList().stream().map(status -> {
+                log.info(status.getChatRoomId().toString());
+                log.info(String.valueOf(status.isAlert()));
+                return null;
+            }).toList();
         });
     }
 
     public void offChatRoomNotification(Long receiverId, Long chatRoomId) {   // 채팅방 접속시 : 알림 off
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiverId));
+        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
+                aesCipherUtil.encrypt(receiverId));
 
         emitters.forEach((id, emitter) -> {
             emitter.offChatRoomNotificationStatus(chatRoomId);
@@ -87,7 +98,8 @@ public class ChatNotificationService {
      * 채팅방 입장/퇴장 시 알림 설정 추가/삭제
      */
     public void addChatRoomNotification(Long receiverId, Long chatRoomId) {
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiverId));
+        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
+                aesCipherUtil.encrypt(receiverId));
 
         emitters.forEach((id, emitter) -> {
             emitter.addChatRoomNotificationStatus(chatRoomId);
@@ -95,7 +107,8 @@ public class ChatNotificationService {
     }
 
     public void removeChatRoomNotification(Long receiverId, Long chatRoomId) {
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiverId));
+        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
+                aesCipherUtil.encrypt(receiverId));
 
         emitters.forEach((id, emitter) -> {
             emitter.removeChatRoomNotificationStatus(chatRoomId);
@@ -106,7 +119,8 @@ public class ChatNotificationService {
      * 채팅 접속/미접속 시 알림 on/off
      */
     public void startNotifications(Long receiverId) {
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiverId));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
+        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
+                aesCipherUtil.encrypt(receiverId));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
 
         emitters.forEach((id, emitter) -> {
             emitter.startReceiving();
@@ -114,7 +128,8 @@ public class ChatNotificationService {
     }
 
     public void stopNotifications(Long receiverId) {
-        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(String.valueOf(receiverId));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
+        Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
+                aesCipherUtil.encrypt(receiverId));  //알림 받는 사람이 연결되어있는 모든 emitter에 이벤트 발송
 
         emitters.forEach((id, emitter) -> {
             emitter.stopReceiving();

@@ -1,13 +1,12 @@
 package teamkiim.koffeechat.domain.post.common.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
-
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -19,9 +18,9 @@ public class BookmarkPostListResponse {
     private String id;                                // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
-    private Long viewCount;                         // 조회수
-    private Long likeCount;                         // 좋아요 수
-    private Long bookmarkCount;                     // 북마크 수
+    private long viewCount;                         // 조회수
+    private long likeCount;                         // 좋아요 수
+    private long bookmarkCount;                     // 북마크 수
     private LocalDateTime createdTime;              // 작성 시간
     private LocalDateTime modifiedTime;             // 수정 시간
     private String nickname;                        // 작성자 닉네임

@@ -2,17 +2,22 @@ package teamkiim.koffeechat.domain.notification.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.notification.controller.dto.NotificationApiDocument;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +33,7 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/subscribe")
     @NotificationApiDocument.SubscribeApiDoc
-    public SseEmitter subscribe(HttpServletRequest request) throws Exception {
+    public SseEmitter subscribe(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -56,12 +61,14 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("")
     @NotificationApiDocument.ShowNotificationListApiDoc
-    public ResponseEntity<?> showNotificationList(@RequestParam("notificationType") NotificationType notiType, @RequestParam("page") int page,
+    public ResponseEntity<?> showNotificationList(@RequestParam("notificationType") NotificationType notiType,
+                                                  @RequestParam("page") int page,
                                                   @RequestParam("size") int size, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<NotificationListItemResponse> response = notificationService.getNotificationList(notiType, memberId, page, size);
+        List<NotificationListItemResponse> response = notificationService.getNotificationList(notiType, memberId, page,
+                size);
 
         return ResponseEntity.ok(response);
     }
@@ -72,7 +79,8 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{notificationId}")
     @NotificationApiDocument.UpdateNotificationIsReadApiDoc
-    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") String notiId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> updateNotificationIsRead(@PathVariable("notificationId") String notiId,
+                                                      HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -87,7 +95,8 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{notificationId}")
     @NotificationApiDocument.DeleteNotificationApiDoc
-    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") String notiId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> deleteNotification(@PathVariable("notificationId") String notiId,
+                                                HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 

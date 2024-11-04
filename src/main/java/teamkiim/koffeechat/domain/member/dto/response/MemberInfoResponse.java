@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.domain.member.dto.response;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,8 +8,6 @@ import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.domain.MemberRole;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -23,14 +22,16 @@ public class MemberInfoResponse {
     List<SkillCategory> interestSkillCategoryList;
     private long followerCount;
     private long followingCount;
-    private Boolean isLoginMember;
+    private boolean isLoginMember;
     private Boolean isFollowingMember;
     private String profileImageUrl;
 
     private boolean isCorpVerified;  // 현직자 인증 여부
     private String corpName;
 
-    public static MemberInfoResponse of(Member member, String memberId, boolean isLoginMember, Boolean isFollowingMember, boolean isCorpVerified) {
+    public static MemberInfoResponse of(String memberId, Member member, boolean isLoginMember,
+                                        Boolean isFollowingMember,
+                                        boolean isCorpVerified) {
         return MemberInfoResponse.builder()
                 .memberId(memberId)
                 .email(member.getEmail())

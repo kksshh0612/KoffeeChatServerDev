@@ -1,9 +1,10 @@
 package teamkiim.koffeechat.domain.corp.service;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;
@@ -18,9 +19,6 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -32,11 +30,8 @@ public class CorpService {
     private final EmailAuthRepository emailAuthRepository;
     private final EmailSendService emailSendService;
 
-    private final AESCipher aesCipher;
-
     /**
-     * 회사 도메인 등록 요청 대기 상태로 저장
-     * 거절된 도메인에 대해 요청하면 -> 요청 거절
+     * 회사 도메인 등록 요청 대기 상태로 저장 거절된 도메인에 대해 요청하면 -> 요청 거절
      */
     @Transactional
     public String createWaitingCorp(Long memberId, String corpName, String corpDomain) {
@@ -99,9 +94,9 @@ public class CorpService {
      * @return 인증 이메일 전송 상태 메시지
      */
     @Transactional
-    public String createEmailAuth(String corpName, String email, String memberId) throws Exception {
+    public void createEmailAuth(String corpName, String email, Long memberId) {
 
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         String domain = email.substring(email.indexOf('@') + 1);
@@ -114,8 +109,6 @@ public class CorpService {
         emailAuthRepository.save(emailAuth);
 
         emailSendService.sendCorpEmail(member, emailAuth);
-
-        return "이메일 전송 완료, 이메일을 확인해주세요";
     }
 
     /**
@@ -144,8 +137,8 @@ public class CorpService {
      * @param code  회사 이메일 인증 코드
      */
     @Transactional
-    public void checkEmailAuthCode(String memberId, String corpName, String email, String code) throws Exception {
-        Member member = memberRepository.findById(aesCipher.decrypt(memberId))
+    public void checkEmailAuthCode(Long memberId, String corpName, String email, String code) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         EmailAuth emailAuth = emailAuthRepository.findByEmailAndCode(email, code)

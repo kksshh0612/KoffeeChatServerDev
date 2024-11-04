@@ -3,18 +3,22 @@ package teamkiim.koffeechat.domain.corp.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.CorpAuthCodeCheckRequest;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.CorpAuthRequest;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.CorpDomainRequest;
 import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
 import teamkiim.koffeechat.domain.corp.service.CorpService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,10 +34,12 @@ public class CorpController {
     @AuthenticatedMemberPrincipal
     @PostMapping("")
     @CorpApiDocument.CreateWaitingCorp
-    public ResponseEntity<?> createWaitingCorp(@Valid @RequestBody CorpDomainRequest corpDomainRequest, HttpServletRequest request) {
+    public ResponseEntity<?> createWaitingCorp(@Valid @RequestBody CorpDomainRequest corpDomainRequest,
+                                               HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-        String response = corpService.createWaitingCorp(memberId, corpDomainRequest.getName(), corpDomainRequest.getEmailDomain());
+        String response = corpService.createWaitingCorp(memberId, corpDomainRequest.getName(),
+                corpDomainRequest.getEmailDomain());
 
         return ResponseEntity.ok(response);
     }
@@ -72,18 +78,18 @@ public class CorpController {
     }
 
     /**
-     * 현직자 인증 시 이메일 전송
-     * 이메일 보내고 인증까지 받고나서 admin 최종 승인받기 (승인 목록)
+     * 현직자 인증 시 이메일 전송 이메일 보내고 인증까지 받고나서 admin 최종 승인받기 (승인 목록)
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/email-auth")
     @CorpApiDocument.CreateEmailAuth
-    public ResponseEntity<?> createEmailAuth(@Valid @RequestBody CorpAuthRequest corpRequest, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> createEmailAuth(@Valid @RequestBody CorpAuthRequest corpRequest,
+                                             HttpServletRequest request) {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
-        String response = corpService.createEmailAuth(corpRequest.getName(), corpRequest.getEmail(), memberId);
+        Long memberId = Long.parseLong(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        corpService.createEmailAuth(corpRequest.getName(), corpRequest.getEmail(), memberId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("이메일 전송 완료, 이메일을 확인해주세요");
     }
 
     /**
@@ -92,10 +98,12 @@ public class CorpController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/email-auth/code")
     @CorpApiDocument.CheckEmailAuthCode
-    public ResponseEntity<?> checkEmailAuthCode(@Valid @RequestBody CorpAuthCodeCheckRequest codeCheckRequest, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> checkEmailAuthCode(@Valid @RequestBody CorpAuthCodeCheckRequest codeCheckRequest,
+                                                HttpServletRequest request) {
 
-        String memberId = String.valueOf(request.getAttribute("authenticatedMemberPK"));
-        corpService.checkEmailAuthCode(memberId, codeCheckRequest.getName(), codeCheckRequest.getEmail(), codeCheckRequest.getCode());
+        Long memberId = Long.parseLong(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        corpService.checkEmailAuthCode(memberId, codeCheckRequest.getName(), codeCheckRequest.getEmail(),
+                codeCheckRequest.getCode());
 
         return ResponseEntity.ok("인증 되었습니다.");
     }
