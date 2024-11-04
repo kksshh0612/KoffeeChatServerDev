@@ -22,11 +22,11 @@ public class MemberInfoResponse {
     List<SkillCategory> interestSkillCategoryList;
     private long followerCount;
     private long followingCount;
-    private boolean isLoginMember;
+    private Boolean isLoginMember;
     private Boolean isFollowingMember;
     private String profileImageUrl;
 
-    private boolean isCorpVerified;  // 현직자 인증 여부
+    private Boolean isCorpVerified;  // 현직자 인증 여부
     private String corpName;
 
     public static MemberInfoResponse of(String memberId, Member member, boolean isLoginMember,
