@@ -44,7 +44,9 @@ public class S3PostFileService implements PostFileService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        String fileName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
+        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String fileName = UUID.randomUUID() + "_" + originalFilename + extension;
 
         ImageUrlResponse imageUrlResponse = fileStorageService.uploadFile(fileName, multipartFile);
 
