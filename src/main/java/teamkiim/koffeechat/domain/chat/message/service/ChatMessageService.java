@@ -117,6 +117,8 @@ public class ChatMessageService {
 
         PageRequest pageRequest = PageRequest.of(0, size);
 
+        if(cursorId == null) cursorId = Long.MAX_VALUE;
+
         // cursor 기반 페이징
         List<ChatMessage> messageList = chatMessageRepository.findByCursor(chatRoomId, cursorId, pageRequest).getContent();
 
