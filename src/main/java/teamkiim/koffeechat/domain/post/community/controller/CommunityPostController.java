@@ -3,9 +3,19 @@ package teamkiim.koffeechat.domain.post.community.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.community.controller.dto.ModifyCommunityPostRequest;
 import teamkiim.koffeechat.domain.post.community.controller.dto.SaveCommunityPostRequest;
@@ -13,9 +23,7 @@ import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostListR
 import teamkiim.koffeechat.domain.post.community.dto.response.CommunityPostResponse;
 import teamkiim.koffeechat.domain.post.community.service.CommunityPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,19 +33,21 @@ public class CommunityPostController {
 
     private final CommunityPostService communityPostService;
 
+    private final AESCipherUtil aesCipherUtil;
+
     /**
      * 커뮤니티 게시글 최초 임시 저장
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/init")
     @CommunityPostApiDocument.InitPostApiDoc
-    public ResponseEntity<?> initPost(HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> initPost(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        String postId = communityPostService.saveInitCommunityPost(memberId);
+        Long postId = communityPostService.saveInitCommunityPost(memberId);
 
-        return ResponseEntity.ok(postId);
+        return ResponseEntity.ok(aesCipherUtil.encrypt(postId));
     }
 
     /**
@@ -46,9 +56,10 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{postId}")
     @CommunityPostApiDocument.CancelPostApiDoc
-    public ResponseEntity<?> CancelPostApiDoc(@PathVariable("postId") String postId) throws Exception {
+    public ResponseEntity<?> cancelPostApiDoc(@PathVariable("postId") String postId) {
 
-        communityPostService.cancelWriteCommunityPost(postId);
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
+        communityPostService.cancelWriteCommunityPost(decryptedPostId);
 
         return ResponseEntity.ok("게시글 작성 취소 완료");
     }
@@ -59,14 +70,16 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/{postId}")
     @CommunityPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(@PathVariable("postId") String postId, @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest,
-                                      HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> savePost(@PathVariable("postId") String postId,
+                                      @Valid @RequestBody SaveCommunityPostRequest saveCommunityPostRequest,
+                                      HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
         LocalDateTime createdTime = LocalDateTime.now();
 
-        communityPostService.saveCommunityPost(postId, saveCommunityPostRequest, memberId, createdTime);
+        communityPostService.saveCommunityPost(decryptedPostId, saveCommunityPostRequest, memberId, createdTime);
 
         return ResponseEntity.ok("게시글 작성 완료");
     }
@@ -76,12 +89,15 @@ public class CommunityPostController {
      */
     @GetMapping("")
     @CommunityPostApiDocument.GetCommunityPostListApiDoc
-    public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
-                                                  @RequestParam(value = "word", required = false) String keyword, @RequestParam(value = "tag", required = false) List<String> tagContents) {
+    public ResponseEntity<?> getCommunityPostList(@RequestParam("sortType") SortCategory sortType,
+                                                  @RequestParam("page") int page, @RequestParam("size") int size,
+                                                  @RequestParam(value = "word", required = false) String keyword,
+                                                  @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
-        List<CommunityPostListResponse> responses = communityPostService.findCommunityPostList(sortType, page, size, keyword, tagContents);
+        List<CommunityPostListResponse> listResponse = communityPostService.findCommunityPostList(sortType, page, size,
+                keyword, tagContents);
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(listResponse);
     }
 
     /**
@@ -90,11 +106,12 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postId}")
     @CommunityPostApiDocument.ShowPostApiDoc
-    public ResponseEntity<?> showPost(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> showPost(@PathVariable("postId") String postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
-        CommunityPostResponse postResponse = communityPostService.findPost(postId, memberId, request);
+        CommunityPostResponse postResponse = communityPostService.findPost(decryptedPostId, memberId, request);
 
         return ResponseEntity.ok(postResponse);
     }
@@ -105,12 +122,15 @@ public class CommunityPostController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{postId}")
     @CommunityPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@PathVariable("postId") String postId, @Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
-                                        HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") String postId,
+                                        @Valid @RequestBody ModifyCommunityPostRequest modifyCommunityPostRequest,
+                                        HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
-        communityPostService.modifyPost(postId, modifyCommunityPostRequest.toPostServiceRequest(), modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
+        communityPostService.modifyPost(decryptedPostId, modifyCommunityPostRequest.toPostServiceRequest(),
+                modifyCommunityPostRequest.toVoteServiceRequest(), memberId);
 
         return ResponseEntity.ok("게시글 수정 완료");
     }

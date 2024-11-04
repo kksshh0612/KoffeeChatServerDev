@@ -3,10 +3,20 @@ package teamkiim.koffeechat.domain.post.dev.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
@@ -16,9 +26,7 @@ import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,19 +37,21 @@ public class DevPostController {
 
     private final DevPostService devPostService;
 
+    private final AESCipherUtil aesCipherUtil;
+
     /**
      * 개발 게시글 최초 임시 저장
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/init")
     @DevPostApiDocument.InitPostApiDoc
-    public ResponseEntity<?> initPost(HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> initPost(HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        String postId = devPostService.saveInitDevPost(memberId);
+        Long postId = devPostService.saveInitDevPost(memberId);
 
-        return ResponseEntity.ok(postId);
+        return ResponseEntity.ok(aesCipherUtil.encrypt(postId));
     }
 
     /**
@@ -50,9 +60,11 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @DeleteMapping("/{postId}")
     @DevPostApiDocument.CancelPostApiDoc
-    public ResponseEntity<?> cancelPost(@PathVariable("postId") String postId) throws Exception {
+    public ResponseEntity<?> cancelPost(@PathVariable("postId") String postId) {
 
-        devPostService.cancelWriteDevPost(postId);
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
+
+        devPostService.cancelWriteDevPost(decryptedPostId);
 
         return ResponseEntity.ok("게시글 삭제 완료");
     }
@@ -63,13 +75,16 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/{postId}")
     @DevPostApiDocument.SavePostApiDoc
-    public ResponseEntity<?> savePost(@PathVariable("postId") String postId, @Valid @RequestBody SaveDevPostRequest saveDevPostRequest, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> savePost(@PathVariable("postId") String postId,
+                                      @Valid @RequestBody SaveDevPostRequest saveDevPostRequest,
+                                      HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
         LocalDateTime createdTime = LocalDateTime.now();
 
-        devPostService.saveDevPost(postId, saveDevPostRequest.toServiceRequest(), memberId, createdTime);
+        devPostService.saveDevPost(decryptedPostId, saveDevPostRequest.toServiceRequest(), memberId, createdTime);
 
         return ResponseEntity.ok("게시글 작성 완료");
     }
@@ -79,14 +94,16 @@ public class DevPostController {
      */
     @GetMapping("")
     @DevPostApiDocument.GetDevPostList
-    public ResponseEntity<?> getDevPostList(@RequestParam("sortType") SortCategory sortType, @RequestParam("page") int page, @RequestParam("size") int size,
+    public ResponseEntity<?> getDevPostList(@RequestParam("sortType") SortCategory sortType,
+                                            @RequestParam("page") int page, @RequestParam("size") int size,
                                             @RequestParam(value = "word", required = false) String keyword,
                                             @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList,
                                             @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
         log.info("/dev-post/list 진입");
 
-        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, keyword, childSkillCategoryList, tagContents);
+        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, keyword,
+                childSkillCategoryList, tagContents);
 
         return ResponseEntity.ok(responseList);
     }
@@ -97,11 +114,12 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postId}")
     @DevPostApiDocument.ShowPostApiDoc
-    public ResponseEntity<?> showPost(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> showPost(@PathVariable("postId") String postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
-        DevPostResponse postResponse = devPostService.findPost(postId, memberId, request);
+        DevPostResponse postResponse = devPostService.findPost(decryptedPostId, memberId, request);
 
         return ResponseEntity.ok(postResponse);
     }
@@ -112,12 +130,14 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PatchMapping("/{postId}")
     @DevPostApiDocument.ModifyPostApiDoc
-    public ResponseEntity<?> modifyPost(@PathVariable("postId") String postId, @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest,
-                                        HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> modifyPost(@PathVariable("postId") String postId,
+                                        @Valid @RequestBody ModifyDevPostRequest modifyDevPostRequest,
+                                        HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
-        devPostService.modifyPost(postId, modifyDevPostRequest.toServiceRequest(), memberId);
+        devPostService.modifyPost(decryptedPostId, modifyDevPostRequest.toServiceRequest(), memberId);
 
         return ResponseEntity.ok("게시물 수정 완료");
     }
@@ -128,9 +148,11 @@ public class DevPostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/skillCategory")
     @DevPostApiDocument.SkillCategoryPostsApiDoc
-    public ResponseEntity<?> skillCategoryPosts(@RequestBody SkillCategoryRequest skillCategoryRequest, @RequestParam("page") int page, @RequestParam("size") int size) {
+    public ResponseEntity<?> skillCategoryPosts(@RequestBody SkillCategoryRequest skillCategoryRequest,
+                                                @RequestParam("page") int page, @RequestParam("size") int size) {
 
-        List<DevPostListResponse> responses = devPostService.findSkillCategoryPosts(skillCategoryRequest.convertToSkillCategory(), page, size);
+        List<DevPostListResponse> responses = devPostService.findSkillCategoryPosts(
+                skillCategoryRequest.convertToSkillCategory(), page, size);
 
         return ResponseEntity.ok(responses);
     }

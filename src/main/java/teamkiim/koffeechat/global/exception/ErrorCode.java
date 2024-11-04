@@ -58,7 +58,8 @@ public enum ErrorCode {
     CANNOT_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 이메일이 올바른지 확인해주세요"),
     FILE_IO_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다."),
     NOTIFICATION_TYPE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 알림 종류"),
-    ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "암호화를 실패했습니다.");
+    ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "암호화 오류"),
+    DECRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "복호화 오류");
 
     private final HttpStatus httpStatus;
     private final String msg;

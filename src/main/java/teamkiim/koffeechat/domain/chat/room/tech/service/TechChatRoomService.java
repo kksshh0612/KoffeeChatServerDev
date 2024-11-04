@@ -1,9 +1,9 @@
 package teamkiim.koffeechat.domain.chat.room.tech.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
@@ -16,9 +16,11 @@ import teamkiim.koffeechat.domain.chat.room.tech.dto.request.ExitTechChatRoomSer
 import teamkiim.koffeechat.domain.chat.room.tech.repository.TechChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class TechChatRoomService {
     private final MemberChatRoomRepository memberChatRoomRepository;
     private final ChatMessageService chatMessageService;
 
-    private final AESCipher aesCipher;
+    private final AESCipherUtil aesCipherUtil;
 
     /**
      * 기술 채팅방 생성
@@ -38,14 +40,14 @@ public class TechChatRoomService {
      * @param memberId                         채팅방 생성을 요청한 사용자 PK
      */
     @Transactional
-    public void createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, Long memberId) {
+    public String createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity();
 
-        techChatRoomRepository.save(techChatRoom);
+        TechChatRoom techChatRoom1 = techChatRoomRepository.save(techChatRoom);
 
         MemberChatRoom memberChatRoom = MemberChatRoom.builder()
                 .chatRoom(techChatRoom)
@@ -53,6 +55,8 @@ public class TechChatRoomService {
                 .build();
 
         memberChatRoomRepository.save(memberChatRoom);
+
+        return aesCipherUtil.encrypt(techChatRoom1.getId());
     }
 
     /**
@@ -61,6 +65,7 @@ public class TechChatRoomService {
      * @param enterTechChatRoomServiceRequest
      * @param memberId                        채팅방 입장을 요청한 사용자 PK
      */
+    @Transactional
     public void enterChatRoom(EnterTechChatRoomServiceRequest enterTechChatRoomServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
@@ -84,8 +89,8 @@ public class TechChatRoomService {
                 .createdTime(enterTechChatRoomServiceRequest.getEnterTime())
                 .build();
 
-        chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), null);
-        chatMessageService.send(messageRequest, techChatRoom.getId(), null);
+        chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), memberId);
+        chatMessageService.send(messageRequest, techChatRoom.getId(), memberId);
     }
 
     /**
@@ -94,6 +99,7 @@ public class TechChatRoomService {
      * @param exitTechChatRoomServiceRequest
      * @param memberId                       채팅방 입장을 요청한 사용자 PK
      */
+    @Transactional
     public void exitChatRoom(ExitTechChatRoomServiceRequest exitTechChatRoomServiceRequest, Long memberId) {
 
         Member member = memberRepository.findById(memberId)

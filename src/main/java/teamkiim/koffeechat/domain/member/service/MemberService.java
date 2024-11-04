@@ -1,12 +1,14 @@
 package teamkiim.koffeechat.domain.member.service;
 
+import java.io.File;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.email.service.EmailService;
 import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.service.FileStorageService;
@@ -18,12 +20,9 @@ import teamkiim.koffeechat.domain.member.dto.response.MemberInfoResponse;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.service.MemberFollowService;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.io.File;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,7 +34,8 @@ public class MemberService {
     private final MemberFollowService memberFollowService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
-    private final AESCipher aesCipher;
+
+    private final AESCipherUtil aesCipherUtil;
 
     @Value("${file-path}")
     private String baseFilePath;
@@ -46,11 +46,11 @@ public class MemberService {
     /**
      * 사용자 닉네임으로 암호화된 pk 요청
      */
-    public String getMemberPK(String memberEmailId) throws Exception {
+    public String getMemberPK(String memberEmailId) {
         Member member = memberRepository.findByEmailId(memberEmailId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return aesCipher.encrypt(member.getId());
+        return aesCipherUtil.encrypt(member.getId());
     }
 
     /**
@@ -75,7 +75,8 @@ public class MemberService {
      * @param enrollSkillCategoryServiceRequestList 관심 기술 dto
      */
     @Transactional
-    public void enrollSkillCategory(Long memberId, List<EnrollSkillCategoryServiceRequest> enrollSkillCategoryServiceRequestList) {
+    public void enrollSkillCategory(Long memberId,
+                                    List<EnrollSkillCategoryServiceRequest> enrollSkillCategoryServiceRequestList) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -154,7 +155,7 @@ public class MemberService {
      * @param loginMemberId   로그인한 회원 (현재 요청을 보낸) 의 PK
      * @return MemberInfoResponse
      */
-    public MemberInfoResponse findMemberInfo(String profileMemberId, Long loginMemberId) throws Exception {
+    public MemberInfoResponse findMemberInfo(Long profileMemberId, Long loginMemberId) {
 
         boolean isLoginMemberProfile = false;
         Boolean isFollowingMember = null;
@@ -167,7 +168,7 @@ public class MemberService {
 
             isLoginMemberProfile = true;
         } else {
-            profileMember = memberRepository.findById(aesCipher.decrypt(profileMemberId))
+            profileMember = memberRepository.findById(profileMemberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
             isLoginMemberProfile = loginMemberId.equals(profileMember.getId());
@@ -182,7 +183,8 @@ public class MemberService {
 
         boolean isCorpVerified = profileMember.getCorpName() != null;  // 현직자 인증 여부
 
-        return MemberInfoResponse.of(profileMember, aesCipher.encrypt(profileMember.getId()), isLoginMemberProfile, isFollowingMember, isCorpVerified);
+        return MemberInfoResponse.of(aesCipherUtil.encrypt(profileMember.getId()), profileMember, isLoginMemberProfile,
+                isFollowingMember, isCorpVerified);
     }
 
 
@@ -190,7 +192,7 @@ public class MemberService {
      * 사용자 이메일 변경 시 인증 메시지 전송
      */
     @Transactional
-    public void sendNewAuthEmail(Long memberId, String email) throws Exception {
+    public void sendNewAuthEmail(Long memberId, String email) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -254,6 +256,5 @@ public class MemberService {
         }
 
         member.encodePassword(passwordEncoder.encode(passwordRequest.getNewPassword()));
-
     }
 }

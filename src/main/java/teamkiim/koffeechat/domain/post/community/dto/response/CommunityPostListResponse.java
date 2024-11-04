@@ -1,5 +1,7 @@
 package teamkiim.koffeechat.domain.post.community.dto.response;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,9 +9,6 @@ import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.community.domain.CommunityPost;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -31,7 +30,8 @@ public class CommunityPostListResponse {
     private String profileImageUrl;
     private String contentImageUrl;
 
-    public static CommunityPostListResponse of(String postId, CommunityPost communityPost, List<TagInfoDto> tagInfoDto) {
+    public static CommunityPostListResponse of(String postId, CommunityPost communityPost,
+                                               List<TagInfoDto> tagInfoDto) {
 
         CommunityPostListResponse response = CommunityPostListResponse.builder()
                 .id(postId)

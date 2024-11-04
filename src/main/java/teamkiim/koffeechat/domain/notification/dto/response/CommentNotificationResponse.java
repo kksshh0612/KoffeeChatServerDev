@@ -1,12 +1,11 @@
 package teamkiim.koffeechat.domain.notification.dto.response;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -35,10 +34,11 @@ public class CommentNotificationResponse {
 
     private LocalDateTime createdTime;
 
-    public static CommentNotificationResponse of(String receiverId, String senderId, String postId, String commentId, Notification notification, long unreadNotifications) {
+    public static CommentNotificationResponse of(String receiverId, String senderId, String postId, String commentId,
+                                                 Notification notification) {
         return CommentNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(unreadNotifications)
+                .unreadNotifications(notification.getReceiver().getUnreadNotifications())
                 .senderId(senderId)
                 .senderNickname(notification.getSender().getNickname())
                 .senderProfileImageUrl(notification.getSender().getProfileImageUrl())

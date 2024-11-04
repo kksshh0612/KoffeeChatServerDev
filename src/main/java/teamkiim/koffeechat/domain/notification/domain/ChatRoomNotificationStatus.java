@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class ChatRoomNotificationStatus {
 
-    private Long chatRoomId;  // 채팅방 pk
+    private final Long chatRoomId;  // 채팅방 pk
     private boolean isAlert;  // 해당 채팅방에 대해 sse 알림 수신 여부
 
     @Builder

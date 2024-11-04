@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.domain.chat.interceptor;
 
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
@@ -8,8 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import teamkiim.koffeechat.global.authentication.Authenticator;
-
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -20,7 +19,7 @@ public class WebSocketConnectionHandshakeInterceptor implements HandshakeInterce
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
-                                   WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+                                   WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
         String validAccessToken = authenticator.verify(request, response);
         Long memberId = authenticator.getMemberIdFromValidAccessToken(validAccessToken);

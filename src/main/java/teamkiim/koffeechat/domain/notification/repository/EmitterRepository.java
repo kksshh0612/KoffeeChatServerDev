@@ -1,11 +1,10 @@
 package teamkiim.koffeechat.domain.notification.repository;
 
-import org.springframework.stereotype.Repository;
-import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Repository;
+import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 
 @Repository
 public class EmitterRepository {
@@ -18,16 +17,17 @@ public class EmitterRepository {
         return sseEmitterWrapper;
     }
 
-    public Map<String, SseEmitterWrapper> findAllEmitterByReceiverId(String memberId) {
+    public Map<String, SseEmitterWrapper> findAllEmitterByReceiverId(String encryptedMemberId) {
         return emitters.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(memberId))
+                .filter(entry -> entry.getKey().startsWith(encryptedMemberId))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     // 알림 수신 받는 emitter 찾기
-    public Map<String, SseEmitterWrapper> findReceiveEmitterByReceiverId(String memberId) {
+    public Map<String, SseEmitterWrapper> findReceiveEmitterByReceiverId(String encryptedMemberId) {
         return emitters.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(memberId) && entry.getValue().isReceive())
+                .filter(entry -> entry.getKey().startsWith(encryptedMemberId) && entry.getValue()
+                        .isReceive())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 

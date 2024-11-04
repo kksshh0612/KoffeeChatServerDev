@@ -1,6 +1,9 @@
 package teamkiim.koffeechat.domain.chat.message.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +17,11 @@ import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
 import teamkiim.koffeechat.domain.chat.room.common.repository.ChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
@@ -29,6 +31,8 @@ public class ChatMessageService {
     private final MemberRepository memberRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
+    private final AESCipherUtil aesCipherUtil;
+
     /**
      * 채팅 메세지 저장
      *
@@ -37,11 +41,13 @@ public class ChatMessageService {
      * @param senderId
      */
     @Transactional
-    public ChatMessageServiceRequest saveTextMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
+    public ChatMessageServiceRequest saveTextMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId,
+                                                     Long senderId) {
 
         ChatMessage chatMessage = messageRequest.toEntity(chatRoomId, senderId);
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
+        log.info(chatRoomId.toString());
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
@@ -75,7 +81,8 @@ public class ChatMessageService {
         Member member = memberRepository.findById(senderId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        ChatMessageResponse chatMessageResponse = ChatMessageResponse.of(messageRequest, member);
+        ChatMessageResponse chatMessageResponse = ChatMessageResponse.of(messageRequest,
+                aesCipherUtil.encrypt(member.getId()), member);
 
         messagingTemplate.convertAndSend("/sub/chat/" + chatRoomId, chatMessageResponse);
     }
@@ -85,7 +92,8 @@ public class ChatMessageService {
         List<ChatRoomInfoDto> dtoList = new ArrayList<>();
 
         for (MemberChatRoom memberChatRoom : memberChatRoomList) {
-            long unreadMessageCount = chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(), memberChatRoom.getCloseTime());
+            long unreadMessageCount = chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(),
+                    memberChatRoom.getCloseTime());
 
             dtoList.add(new ChatRoomInfoDto(memberChatRoom, unreadMessageCount));
         }
@@ -95,6 +103,7 @@ public class ChatMessageService {
 
     public long countUnreadMessageCount(MemberChatRoom memberChatRoom) {
 
-        return chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(), memberChatRoom.getCloseTime());
+        return chatMessageRepository.findCountByChatRoomId(memberChatRoom.getChatRoom().getId(),
+                memberChatRoom.getCloseTime());
     }
 }

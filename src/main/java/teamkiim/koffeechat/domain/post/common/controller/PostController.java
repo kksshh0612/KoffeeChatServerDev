@@ -2,17 +2,23 @@ package teamkiim.koffeechat.domain.post.common.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
-import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 import teamkiim.koffeechat.domain.post.common.domain.SortCategory;
+import teamkiim.koffeechat.domain.post.common.dto.response.BookmarkPostListResponse;
+import teamkiim.koffeechat.domain.post.common.dto.response.MyPostListResponse;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
-
-import java.util.List;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,15 +28,18 @@ public class PostController {
 
     private final PostService postService;
 
+    private final AESCipherUtil aesCipherUtil;
+
     /**
      * 게시글 삭제 (soft delete)
      */
     @AuthenticatedMemberPrincipal
     @DeleteMapping("delete/{postId}")
     @PostApiDocument.DeletePostApiDoc
-    public ResponseEntity<?> delete(@PathVariable("postId") String postId) throws Exception {
+    public ResponseEntity<?> delete(@PathVariable("postId") String postId) {
 
-        postService.softDelete(postId);
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
+        postService.softDelete(decryptedPostId);
 
         return ResponseEntity.ok("게시글이 휴지통으로 이동했습니다.");
     }
@@ -41,11 +50,12 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/like/{postId}")
     @PostApiDocument.LikeApiDoc
-    public ResponseEntity<?> like(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> like(@PathVariable("postId") String postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
-        long likeCount = postService.like(postId, memberId);
+        long likeCount = postService.like(decryptedPostId, memberId);
 
         return ResponseEntity.ok(likeCount);
     }
@@ -56,11 +66,12 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/bookmark/{postId}")
     @PostApiDocument.BookmarkApiDoc
-    public ResponseEntity<?> bookmark(@PathVariable("postId") String postId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> bookmark(@PathVariable("postId") String postId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
-        long bookmarkCount = postService.bookmark(postId, memberId);
+        long bookmarkCount = postService.bookmark(decryptedPostId, memberId);
 
         return ResponseEntity.ok(bookmarkCount);
     }
@@ -71,12 +82,15 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/bookmark/{postType}/{sortType}")
     @PostApiDocument.BookmarkedPostListApiDoc
-    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
-                                                    @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> findBookmarkedPostList(@PathVariable("postType") PostCategory postType,
+                                                    @PathVariable("sortType") SortCategory sortType,
+                                                    @RequestParam("page") int page, @RequestParam("size") int size,
+                                                    HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<BookmarkPostListResponse> bookmarkPostResponseList = postService.findBookmarkPostList(memberId, postType, sortType, page, size);
+        List<BookmarkPostListResponse> bookmarkPostResponseList = postService.findBookmarkPostList(memberId, postType,
+                sortType, page, size);
 
         return ResponseEntity.ok(bookmarkPostResponseList);
     }
@@ -87,12 +101,15 @@ public class PostController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/{postType}/{sortType}")
     @PostApiDocument.MyPostListApiDoc
-    public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType, @PathVariable("sortType") SortCategory sortType,
-                                            @RequestParam("page") int page, @RequestParam("size") int size, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> findMyPostList(@PathVariable("postType") PostCategory postType,
+                                            @PathVariable("sortType") SortCategory sortType,
+                                            @RequestParam("page") int page, @RequestParam("size") int size,
+                                            HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        List<MyPostListResponse> myPostListResponseList = postService.findMyPostList(memberId, postType, sortType, page, size);
+        List<MyPostListResponse> myPostListResponseList =
+                postService.findMyPostList(memberId, postType, sortType, page, size);
 
         return ResponseEntity.ok(myPostListResponseList);
     }

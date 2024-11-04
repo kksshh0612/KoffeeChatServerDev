@@ -1,13 +1,14 @@
 package teamkiim.koffeechat.domain.post.dev.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.global.aescipher.AESCipher;
 import teamkiim.koffeechat.domain.bookmark.service.BookmarkService;
 import teamkiim.koffeechat.domain.comment.service.CommentService;
 import teamkiim.koffeechat.domain.file.service.PostFileService;
@@ -28,11 +29,9 @@ import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.repository.DevPostRepository;
 import teamkiim.koffeechat.domain.postlike.service.PostLikeService;
 import teamkiim.koffeechat.domain.tag.service.TagService;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 개발 게시글 관련 서비스
@@ -52,7 +51,7 @@ public class DevPostService {
     private final TagService tagService;
     private final CommentService commentService;
 
-    private final AESCipher aesCipher;
+    private final AESCipherUtil aesCipherUtil;
 
     /**
      * 게시글 최초 임시 저장
@@ -61,7 +60,7 @@ public class DevPostService {
      * @return String 암호화된 게시글 PK
      */
     @Transactional
-    public String saveInitDevPost(Long memberId) throws Exception {
+    public Long saveInitDevPost(Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -73,7 +72,7 @@ public class DevPostService {
 
         DevPost saveDevPost = devPostRepository.save(devPost);
 
-        return aesCipher.encrypt(saveDevPost.getId());
+        return saveDevPost.getId();
     }
 
     /**
@@ -82,9 +81,9 @@ public class DevPostService {
      * @param postId 게시글 PK
      */
     @Transactional
-    public void cancelWriteDevPost(String postId) throws Exception {
+    public void cancelWriteDevPost(Long postId) {
 
-        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
+        DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         postFileService.deleteImageFiles(devPost);
@@ -98,18 +97,20 @@ public class DevPostService {
      * @param saveDevPostServiceRequest 게시글 저장 dto
      */
     @Transactional
-    public void saveDevPost(String postId, SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId, LocalDateTime createdTime) throws Exception {
+    public void saveDevPost(Long postId, SaveDevPostServiceRequest saveDevPostServiceRequest, Long memberId,
+                            LocalDateTime createdTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
+        DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         tagService.addTags(devPost, saveDevPostServiceRequest.getTagContentList());  //해시태그 추가
 
         devPost.completeDevPost(saveDevPostServiceRequest.getTitle(), saveDevPostServiceRequest.getBodyContent(),
-                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList(), createdTime);
+                saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList(),
+                createdTime);
 
         postFileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
@@ -129,39 +130,46 @@ public class DevPostService {
      * @return DevPostSearchListResponse
      */
     public List<DevPostListResponse> getDevPostList(SortCategory sortType, int page, int size,
-                                                    String keyword, List<ChildSkillCategory> childSkillCategoryList, List<String> tagContents) {
+                                                    String keyword, List<ChildSkillCategory> childSkillCategoryList,
+                                                    List<String> tagContents) {
 
         PageRequest pageRequest = postService.sortBySortCategory(sortType, "id", "likeCount", "viewCount", page, size);
 
         Page<DevPost> devPostList = searchFilter(keyword, childSkillCategoryList, tagContents, pageRequest);
 
         return devPostList.stream().map(post -> {
-            try {
-                List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
-                return DevPostListResponse.of(aesCipher.encrypt(post.getId()), post, tagList);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+            List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
+            return DevPostListResponse.of(aesCipherUtil.encrypt(post.getId()), post, tagList);
         }).toList();
     }
 
-    private Page<DevPost> searchFilter(String keyword, List<ChildSkillCategory> childSkillCategoryList, List<String> tagContents, PageRequest pageRequest) {
+    private Page<DevPost> searchFilter(String keyword, List<ChildSkillCategory> childSkillCategoryList,
+                                       List<String> tagContents, PageRequest pageRequest) {
 
         if (keyword == null && childSkillCategoryList == null && tagContents == null) { //전체 게시글
             return devPostRepository.findAllCompletePost(pageRequest);
-        } else if (keyword == null && childSkillCategoryList == null) {  // 태그로만 검색
-            return devPostRepository.findAllCompletePostByTags(tagContents, pageRequest);
-        } else if (keyword == null && tagContents == null) {  // 기술 카테고리로만 검색
-            return devPostRepository.findAllCompletePostBySkillCategoryList(childSkillCategoryList, pageRequest);
-        } else if (childSkillCategoryList == null && tagContents == null) {  // 제목으로만 검색
-            return devPostRepository.findAllCompletePostByKeyword(keyword, pageRequest);
-        } else if (keyword == null) {   //기술 카테고리, 태그로 검색
-            return devPostRepository.findAllCompletePostBySkillCategoryAndTags(childSkillCategoryList, tagContents, pageRequest);
-        } else if (childSkillCategoryList == null) {   //제목, 태그로 검색
-            return devPostRepository.findAllCompletePostByKeywordAndTags(keyword, tagContents, pageRequest);
-        } else {  //제목, 기술 카테고리로 검색
-            return devPostRepository.findAllCompletePostByKeywordAndSkillCategory(keyword, childSkillCategoryList, pageRequest);
         }
+        if (keyword == null && childSkillCategoryList == null) {  // 태그로만 검색
+            return devPostRepository.findAllCompletePostByTags(tagContents, pageRequest);
+        }
+        if (keyword == null && tagContents == null) {  // 기술 카테고리로만 검색
+            return devPostRepository.findAllCompletePostBySkillCategoryList(childSkillCategoryList, pageRequest);
+        }
+        if (childSkillCategoryList == null && tagContents == null) {  // 제목으로만 검색
+            return devPostRepository.findAllCompletePostByKeyword(keyword, pageRequest);
+        }
+        if (keyword == null) {   //기술 카테고리, 태그로 검색
+            return devPostRepository.findAllCompletePostBySkillCategoryAndTags(childSkillCategoryList, tagContents,
+                    pageRequest);
+        }
+        if (childSkillCategoryList == null) {   //제목, 태그로 검색
+            return devPostRepository.findAllCompletePostByKeywordAndTags(keyword, tagContents, pageRequest);
+        }
+        if (tagContents == null) {  //제목, 기술 카테고리로 검색
+            return devPostRepository.findAllCompletePostByKeywordAndSkillCategory(keyword, childSkillCategoryList,
+                    pageRequest);
+        }
+        return null;
     }
 
     /**
@@ -171,12 +179,12 @@ public class DevPostService {
      * @return DevPostResponse
      */
     @Transactional
-    public DevPostResponse findPost(String postId, Long memberId, HttpServletRequest request) throws Exception {
+    public DevPostResponse findPost(Long postId, Long memberId, HttpServletRequest request) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
+        DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         List<CommentInfoDto> commentInfoDtoList = commentService.toCommentDtoList(devPost, memberId);
@@ -192,8 +200,9 @@ public class DevPostService {
             postService.viewPost(devPost, request);
         }
 
-        return DevPostResponse.of(aesCipher.encrypt(devPost.getId()), devPost, aesCipher.encrypt(devPost.getMember().getId()), tagInfoDtoList,
-                commentInfoDtoList, isMemberLiked, isMemberBookmarked, isMemberWritten);
+        return DevPostResponse.of(aesCipherUtil.encrypt(devPost.getId()), devPost,
+                aesCipherUtil.encrypt(devPost.getMember().getId()), tagInfoDtoList, commentInfoDtoList, isMemberLiked,
+                isMemberBookmarked, isMemberWritten);
     }
 
     /**
@@ -202,12 +211,12 @@ public class DevPostService {
      * @param modifyDevPostServiceRequest 게시글 수정 dto
      */
     @Transactional
-    public void modifyPost(String postId, ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) throws Exception {
+    public void modifyPost(Long postId, ModifyDevPostServiceRequest modifyDevPostServiceRequest, Long memberId) {
 
         memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        DevPost devPost = devPostRepository.findById(aesCipher.decrypt(postId))
+        DevPost devPost = devPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         tagService.updateTags(devPost, modifyDevPostServiceRequest.getTagContentList());  //해시태그 수정
@@ -231,12 +240,8 @@ public class DevPostService {
         Page<DevPost> skillPostList = devPostRepository.findAllCompletePostBySkillCategory(skillCategory, pageRequest);
 
         return skillPostList.stream().map(post -> {
-            try {
-                List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
-                return DevPostListResponse.of(aesCipher.encrypt(post.getId()), post, tagList);
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
-            }
+            List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
+            return DevPostListResponse.of(aesCipherUtil.encrypt(post.getId()), post, tagList);
         }).toList();
     }
 }

@@ -1,12 +1,11 @@
 package teamkiim.koffeechat.domain.post.community.dto.response;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.vote.domain.Vote;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -18,10 +17,7 @@ public class VoteResponse {
     private List<VoteItemResponse> voteItemResponseList;    //투표 항목들 dto list
     private boolean isMemberVoted;
 
-    public static VoteResponse of(Vote vote, boolean isMemberVoted) {
-
-        List<VoteItemResponse> voteItemResponseList = vote.getVoteItems().stream()
-                .map(voteItem -> VoteItemResponse.of(voteItem, isMemberVoted)).toList();
+    public static VoteResponse of(Vote vote, List<VoteItemResponse> voteItemResponseList, boolean isMemberVoted) {
 
         return VoteResponse.builder()
                 .title(vote.getTitle())

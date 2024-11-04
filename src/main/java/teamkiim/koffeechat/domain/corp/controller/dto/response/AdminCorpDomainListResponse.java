@@ -15,8 +15,8 @@ import teamkiim.koffeechat.domain.corp.domain.Verified;
 @Schema(description = "회사 도메인 리스트 Response")
 public class AdminCorpDomainListResponse {
 
-    @Schema(description = "회사 도메인 pk",example = "1")
-    private Long id;                       //도메인 pk
+    @Schema(description = "암호화된 회사 도메인 pk", example = "1qwer")
+    private String id;                       //도메인 pk
 
     @Schema(description = "회사 이름", example = "커피챗")
     private String name;               //회사 이름
@@ -27,9 +27,9 @@ public class AdminCorpDomainListResponse {
     @Schema(description = "도메인 승인 상태", example = "WAITING")
     private Verified verified;             //상태
 
-    public static AdminCorpDomainListResponse of(Corp corp) {
+    public static AdminCorpDomainListResponse of(String corpId, Corp corp) {
         return AdminCorpDomainListResponse.builder()
-                .id(corp.getId())
+                .id(corpId)
                 .name(corp.getName())
                 .emailDomain(corp.getEmailDomain())
                 .verified(corp.getVerified())

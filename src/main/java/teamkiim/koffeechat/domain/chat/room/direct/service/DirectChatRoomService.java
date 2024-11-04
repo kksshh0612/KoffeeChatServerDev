@@ -1,5 +1,8 @@
 package teamkiim.koffeechat.domain.chat.room.direct.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -19,12 +22,9 @@ import teamkiim.koffeechat.domain.chat.room.direct.repository.DirectChatRoomRepo
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
+import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -37,6 +37,8 @@ public class DirectChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomManager chatRoomManager;
     private final ChatNotificationService chatNotificationService;
+
+    private final AESCipherUtil aesCipherUtil;
 
     /**
      * 일대일 채팅방 생성
@@ -56,7 +58,7 @@ public class DirectChatRoomService {
         Optional<DirectChatRoom> existChatRoom = directChatRoomRepository.findDirectChatRoomByMembers(member1, member2);
 
         if (existChatRoom.isPresent()) {
-            return new CreateDirectChatRoomResponse(existChatRoom.get().getId());
+            return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(existChatRoom.get().getId()));
         }
 
         DirectChatRoom directChatRoom = DirectChatRoom.builder()
@@ -89,7 +91,7 @@ public class DirectChatRoomService {
         chatNotificationService.addChatRoomNotification(memberId1, saveChatRoom.getId());
         chatNotificationService.addChatRoomNotification(memberId2, saveChatRoom.getId());
 
-        return new CreateDirectChatRoomResponse(saveChatRoom.getId());
+        return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(saveChatRoom.getId()));
     }
 
     /**
@@ -116,10 +118,12 @@ public class DirectChatRoomService {
                 .map(MemberChatRoom::getMember)
                 .toList();
 
-        List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(directChatRoom.getId(), pageRequest).getContent();
+        List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(directChatRoom.getId(), pageRequest)
+                .getContent();
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
-                .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList, memberId))
+                .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList,
+                        aesCipherUtil.encrypt(chatMessage.getSenderId()), memberId))
                 .toList();
 
         // 채팅 알림 off
