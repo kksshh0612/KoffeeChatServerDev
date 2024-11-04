@@ -98,7 +98,7 @@ public class TechChatRoomService {
                 .createdTime(enterTechChatRoomServiceRequest.getEnterTime())
                 .build();
 
-        chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), null);
+        chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(), memberId);
     }
 
     /**
