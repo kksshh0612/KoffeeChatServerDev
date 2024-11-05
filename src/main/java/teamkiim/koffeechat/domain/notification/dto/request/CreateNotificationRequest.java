@@ -1,6 +1,7 @@
 package teamkiim.koffeechat.domain.notification.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
@@ -11,8 +12,6 @@ import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -45,7 +44,18 @@ public class CreateNotificationRequest {
                 .build();
     }
 
-    public static CreateNotificationRequest ofForComment(NotificationType notificationType, Member sender, Post post, Comment comment) {
+    public static CreateNotificationRequest ofForTechPost(NotificationType notificationType, String skill, Post post) {
+        return CreateNotificationRequest.builder()
+                .title(skill)
+                .content(post.getTitle())
+                .urlPK(post.getId())
+                .postType(post.getPostCategory())
+                .notificationType(notificationType)
+                .build();
+    }
+
+    public static CreateNotificationRequest ofForComment(NotificationType notificationType, Member sender, Post post,
+                                                         Comment comment) {
         return CreateNotificationRequest.builder()
                 .sender(sender)
                 .urlPK(post.getId())

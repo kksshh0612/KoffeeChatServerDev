@@ -115,6 +115,8 @@ public class DevPostService {
         postFileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
 
         notificationService.createPostNotification(member, devPost);  //팔로워들에게 알림 발송
+        notificationService.createSkillPostNotification(saveDevPostServiceRequest.getSkillCategoryList(),
+                devPost);  //기술 채팅방 사용자들에게 알림 발송
     }
 
 
