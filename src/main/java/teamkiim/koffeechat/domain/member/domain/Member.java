@@ -1,15 +1,22 @@
 package teamkiim.koffeechat.domain.member.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Entity
 @NoArgsConstructor
@@ -42,10 +49,11 @@ public class Member {
     private String corpName;                                        // 회사 이름
     private String corpEmail;                                       // 회사 이메일
 
-    private long unreadNotifications;                               // 읽지 않은 알림 갯수
+    private long unreadNotificationCount;                               // 읽지 않은 알림 갯수
 
     @Builder
-    public Member(String email, String password, String nickname, MemberRole memberRole, List<SkillCategory> interestSkillCategoryList,
+    public Member(String email, String password, String nickname, MemberRole memberRole,
+                  List<SkillCategory> interestSkillCategoryList,
                   long followerCount, long followingCount, String profileImageUrl) {
 
         this.email = email;
@@ -58,7 +66,7 @@ public class Member {
         this.profileImageUrl = profileImageUrl;
         this.corpName = null;
         this.corpEmail = null;
-        this.unreadNotifications = 0;
+        this.unreadNotificationCount = 0;
     }
 
     //== 비지니스 로직 ==//
@@ -106,9 +114,7 @@ public class Member {
     }
 
     /**
-     * 팔로워/팔로잉 수 관리
-     * addFollowerCount(), removeFollowerCount()
-     * addFollowingCount(), removeFollowingCount()
+     * 팔로워/팔로잉 수 관리 addFollowerCount(), removeFollowerCount() addFollowingCount(), removeFollowingCount()
      */
     public void addFollowerCount() {
         this.followerCount++;
@@ -138,14 +144,14 @@ public class Member {
      * 읽지 않은 알림 수 관리
      */
     public void updateUnreadNotificationCount(int unreadNotifications) {
-        this.unreadNotifications = unreadNotifications;
+        this.unreadNotificationCount = unreadNotifications;
     }
 
     public void addUnreadNotifications() {
-        this.unreadNotifications++;
+        this.unreadNotificationCount++;
     }
 
     public void removeUnreadNotifications() {
-        this.unreadNotifications--;
+        this.unreadNotificationCount--;
     }
 }
