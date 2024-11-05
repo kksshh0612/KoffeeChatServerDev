@@ -5,10 +5,10 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.domain.corp.controller.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.Verified;
+import teamkiim.koffeechat.domain.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;
+import teamkiim.koffeechat.domain.corp.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
 import teamkiim.koffeechat.domain.corp.repository.WaitingCorpRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
@@ -36,35 +36,56 @@ public class CorpAdminService {
      */
     @Transactional
     public void createApprovedCorp(String corpName, String corpDomain) {
+
         Optional<Corp> corp = corpRepository.findByNameAndEmailDomain(corpName, corpDomain);
         if (corp.isPresent()) {
             throw new CustomException(ErrorCode.CORP_ALREADY_EXIST);
         }
 
-        corpRepository.save(new Corp(corpName, corpDomain, Verified.APPROVED));
+        corpRepository.save(new Corp(corpName, corpDomain, VerifyStatus.APPROVED));
     }
 
     /**
-     * 관리자가 회원이 승인 요청한 도메인들에 대해 상태 변경
+     * 관리자가 회원이 요청한 회사 도메인 승인
      *
-     * @param corpId   등록된 회사 pk
-     * @param verified 인증 상태 변경 WAITING -> APPROVED|REJECTED
-     * @return verified  변경된 인증 상태
+     * @param corpId 회사 도메인 PK
      */
     @Transactional
-    public Verified updateCorpVerified(Long corpId, Verified verified) {
+    public void approveCorpDomain(Long corpId) {
+
+        VerifyStatus verifyStatus = VerifyStatus.APPROVED;
         Corp corp = corpRepository.findById(corpId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
 
-        corp.statusModify(verified);
+        corp.changeVerifyStatus(verifyStatus);
 
         List<WaitingCorp> waitingCorpList = waitingCorpRepository.findByCorp(corp);
         List<Member> memberList = waitingCorpList.stream().map(WaitingCorp::getMember).toList();
-        notificationService.createCorpNotification(memberList, corp, verified);  //알림 전송
+        notificationService.createCorpNotification(memberList, corp, verifyStatus);  //알림 전송
         waitingCorpRepository.deleteAll(waitingCorpList);
-
-        return corp.getVerified();
     }
+
+    /**
+     * 관리자가 회원이 요청한 회사 도메인 거절
+     *
+     * @param corpId 회사 도메인 PK
+     */
+    @Transactional
+    public void rejectCorpDomain(Long corpId) {
+
+        VerifyStatus verifyStatus = VerifyStatus.REJECTED;
+
+        Corp corp = corpRepository.findById(corpId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
+
+        corp.changeVerifyStatus(verifyStatus);
+
+        List<WaitingCorp> waitingCorpList = waitingCorpRepository.findByCorp(corp);
+        List<Member> memberList = waitingCorpList.stream().map(WaitingCorp::getMember).toList();
+        notificationService.createCorpNotification(memberList, corp, verifyStatus);  //알림 전송
+        waitingCorpRepository.deleteAll(waitingCorpList);
+    }
+
 
     /**
      * 회사 도메인 삭제
