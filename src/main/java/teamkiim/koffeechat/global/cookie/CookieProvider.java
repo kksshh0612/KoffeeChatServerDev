@@ -52,7 +52,7 @@ public class CookieProvider {
 
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .path("/")
-                .domain("koffeechat.site")
+//                .domain("koffeechat.site")
                 .maxAge(expTime)
                 .httpOnly(true)
                 .secure(true)
@@ -82,7 +82,7 @@ public class CookieProvider {
 
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .path("/")
-                .domain("koffeechat.site")
+//                .domain("koffeechat.site")
                 .maxAge(expTime)
                 .httpOnly(true)
                 .secure(true)
