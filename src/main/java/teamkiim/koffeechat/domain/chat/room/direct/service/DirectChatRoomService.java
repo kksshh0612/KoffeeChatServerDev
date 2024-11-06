@@ -1,17 +1,23 @@
 package teamkiim.koffeechat.domain.chat.room.direct.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import teamkiim.koffeechat.domain.chat.message.domain.ChatMessage;
-import teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse;
-import teamkiim.koffeechat.domain.chat.message.repository.ChatMessageRepository;
+import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
+import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
+import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
+import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
+import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
+import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.chat.room.direct.domain.DirectChatRoom;
 import teamkiim.koffeechat.domain.chat.room.direct.dto.response.CreateDirectChatRoomResponse;
@@ -31,31 +37,44 @@ public class DirectChatRoomService {
     private final DirectChatRoomRepository directChatRoomRepository;
     private final MemberRepository memberRepository;
     private final MemberChatRoomRepository memberChatRoomRepository;
-    private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomManager chatRoomManager;
     private final ChatNotificationService chatNotificationService;
+    private final ChatMessageService chatMessageService;
 
     private final AESCipherUtil aesCipherUtil;
 
     /**
      * 일대일 채팅방 생성
      *
-     * @param memberId1
-     * @param memberId2
+     * @param requestMemberId
+     * @param targetMemberId
      * @return
      */
     @Transactional
-    public CreateDirectChatRoomResponse createChatRoom(Long memberId1, Long memberId2) {
+    public CreateDirectChatRoomResponse createChatRoom(Long requestMemberId, Long targetMemberId) {
 
-        Member member1 = memberRepository.findById(memberId1)
+        Member requestMember = memberRepository.findById(requestMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        Member member2 = memberRepository.findById(memberId2)
+        Member targetMember = memberRepository.findById(targetMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Optional<DirectChatRoom> existChatRoom = directChatRoomRepository.findDirectChatRoomByMembers(member1, member2);
+        Optional<DirectChatRoom> existChatRoom = directChatRoomRepository.findDirectChatRoomByMembers(requestMember,
+                targetMember);
 
         if (existChatRoom.isPresent()) {
-            return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(existChatRoom.get().getId()));
+
+            Optional<MemberChatRoom> memberChatRoom = memberChatRoomRepository.findByMemberAndActiveChatRoom(
+                    requestMember, existChatRoom.get());
+
+            // 이전에 들어갔다가 나간 채팅방은 재진입
+            if (memberChatRoom.isPresent()) {
+                memberChatRoom.get().enter();
+                chatRoomManager.addMember(existChatRoom.get().getId(), requestMember);
+                chatNotificationService.addChatRoomNotification(requestMember.getId(), existChatRoom.get().getId());
+            } else {
+                // 이미 존재하는 채팅방이면
+                return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(existChatRoom.get().getId()));
+            }
         }
 
         DirectChatRoom directChatRoom = DirectChatRoom.builder()
@@ -66,67 +85,100 @@ public class DirectChatRoomService {
 
         DirectChatRoom saveChatRoom = directChatRoomRepository.save(directChatRoom);
 
-        MemberChatRoom memberChatRoom1 = MemberChatRoom.builder()
-                .member(member1)
-                .chatRoom(directChatRoom)
-                .roomName(member2.getNickname())
-                .build();
-
-        MemberChatRoom memberChatRoom2 = MemberChatRoom.builder()
-                .chatRoom(directChatRoom)
-                .member(member2)
-                .roomName(member1.getNickname())
-                .build();
+        MemberChatRoom memberChatRoom1 = MemberChatRoom.of(requestMember, directChatRoom, requestMember.getNickname(),
+                null, true);
+        MemberChatRoom memberChatRoom2 = MemberChatRoom.of(targetMember, directChatRoom, targetMember.getNickname(),
+                null, true);
 
         memberChatRoomRepository.saveAll(List.of(memberChatRoom1, memberChatRoom2));
 
         // 채팅방 멤버 관리 추가
-        chatRoomManager.addMember(saveChatRoom.getId(), member1);
-        chatRoomManager.addMember(saveChatRoom.getId(), member2);
+        chatRoomManager.addMember(saveChatRoom.getId(), requestMember);
+        chatRoomManager.addMember(saveChatRoom.getId(), targetMember);
 
         // 채팅 알림 등록
-        chatNotificationService.addChatRoomNotification(memberId1, saveChatRoom.getId());
-        chatNotificationService.addChatRoomNotification(memberId2, saveChatRoom.getId());
+        chatNotificationService.addChatRoomNotification(requestMember.getId(), saveChatRoom.getId());
+        chatNotificationService.addChatRoomNotification(targetMember.getId(), saveChatRoom.getId());
 
         return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(saveChatRoom.getId()));
     }
 
     /**
-     * 일대일 채팅방 오픈 - 입장 시 채팅 데이터 조회
+     * 참여중인 채팅방 목록 조회 -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수 리턴
      *
-     * @param chatRoomId
-     * @return List<ChatMessageResponse>
+     * @param memberId 채팅방 목록 조회 요청한 회원 PK
+     * @param page
+     * @param size
+     * @return
      */
-    @Transactional
-    public List<ChatMessageResponse> openChatRoom(Long chatRoomId, int size, Long memberId) {
+    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        DirectChatRoom directChatRoom = directChatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        List<MemberChatRoom> joinMemberChatRooms =
+                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, ChatRoomType.DIRECT, pageRequest)
+                        .getContent();
 
-        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllByChatRoom(directChatRoom);
+        List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(joinMemberChatRooms);
 
-        // 채팅방에 참여한 멤버들
-        List<Member> joinMemberList = memberChatRoomList.stream()
-                .map(MemberChatRoom::getMember)
-                .toList();
+        List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
 
-        PageRequest pageRequest = PageRequest.of(0, size);
+        for (ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList) {
+            MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
 
-        // cursor 기반 페이징
-        List<ChatMessage> messageList = chatMessageRepository.findLatestMessage(chatRoomId, pageRequest).getContent();
+            MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(
+                            memberChatRoom.getChatRoom(), memberChatRoom.getMember())
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
-        List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
-                .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList,
-                        aesCipherUtil.encrypt(chatMessage.getSenderId()), memberId))
-                .toList();
+            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(aesCipherUtil.encrypt(memberId),
+                    aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()), chatRoomInfoDto,
+                    aesCipherUtil.encrypt(oppositeMemberChatRoom.getMember().getId()),
+                    oppositeMemberChatRoom.getMember());
 
-        // 채팅 알림 off
-        chatNotificationService.offChatRoomNotification(member.getId(), directChatRoom.getId());
+            chatRoomListResponseList.add(chatRoomListResponse);
+        }
 
-        return chatMessageResponseList;
+        chatNotificationService.startNotifications(memberId);
+
+        return chatRoomListResponseList;
     }
 
+    /**
+     * 채팅방 퇴장
+     *
+     * @param decryptChatRoomId 복호화된 채팅방 PK
+     * @param encryptChatRoomId 암호화된 채팅방 PK
+     * @param memberId          채팅방 퇴장 요청한 회원 PK
+     * @param exitTime          채팅방 퇴장 시간
+     */
+    @Transactional
+    public void exit(Long decryptChatRoomId, String encryptChatRoomId, Long memberId, LocalDateTime exitTime) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        ChatRoom chatRoom = directChatRoomRepository.findById(decryptChatRoomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        MemberChatRoom memberChatRoom = memberChatRoomRepository.findByMemberAndActiveChatRoom(member, chatRoom)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
+
+        // 퇴장 메세지 전송
+        ChatMessageServiceRequest chatMessageServiceRequest = ChatMessageServiceRequest.builder()
+                .messageType(MessageType.EXIT)
+                .content(member.getNickname() + " 님이 퇴장하셨습니다")
+                .createdTime(exitTime)
+                .build();
+
+        chatMessageService.saveTextMessage(chatMessageServiceRequest, decryptChatRoomId, encryptChatRoomId, memberId);
+
+        memberChatRoom.exit();
+
+        chatRoomManager.removeMember(decryptChatRoomId, member);
+
+        // 채팅 알림 정보 삭제
+        chatNotificationService.removeChatRoomNotification(memberId, decryptChatRoomId);
+    }
 }

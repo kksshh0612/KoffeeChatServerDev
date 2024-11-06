@@ -43,5 +43,5 @@ logging:
 #    org.mongodb.driver: debug
 
 file-path: 'C:\coffeeChatFile'
-basic-profile-image-url: ${BASIC_PROFILE_IMAGE_URL}
+basic-profile-image-url: 'PROFILE\basic_profile_image.png'
 

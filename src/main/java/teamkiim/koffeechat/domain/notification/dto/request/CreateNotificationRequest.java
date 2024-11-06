@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.Verified;
+import teamkiim.koffeechat.domain.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
@@ -74,11 +74,12 @@ public class CreateNotificationRequest {
                 .build();
     }
 
-    public static CreateNotificationRequest ofForCorp(NotificationType notificationType, Corp corp, Verified verified) {
+    public static CreateNotificationRequest ofForCorp(NotificationType notificationType, Corp corp,
+                                                      VerifyStatus verifyStatus) {
         return CreateNotificationRequest.builder()
                 .urlPK(corp.getId())
                 .title(corp.getName())
-                .content(verified.getStatus())
+                .content(verifyStatus.getName())
                 .notificationType(notificationType)
                 .build();
     }

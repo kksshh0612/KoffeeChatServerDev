@@ -6,8 +6,8 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import teamkiim.koffeechat.global.authentication.Authenticator;
 import teamkiim.koffeechat.domain.chat.interceptor.WebSocketConnectionHandshakeInterceptor;
+import teamkiim.koffeechat.global.authentication.Authenticator;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -19,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
 
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/wss")
                 .setAllowedOriginPatterns("*")
                 .addInterceptors(new WebSocketConnectionHandshakeInterceptor(authenticator))
                 .withSockJS();
@@ -36,7 +36,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // ex) 클라이언트에서 /pub/chat 으로 메세지 전송 -> 서버 @Controller의 @MessageMapping("/chat) 으로 라우팅
         registry.setApplicationDestinationPrefixes("/pub");
     }
-
-
 
 }

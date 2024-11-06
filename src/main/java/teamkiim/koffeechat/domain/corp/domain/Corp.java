@@ -1,6 +1,12 @@
 package teamkiim.koffeechat.domain.corp.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,19 +25,19 @@ public class Corp {
     private String emailDomain;        //회사 이메일 도메인
 
     @Enumerated(EnumType.STRING)
-    private Verified verified;               //이메일 도메인 검증 상태
+    private VerifyStatus verifyStatus;               //이메일 도메인 검증 상태
 
     /**
      * 생성자
      */
-    public Corp(String name, String emailDomain, Verified verified) {
+    public Corp(String name, String emailDomain, VerifyStatus verifyStatus) {
         this.name = name;
         this.emailDomain = emailDomain;
-        this.verified = verified;
+        this.verifyStatus = verifyStatus;
     }
 
     //== 비즈니스 로직 ==//
-    public void statusModify(Verified verified) {
-        this.verified = verified;
+    public void changeVerifyStatus(VerifyStatus verifyStatus) {
+        this.verifyStatus = verifyStatus;
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.comment.domain.Comment;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.Verified;
+import teamkiim.koffeechat.domain.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
@@ -143,9 +143,10 @@ public class NotificationService {
     /**
      * 현직자 인증 알림 생성
      */
-    public void createCorpNotification(List<Member> memberList, Corp corp, Verified verified) {
+    public void createCorpNotification(List<Member> memberList, Corp corp, VerifyStatus verifyStatus) {
         memberList.forEach(
-                member -> createNotification(CreateNotificationRequest.ofForCorp(NotificationType.CORP, corp, verified),
+                member -> createNotification(CreateNotificationRequest.ofForCorp(NotificationType.CORP, corp,
+                                verifyStatus),
                         member));
     }
 
@@ -292,7 +293,7 @@ public class NotificationService {
             receiver.removeUnreadNotifications();  // 읽지 않은 알림 개수 -1
         }
 
-        return receiver.getUnreadNotifications();
+        return receiver.getUnreadNotificationCount();
     }
 
     /**
@@ -315,7 +316,7 @@ public class NotificationService {
         }
         notificationRepository.delete(notification);
 
-        return receiver.getUnreadNotifications();
+        return receiver.getUnreadNotificationCount();
     }
 
     /**

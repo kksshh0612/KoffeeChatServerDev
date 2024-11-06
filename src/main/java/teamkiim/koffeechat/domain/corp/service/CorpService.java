@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.Verified;
+import teamkiim.koffeechat.domain.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;
 import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
@@ -42,13 +42,13 @@ public class CorpService {
         Optional<Corp> corp = corpRepository.findByNameAndEmailDomain(corpName, corpDomain);
 
         if (corp.isPresent()) {  // 이미 있는 요청
-            if (corp.get().getVerified().equals(Verified.REJECTED)) {
+            if (corp.get().getVerifyStatus().equals(VerifyStatus.REJECTED)) {
                 throw new CustomException(ErrorCode.CORP_DOMAIN_FORBIDDEN);
             }
-            if (corp.get().getVerified().equals(Verified.APPROVED)) {
+            if (corp.get().getVerifyStatus().equals(VerifyStatus.APPROVED)) {
                 throw new CustomException(ErrorCode.CORP_ALREADY_EXIST);
             }
-            if (corp.get().getVerified().equals(Verified.WAITING)) {
+            if (corp.get().getVerifyStatus().equals(VerifyStatus.WAITING)) {
                 if (waitingCorpRepository.existsByMemberAndCorp(member, corp.get())) {  //이미 존재하는 요청인 경우
                     throw new CustomException(ErrorCode.CORP_REQUEST_ALREADY_EXIST);
                 }
@@ -56,7 +56,7 @@ public class CorpService {
             }
 
         } else {  // 새로운 요청 -> 요청 생성
-            Corp savedCorp = corpRepository.save(new Corp(corpName, corpDomain, Verified.WAITING));
+            Corp savedCorp = corpRepository.save(new Corp(corpName, corpDomain, VerifyStatus.WAITING));
             waitingCorpRepository.save(new WaitingCorp(member, savedCorp));  // 대기 요청 저장
         }
 
@@ -70,7 +70,7 @@ public class CorpService {
      */
     public List<CorpDomainResponse> findCorpDomain(String corpName) {
 
-        List<Corp> corpList = corpRepository.findApprovedCorpByName(corpName, Verified.APPROVED);
+        List<Corp> corpList = corpRepository.findApprovedCorpByName(corpName, VerifyStatus.APPROVED);
 
         return corpList.stream().map(CorpDomainResponse::of).toList();
     }
@@ -80,7 +80,7 @@ public class CorpService {
      */
     public List<CorpDomainResponse> findCorpName(String corpDomain) {
 
-        List<Corp> corpList = corpRepository.findApprovedCorpByDomain(corpDomain, Verified.APPROVED);
+        List<Corp> corpList = corpRepository.findApprovedCorpByDomain(corpDomain, VerifyStatus.APPROVED);
 
         return corpList.stream().map(CorpDomainResponse::of).toList();
     }
@@ -116,15 +116,15 @@ public class CorpService {
      */
     private void validateDomain(Optional<Corp> corp, String corpName, String domain) {
         if (corp.isEmpty()) {
-            corpRepository.save(new Corp(corpName, domain, Verified.WAITING));  //도메인 승인 요청 생성
+            corpRepository.save(new Corp(corpName, domain, VerifyStatus.WAITING));  //도메인 승인 요청 생성
             throw new CustomException(ErrorCode.CORP_DOMAIN_WAITING);
         }
 
-        if (corp.get().getVerified().equals(Verified.WAITING)) {
+        if (corp.get().getVerifyStatus().equals(VerifyStatus.WAITING)) {
             throw new CustomException(ErrorCode.CORP_DOMAIN_WAITING);
         }
 
-        if (corp.get().getVerified().equals(Verified.REJECTED)) {
+        if (corp.get().getVerifyStatus().equals(VerifyStatus.REJECTED)) {
             throw new CustomException(ErrorCode.CORP_DOMAIN_FORBIDDEN);
         }
 

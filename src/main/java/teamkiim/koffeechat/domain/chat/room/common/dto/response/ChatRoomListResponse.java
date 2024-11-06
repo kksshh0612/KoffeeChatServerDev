@@ -19,7 +19,6 @@ public class ChatRoomListResponse {
     private String chatRoomId;
     private ChatRoomType chatRoomType;
     private String chatRoomName;
-    private String lastMessage;
     private LocalDateTime lastMessageTime;
     private Long unreadMessageCount;
     private String oppositeMemberId;
@@ -40,7 +39,6 @@ public class ChatRoomListResponse {
                 .chatRoomId(chatRoomId)
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
                 .chatRoomName(roomName)
-                .lastMessage("마지막 메세지")
                 .lastMessageTime(LocalDateTime.of(2024, 9, 20, 13, 0))
                 .unreadMessageCount(chatRoomInfo.getUnreadCount())
                 .oppositeMemberId(oppositeMemberId)

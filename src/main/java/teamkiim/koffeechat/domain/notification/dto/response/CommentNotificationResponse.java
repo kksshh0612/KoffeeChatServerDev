@@ -38,7 +38,7 @@ public class CommentNotificationResponse {
                                                  Notification notification) {
         return CommentNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(notification.getReceiver().getUnreadNotifications())
+                .unreadNotifications(notification.getReceiver().getUnreadNotificationCount())
                 .senderId(senderId)
                 .senderNickname(notification.getSender().getNickname())
                 .senderProfileImageUrl(notification.getSender().getProfileImageUrl())

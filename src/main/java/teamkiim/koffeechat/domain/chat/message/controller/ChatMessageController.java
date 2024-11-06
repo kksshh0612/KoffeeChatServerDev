@@ -36,8 +36,8 @@ public class ChatMessageController {
 
         List<Long> chatRoomMemberIds = chatRoomManager.getMemberIds(decryptedChatRoomId);
 
-        chatMessageService.saveTextMessage(chatMessageRequest.toServiceRequest(createdTime), decryptedChatRoomId,
-                senderId);
+        chatMessageService.saveTextMessage(chatMessageRequest.toServiceRequest(createdTime),
+                decryptedChatRoomId, chatRoomId, senderId);
 
         chatNotificationService.createChatNotification(chatMessageRequest.toServiceRequest(createdTime),
                 decryptedChatRoomId, senderId, chatRoomMemberIds);
@@ -55,8 +55,9 @@ public class ChatMessageController {
 
         List<Long> chatRoomMemberIds = chatRoomManager.getMemberIds(decryptedChatRoomId);
 
-        chatMessageService.saveSourceCodeMessage(chatMessageRequest.toServiceRequest(createdTime), decryptedChatRoomId,
-                senderId);
+        chatMessageService.saveSourceCodeMessage(chatMessageRequest.toServiceRequest(createdTime),
+                decryptedChatRoomId, chatRoomId, senderId);
+
         chatNotificationService.createChatNotification(chatMessageRequest.toServiceRequest(createdTime),
                 decryptedChatRoomId, senderId, chatRoomMemberIds);
     }
