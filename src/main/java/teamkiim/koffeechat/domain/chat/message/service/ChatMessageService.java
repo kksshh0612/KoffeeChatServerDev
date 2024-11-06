@@ -18,6 +18,7 @@ import teamkiim.koffeechat.domain.chat.room.common.repository.ChatRoomRepository
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
+import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -34,6 +35,7 @@ public class ChatMessageService {
     private final SequenceGeneratorService sequenceGeneratorService;
 
     private final AESCipherUtil aesCipherUtil;
+    private final ChatNotificationService chatNotificationService;
 
     /**
      * 채팅 메세지 저장
@@ -43,42 +45,45 @@ public class ChatMessageService {
      * @param senderId
      */
     @Transactional
-    public void saveTextMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
+    public void saveTextMessage(ChatMessageServiceRequest messageRequest,
+                                Long decryptChatRoomId, String encryptChatRoomId, Long senderId) {
 
         Long seqId = sequenceGeneratorService.generateSequence("chat_message_seq");         // 순차 id 부여
 
-        ChatMessage chatMessage = messageRequest.toEntity(seqId, chatRoomId, senderId);
+        ChatMessage chatMessage = messageRequest.toEntity(seqId, decryptChatRoomId, senderId);
 
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+        ChatRoom chatRoom = chatRoomRepository.findById(decryptChatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
         chatRoom.updateLastMessageTime(messageRequest.getCreatedTime());            // 가장 최근 메세지 전송 시간 업데이트
 
         messageRequest.setMessageId(savedMessage.getId());
 
-        send(chatMessage, chatRoomId, senderId);
+        send(chatMessage, encryptChatRoomId, senderId);
     }
 
-    public void saveSourceCodeMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
+    public void saveSourceCodeMessage(ChatMessageServiceRequest messageRequest,
+                                      Long decryptChatRoomId, String encryptChatRoomId, Long senderId) {
 
         Long seqId = sequenceGeneratorService.generateSequence("chat_message_seq");         // 순차 id 부여
 
-        ChatMessage chatMessage = messageRequest.toEntity(seqId, chatRoomId, senderId);
+        ChatMessage chatMessage = messageRequest.toEntity(seqId, decryptChatRoomId, senderId);
         chatMessageRepository.save(chatMessage);
 
-        send(chatMessage, chatRoomId, senderId);
+        send(chatMessage, encryptChatRoomId, senderId);
     }
 
-    public void saveImageMessage(ChatMessageServiceRequest messageRequest, Long chatRoomId, Long senderId) {
+    public void saveImageMessage(ChatMessageServiceRequest messageRequest,
+                                 Long decryptChatRoomId, String encryptChatRoomId, Long senderId) {
 
         Long seqId = sequenceGeneratorService.generateSequence("chat_message_seq");         // 순차 id 부여
 
-        ChatMessage chatMessage = messageRequest.toEntity(seqId, chatRoomId, senderId);
+        ChatMessage chatMessage = messageRequest.toEntity(seqId, decryptChatRoomId, senderId);
         chatMessageRepository.save(chatMessage);
 
-        send(chatMessage, chatRoomId, senderId);
+        send(chatMessage, encryptChatRoomId, senderId);
     }
 
     /**
@@ -88,7 +93,7 @@ public class ChatMessageService {
      * @param chatRoomId
      * @param senderId
      */
-    public void send(ChatMessage chatMessage, Long chatRoomId, Long senderId) {
+    public void send(ChatMessage chatMessage, String chatRoomId, Long senderId) {
 
         Member member = memberRepository.findById(senderId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -108,9 +113,6 @@ public class ChatMessageService {
     @Transactional
     public List<ChatMessageResponse> getChatMessages(Long chatRoomId, Long cursorId, int size, Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
@@ -121,18 +123,21 @@ public class ChatMessageService {
                 .map(MemberChatRoom::getMember)
                 .toList();
 
+        if (cursorId == null) {
+            cursorId = Long.MAX_VALUE;
+        }
         PageRequest pageRequest = PageRequest.of(0, size);
-
-        if(cursorId == null) cursorId = Long.MAX_VALUE;
-
+        
         // cursor 기반 페이징
         List<ChatMessage> messageList = chatMessageRepository.findByCursor(chatRoomId, cursorId, pageRequest)
                 .getContent();
 
         List<ChatMessageResponse> chatMessageResponseList = messageList.stream()
-                .map(chatMessage -> teamkiim.koffeechat.domain.chat.message.dto.response.ChatMessageResponse.of(
-                        chatMessage, joinMemberList, aesCipherUtil.encrypt(chatMessage.getSenderId()), memberId))
+                .map(chatMessage -> ChatMessageResponse.of(chatMessage, joinMemberList,
+                        aesCipherUtil.encrypt(chatMessage.getSenderId()), memberId))
                 .toList();
+
+        chatNotificationService.offChatRoomNotification(memberId, chatRoomId);
 
         return chatMessageResponseList;
     }
