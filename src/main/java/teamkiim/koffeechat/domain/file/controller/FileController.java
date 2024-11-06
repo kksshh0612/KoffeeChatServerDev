@@ -57,7 +57,7 @@ public class FileController {
 
         LocalDateTime sendTime = LocalDateTime.now();
 
-        chatFileService.uploadImageFile(multipartFile, decryptedChatRoomId, memberId, sendTime);
+        chatFileService.uploadImageFile(multipartFile, decryptedChatRoomId, chatRoomId, memberId, sendTime);
 
         return ResponseEntity.ok().build();
     }
