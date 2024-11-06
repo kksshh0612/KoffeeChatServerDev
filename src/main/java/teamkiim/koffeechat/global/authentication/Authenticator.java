@@ -156,4 +156,15 @@ public class Authenticator {
         return jwtTokenProvider.getMemberPK(jwtTokenProvider.getTokenClaims(validAccessToken));
     }
 
+    /**
+     * 인증이 완료된 유효한 accessToken에서 회원의 권한 추출
+     *
+     * @param validAccessToken
+     * @return
+     */
+    public String getMemberRoleFromValidAccessToken(String validAccessToken) {
+
+        return jwtTokenProvider.getMemberRole(jwtTokenProvider.getTokenClaims(validAccessToken));
+    }
+
 }
