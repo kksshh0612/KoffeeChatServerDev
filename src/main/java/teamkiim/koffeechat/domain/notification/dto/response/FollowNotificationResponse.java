@@ -27,7 +27,7 @@ public class FollowNotificationResponse {
 
         return FollowNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(notification.getReceiver().getUnreadNotifications())
+                .unreadNotifications(notification.getReceiver().getUnreadNotificationCount())
                 .senderId(senderId)
                 .senderNickname(notification.getSender().getNickname())
                 .senderProfileImageUrl(notification.getSender().getProfileImageUrl())

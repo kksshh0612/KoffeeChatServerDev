@@ -25,6 +25,7 @@ public class MemberInfoResponse {
     private Boolean isLoginMember;
     private Boolean isFollowingMember;
     private String profileImageUrl;
+    private long unreadNotificationCount;
 
     private Boolean isCorpVerified;  // 현직자 인증 여부
     private String corpName;
@@ -43,6 +44,7 @@ public class MemberInfoResponse {
                 .isLoginMember(isLoginMember)
                 .isFollowingMember(isFollowingMember)
                 .profileImageUrl(member.getProfileImageUrl())
+                .unreadNotificationCount(member.getUnreadNotificationCount())
                 .isCorpVerified(isCorpVerified)
                 .corpName(isCorpVerified ? member.getCorpName() : null)
                 .build();
