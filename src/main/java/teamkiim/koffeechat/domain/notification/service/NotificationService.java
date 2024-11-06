@@ -26,9 +26,12 @@ import teamkiim.koffeechat.domain.notification.dto.response.CorpNotificationResp
 import teamkiim.koffeechat.domain.notification.dto.response.FollowNotificationResponse;
 import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItemResponse;
 import teamkiim.koffeechat.domain.notification.dto.response.PostNotificationResponse;
+import teamkiim.koffeechat.domain.notification.dto.response.SkillPostNotificationResponse;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
+import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
+import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -105,6 +108,24 @@ public class NotificationService {
     }
 
     /**
+     * 기술 글 알림 생성
+     */
+    public void createSkillPostNotification(List<SkillCategory> skillCategoryList, Post post) {
+
+        skillCategoryList.forEach(skill -> {
+            ChildSkillCategory childSkill = skill.getChildSkillCategory();
+            createChildSkillPostNotification(childSkill, post);
+        });
+    }
+
+    private void createChildSkillPostNotification(ChildSkillCategory childSkill, Post post) {
+        List<Member> skillChatRoomMembers = memberChatRoomRepository.findMembersByChildSkillCategory(childSkill);
+        skillChatRoomMembers.forEach(member -> createNotification(
+                CreateNotificationRequest.ofForTechPost(NotificationType.TECH_POST, childSkill.toString(), post),
+                member));
+    }
+
+    /**
      * 댓글 알림 생성
      */
     public void createCommentNotification(Post post, Member sender, Comment comment) {
@@ -156,6 +177,11 @@ public class NotificationService {
                 sendNotification(id, emitter.getSseEmitter(), eventId,
                         PostNotificationResponse.of(encryptedReceiverId, encryptedSenderId, encryptedUrlPK,
                                 savedNotification));
+                return;
+            }
+            if (savedNotification.getNotificationType().equals(NotificationType.TECH_POST)) {
+                sendNotification(id, emitter.getSseEmitter(), eventId,
+                        SkillPostNotificationResponse.of(encryptedReceiverId, encryptedUrlPK, savedNotification));
                 return;
             }
             if (savedNotification.getNotificationType().equals(NotificationType.COMMENT)) {

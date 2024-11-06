@@ -44,6 +44,16 @@ public class CreateNotificationRequest {
                 .build();
     }
 
+    public static CreateNotificationRequest ofForTechPost(NotificationType notificationType, String skill, Post post) {
+        return CreateNotificationRequest.builder()
+                .title(skill)
+                .content(post.getTitle())
+                .urlPK(post.getId())
+                .postType(post.getPostCategory())
+                .notificationType(notificationType)
+                .build();
+    }
+
     public static CreateNotificationRequest ofForComment(NotificationType notificationType, Member sender, Post post,
                                                          Comment comment) {
         return CreateNotificationRequest.builder()
