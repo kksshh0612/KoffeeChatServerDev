@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.corp.controller;
+package teamkiim.koffeechat.domain.admin.corp.controller;
 
 import static teamkiim.koffeechat.global.Auth.MemberRole.ADMIN;
 
@@ -16,7 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import teamkiim.koffeechat.domain.corp.controller.dto.request.CreateApprovedCorpRequest;
+import teamkiim.koffeechat.domain.admin.corp.controller.CorpAdminApiDocument.CreateApprovedCorp;
+import teamkiim.koffeechat.domain.admin.corp.controller.CorpAdminApiDocument.DeleteCorp;
+import teamkiim.koffeechat.domain.admin.corp.controller.CorpAdminApiDocument.GetCorp;
+import teamkiim.koffeechat.domain.admin.corp.controller.CorpAdminApiDocument.ListCorp;
+import teamkiim.koffeechat.domain.admin.corp.controller.CorpAdminApiDocument.UpdateCorpVerified;
+import teamkiim.koffeechat.domain.admin.corp.controller.request.CreateApprovedCorpRequest;
 import teamkiim.koffeechat.domain.corp.controller.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.domain.Verified;
 import teamkiim.koffeechat.domain.corp.service.CorpAdminService;
@@ -25,7 +30,7 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/corps/admin")
+@RequestMapping("/admin/corps")
 @Tag(name = "[ADMIN] 현직자 인증 도메인 관리 API")
 public class CorpAdminController {
 
@@ -39,7 +44,7 @@ public class CorpAdminController {
      */
     @Auth(role = ADMIN)
     @PostMapping("")
-    @CorpAdminApiDocument.CreateApprovedCorp
+    @CreateApprovedCorp
     public ResponseEntity<?> createApprovedCorp(
             @Valid @RequestBody CreateApprovedCorpRequest createApprovedCorpRequest) {
         corpAdminService.createApprovedCorp(createApprovedCorpRequest.getCorpName(),
@@ -53,7 +58,7 @@ public class CorpAdminController {
      */
     @Auth(role = ADMIN)
     @PatchMapping("/{corpId}")
-    @CorpAdminApiDocument.UpdateCorpVerified
+    @UpdateCorpVerified
     public ResponseEntity<?> updateCorpVerified(@PathVariable("corpId") String corpId,
                                                 @Valid @RequestBody Verified verifiedRequest) {
         Long decryptedCorpId = aesCipherUtil.decrypt(corpId);
@@ -67,7 +72,7 @@ public class CorpAdminController {
      */
     @Auth(role = ADMIN)
     @DeleteMapping("/{corpId}")
-    @CorpAdminApiDocument.DeleteCorp
+    @DeleteCorp
     public ResponseEntity<?> deleteCorp(@PathVariable("corpId") String corpId) {
         Long decryptedCorpId = aesCipherUtil.decrypt(corpId);
         corpAdminService.deleteCorp(decryptedCorpId);
@@ -80,7 +85,7 @@ public class CorpAdminController {
      */
     @Auth(role = ADMIN)
     @GetMapping("")
-    @CorpAdminApiDocument.ListCorp
+    @ListCorp
     public ResponseEntity<?> listCorp() {
         List<AdminCorpDomainListResponse> responseList = corpAdminService.listCorp();
 
@@ -92,7 +97,7 @@ public class CorpAdminController {
      */
     @Auth(role = ADMIN)
     @GetMapping("/keyword")
-    @CorpAdminApiDocument.GetCorp
+    @GetCorp
     public ResponseEntity<?> getCorp(@RequestParam("keyword") String keyword) {
         List<AdminCorpDomainListResponse> responseList = corpAdminService.findCorpByKeyword(keyword);
 

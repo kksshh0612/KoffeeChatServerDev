@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import teamkiim.koffeechat.domain.admin.corp.controller.service.CorpService;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.CorpAuthCodeCheckRequest;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.CorpAuthRequest;
 import teamkiim.koffeechat.domain.corp.controller.dto.request.CorpDomainRequest;
 import teamkiim.koffeechat.domain.corp.dto.response.CorpDomainResponse;
-import teamkiim.koffeechat.domain.corp.service.CorpService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
 @RestController

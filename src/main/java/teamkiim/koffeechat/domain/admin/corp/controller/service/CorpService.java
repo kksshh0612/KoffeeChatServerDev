@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.corp.service;
+package teamkiim.koffeechat.domain.admin.corp.controller.service;
 
 import java.util.List;
 import java.util.Optional;
