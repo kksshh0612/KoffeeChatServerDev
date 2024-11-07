@@ -1,5 +1,9 @@
 package teamkiim.koffeechat.domain.file.service.local;
 
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -17,11 +21,6 @@ import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -50,7 +49,8 @@ public class LocalPostFileService implements PostFileService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        String saveFileUrl = Paths.get(baseFilePath, post.getPostCategory().toString(), UUID.randomUUID() + "_" + multipartFile.getOriginalFilename()).toString();
+        String saveFileUrl = Paths.get(baseFilePath, post.getPostCategory().toString(),
+                UUID.randomUUID() + "_" + multipartFile.getOriginalFilename()).toString();
 
         PostFile saveFile = postFileRepository.save(new PostFile(saveFileUrl, post));
         post.addPostFile(saveFile);                         // 양방향 연관관계 주입
@@ -81,16 +81,16 @@ public class LocalPostFileService implements PostFileService {
     /**
      * 이미지 파일 다건 삭제 (post에 연관된 File 중 id값이 fileIdList에 없는 File 삭제)
      *
-     * @param fileIdList 삭제하지 않을 이미지 파일 id 리스트
-     * @param post       연관 게시물
+     * @param fileUrlList 삭제하지 않을 이미지 파일 id 리스트
+     * @param post        연관 게시물
      */
     @Transactional
-    public void deleteImageFiles(List<Long> fileIdList, Post post) {
+    public void deleteImageFiles(List<String> fileUrlList, Post post) {
 
         List<PostFile> existFileList = postFileRepository.findAllByPost(post);
 
         List<File> deleteFileList = existFileList.stream()
-                .filter(file -> !fileIdList.contains(file.getId()))
+                .filter(file -> !fileUrlList.contains(file.getUrl()))
                 .collect(Collectors.toList());
 
         fileStorageService.deleteFiles(deleteFileList);

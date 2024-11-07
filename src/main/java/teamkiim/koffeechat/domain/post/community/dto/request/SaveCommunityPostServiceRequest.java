@@ -14,6 +14,6 @@ public class SaveCommunityPostServiceRequest {
 
     private String title;
     private String bodyContent;
-    private List<Long> fileIdList;
+    private List<String> fileUrlList;
     private List<String> tagList;
 }

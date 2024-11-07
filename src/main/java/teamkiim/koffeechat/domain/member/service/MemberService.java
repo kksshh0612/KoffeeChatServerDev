@@ -137,7 +137,8 @@ public class MemberService {
         String fileName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
 
         // 이미 등록된 프로필 이미지 있으면 삭제
-        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl().equals("koffeechat.site/basic_profile_image.png")) {
+        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl()
+                .equals("https://koffeechat.site/basic_profile_image.png")) {
             fileStorageService.deleteFile(member.getProfileImageUrl());
         }
 

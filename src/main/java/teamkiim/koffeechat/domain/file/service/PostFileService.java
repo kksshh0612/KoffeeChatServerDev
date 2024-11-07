@@ -1,10 +1,9 @@
 package teamkiim.koffeechat.domain.file.service;
 
+import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
-
-import java.util.List;
 
 public interface PostFileService {
 
@@ -12,5 +11,5 @@ public interface PostFileService {
 
     void deleteImageFiles(Post post);
 
-    void deleteImageFiles(List<Long> fileIdList, Post post);
+    void deleteImageFiles(List<String> fileUrlList, Post post);
 }
