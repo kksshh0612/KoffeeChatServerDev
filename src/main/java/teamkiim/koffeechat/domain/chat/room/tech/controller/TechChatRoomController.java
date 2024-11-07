@@ -1,5 +1,6 @@
 package teamkiim.koffeechat.domain.chat.room.tech.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/tech-chat-room")
+@Tag(name = "기술 채팅방 API")
 public class TechChatRoomController {
 
     private final TechChatRoomService techChatRoomService;

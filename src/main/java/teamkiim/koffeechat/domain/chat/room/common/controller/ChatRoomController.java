@@ -24,10 +24,11 @@ import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
-@Tag(name = "채팅방 공통 API")
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat-room")
+@Tag(name = "채팅방 공통 API")
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;

@@ -12,7 +12,8 @@ import teamkiim.koffeechat.domain.post.common.domain.PostCategory;
 public class SkillPostNotificationResponse {
 
     private String receiverId;  //알림을 받는 회원
-    private long unreadNotifications;  //읽지 않은 알림 갯수
+
+    private long unreadNotificationCount;  //읽지 않은 알림 갯수
 
     private String title;
 
@@ -29,7 +30,7 @@ public class SkillPostNotificationResponse {
     public static SkillPostNotificationResponse of(String receiverId, String postId, Notification notification) {
         return SkillPostNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(notification.getReceiver().getUnreadNotificationCount())
+                .unreadNotificationCount(notification.getReceiver().getUnreadNotificationCount())
                 .title(notification.getTitle())  //기술 이름
                 .url(postId)
                 .postCategory(notification.getPostType())
