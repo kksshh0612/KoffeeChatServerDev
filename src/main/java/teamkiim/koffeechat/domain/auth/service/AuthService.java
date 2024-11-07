@@ -2,6 +2,8 @@ package teamkiim.koffeechat.domain.auth.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,9 +17,6 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.global.authentication.Authenticator;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.nio.file.Paths;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -48,7 +47,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.EMAIL_ALREADY_EXIST);
         }
 
-        Member member = signUpServiceRequest.toEntity(Paths.get(baseFilePath, basicProfileImageUrl).toString());
+        Member member = signUpServiceRequest.toEntity(String.join(File.separator, baseFilePath, basicProfileImageUrl));
 
         member.encodePassword(passwordEncoder.encode(member.getPassword()));
 
