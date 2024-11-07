@@ -30,7 +30,7 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/direct-chat-room")
-@Tag(name = "채팅방 관리 API")
+@Tag(name = "일대일 채팅방 API")
 public class DirectChatRoomController {
 
     private final DirectChatRoomService directChatRoomService;
