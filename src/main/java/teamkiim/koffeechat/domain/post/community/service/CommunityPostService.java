@@ -121,7 +121,7 @@ public class CommunityPostService {
         communityPost.completeCommunityPost(postServiceRequest.getTitle(), postServiceRequest.getBodyContent(),
                 createdTime);
 
-        postFileService.deleteImageFiles(postServiceRequest.getFileIdList(), communityPost);
+        postFileService.deleteImageFiles(postServiceRequest.getFileUrlList(), communityPost);
 
         if (postRequest.getSaveVoteRequest() != null) {  //투표 저장
             voteService.saveVote(postRequest.toVoteServiceRequest(), postId);

@@ -3,13 +3,12 @@ package teamkiim.koffeechat.domain.post.dev.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 import teamkiim.koffeechat.domain.post.dev.dto.request.SaveDevPostServiceRequest;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -31,7 +30,7 @@ public class SaveDevPostRequest {
     @Schema(description = "게시글 관련 기술 카테고리")
     @NotEmpty(message = "기술 카테고리는 최소 하나 이상 선택해야 합니다.")
     private List<SkillCategory> skillCategoryList;
-    private List<Long> fileIdList;
+    private List<String> fileUrlList;
 
     @Schema(description = "개발 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;
@@ -42,7 +41,7 @@ public class SaveDevPostRequest {
                 .bodyContent(this.bodyContent)
                 .visualData(this.visualData)
                 .skillCategoryList(this.skillCategoryList)
-                .fileIdList(this.fileIdList)
+                .fileUrlList(this.fileUrlList)
                 .tagContentList(this.tagContentList)
                 .build();
     }

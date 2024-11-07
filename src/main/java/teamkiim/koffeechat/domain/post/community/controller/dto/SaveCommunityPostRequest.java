@@ -21,7 +21,7 @@ public class SaveCommunityPostRequest {
         return SaveCommunityPostServiceRequest.builder()
                 .title(this.saveCommunityPostInfoRequest.getTitle())
                 .bodyContent(this.saveCommunityPostInfoRequest.getBodyContent())
-                .fileIdList(this.saveCommunityPostInfoRequest.getFileIdList())
+                .fileUrlList(this.saveCommunityPostInfoRequest.getFileUrlList())
                 .tagList(this.saveCommunityPostInfoRequest.getTagContentList())
                 .build();
     }
