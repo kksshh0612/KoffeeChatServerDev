@@ -29,7 +29,7 @@ public class SkillPostNotificationResponse {
     public static SkillPostNotificationResponse of(String receiverId, String postId, Notification notification) {
         return SkillPostNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(notification.getReceiver().getUnreadNotifications())
+                .unreadNotifications(notification.getReceiver().getUnreadNotificationCount())
                 .title(notification.getTitle())  //기술 이름
                 .url(postId)
                 .postCategory(notification.getPostType())

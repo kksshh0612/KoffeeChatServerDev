@@ -1,12 +1,12 @@
-package teamkiim.koffeechat.domain.corp.dto.response;
+package teamkiim.koffeechat.domain.admin.corp.service.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.domain.admin.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.VerifyStatus;
 
 @Getter
 @NoArgsConstructor
