@@ -29,7 +29,7 @@ public class CorpNotificationResponse {
 
         return CorpNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(notification.getReceiver().getUnreadNotifications())
+                .unreadNotifications(notification.getReceiver().getUnreadNotificationCount())
                 .title(notification.getTitle())
                 .content(notification.getContent())
                 .url(corpId)

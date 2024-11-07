@@ -1,9 +1,15 @@
 package teamkiim.koffeechat.global.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import java.security.Key;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -11,9 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.redis.util.RedisUtil;
-
-import java.security.Key;
-import java.util.Date;
 
 /**
  * JWT 토큰을 생성/파싱/설정 하는 클래스
@@ -33,7 +36,7 @@ public class JwtTokenProvider implements InitializingBean {
     @Value("${jwt.refresh.exp}")
     private long refreshTokenExpTime;
 
-    private static final String AUTHORITIES_KEY = "auth";
+    private static final String AUTHORITIES_KEY = "AUTH_ROLE";
     private Key key;
 
     /**
@@ -110,6 +113,11 @@ public class JwtTokenProvider implements InitializingBean {
     public Long getMemberPK(Claims claims) {
 
         return Long.parseLong(claims.getSubject());
+    }
+
+    public String getMemberRole(Claims claims) {
+
+        return (String) claims.get(AUTHORITIES_KEY);
     }
 
     /**

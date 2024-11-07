@@ -1,5 +1,8 @@
 package teamkiim.koffeechat.domain.file.service.local;
 
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -12,11 +15,6 @@ import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.file.domain.ChatFile;
 import teamkiim.koffeechat.domain.file.repository.ChatFileRepository;
 import teamkiim.koffeechat.domain.file.service.ChatFileService;
-
-import java.io.File;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,15 +32,18 @@ public class LocalChatFileService implements ChatFileService {
     /**
      * 채팅에서 Local에 이미지 전송
      *
-     * @param multipartFile 이미지 파일
-     * @param chatRoomId    이미지를 전송한 채팅방 PK
-     * @param memberId      이미지를 전송한 회원 PK
-     * @param sendTime      이미지를 전송한 시간
+     * @param multipartFile     이미지 파일
+     * @param decryptChatRoomId 이미지 전송한 채팅방 복호화된 PK
+     * @param encryptChatRoomId 이미지 전송한 채팅방 암호화된 PK
+     * @param memberId          이미지를 전송한 회원 PK
+     * @param sendTime          이미지를 전송한 시간
      */
     @Transactional
-    public void uploadImageFile(MultipartFile multipartFile, Long chatRoomId, Long memberId, LocalDateTime sendTime) {
+    public void uploadImageFile(MultipartFile multipartFile, Long decryptChatRoomId, String encryptChatRoomId,
+                                Long memberId, LocalDateTime sendTime) {
 
-        String saveFileUrl = Paths.get(baseFilePath, "CHAT", UUID.randomUUID() + "_" + multipartFile.getOriginalFilename()).toString();
+        String saveFileUrl = Paths.get(baseFilePath, "CHAT",
+                UUID.randomUUID() + "_" + multipartFile.getOriginalFilename()).toString();
 
         ChatFile chatFile = ChatFile.builder()
                 .url(saveFileUrl)
@@ -58,6 +59,6 @@ public class LocalChatFileService implements ChatFileService {
                 .createdTime(sendTime)
                 .build();
 
-        chatMessageService.saveImageMessage(chatMessageServiceRequest, chatRoomId, memberId);
+        chatMessageService.saveImageMessage(chatMessageServiceRequest, decryptChatRoomId, encryptChatRoomId, memberId);
     }
 }

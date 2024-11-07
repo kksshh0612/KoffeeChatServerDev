@@ -1,12 +1,12 @@
-package teamkiim.koffeechat.domain.corp.controller.dto.response;
+package teamkiim.koffeechat.domain.admin.corp.service.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.domain.admin.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.Verified;
 
 @Getter
 @NoArgsConstructor
@@ -25,14 +25,14 @@ public class AdminCorpDomainListResponse {
     private String emailDomain;        //회사 이메일 도메인
 
     @Schema(description = "도메인 승인 상태", example = "WAITING")
-    private Verified verified;             //상태
+    private VerifyStatus status;             //상태
 
     public static AdminCorpDomainListResponse of(String corpId, Corp corp) {
         return AdminCorpDomainListResponse.builder()
                 .id(corpId)
                 .name(corp.getName())
                 .emailDomain(corp.getEmailDomain())
-                .verified(corp.getVerified())
+                .status(corp.getVerifyStatus())
                 .build();
     }
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 @RequiredArgsConstructor
 @RequestMapping("/file")
 @Tag(name = "파일 API")
+@Slf4j
 public class FileController {
 
     private final PostFileService postFileService;
@@ -36,6 +38,7 @@ public class FileController {
                                                  @RequestPart(value = "postId") String postId) {
 
         Long decryptedPostId = aesCipherUtil.decrypt(postId);
+
         return ResponseEntity.ok(postFileService.uploadImageFile(multipartFile, decryptedPostId));
     }
 
@@ -54,7 +57,7 @@ public class FileController {
 
         LocalDateTime sendTime = LocalDateTime.now();
 
-        chatFileService.uploadImageFile(multipartFile, decryptedChatRoomId, memberId, sendTime);
+        chatFileService.uploadImageFile(multipartFile, decryptedChatRoomId, chatRoomId, memberId, sendTime);
 
         return ResponseEntity.ok().build();
     }

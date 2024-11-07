@@ -28,6 +28,7 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "해당 회원에 권한이 없습니다."),
     VOTE_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 회원에 투표 생성 권한이 없습니다."),
     CORP_DOMAIN_FORBIDDEN(HttpStatus.FORBIDDEN, "승인 거절된 도메인입니다. 이메일 확인 후 문의해주세요."),
+    CHAT_ROOM_ALREADY_FULL(HttpStatus.FORBIDDEN, "이미 가득 찬 채팅방입니다. 관리자에게 문의하세요."),
 
     // 404 NOT FOUND
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
@@ -50,7 +51,7 @@ public enum ErrorCode {
     POST_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 작성된 게시글입니다."),
     VOTE_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 투표되었습니다."),
     CORP_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 회사 도메인입니다."),
-    CHAT_ROOM_ALREADY_FULL(HttpStatus.CONFLICT, "이미 가득 찬 채팅방입니다. 관리자에게 문의하세요."),
+    ALREADY_JOINED_CHAT_ROOM(HttpStatus.CONFLICT, "이미 참여중인 채팅방입니다"),
     CORP_REQUEST_ALREADY_EXIST(HttpStatus.CONFLICT, "요청이 처리중입니다. 요청 처리 결과는 알림으로 발송됩니다."),
     CORP_DOMAIN_WAITING(HttpStatus.CONFLICT, "등록 요청이 되어있는 도메인입니다. 요청 처리 결과는 알림으로 발송됩니다."),
 

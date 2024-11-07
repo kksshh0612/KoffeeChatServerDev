@@ -5,14 +5,15 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.chat.room.tech.controller.dto.CreateTechChatRoomRequest;
-import teamkiim.koffeechat.domain.chat.room.tech.controller.dto.EnterTechChatRoomRequest;
-import teamkiim.koffeechat.domain.chat.room.tech.controller.dto.ExitTechChatRoomRequest;
 import teamkiim.koffeechat.domain.chat.room.tech.service.TechChatRoomService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
@@ -31,6 +32,7 @@ public class TechChatRoomController {
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/")
+    @TechChatRoomApiDocument.create
     public ResponseEntity<?> create(@Valid @RequestBody CreateTechChatRoomRequest createTechChatRoomRequest,
                                     HttpServletRequest request) {
 
@@ -42,41 +44,61 @@ public class TechChatRoomController {
     }
 
     /**
-     * 채팅방 입장
+     * 채팅방 참여
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/enter")
-    public ResponseEntity<?> create(@Valid @RequestBody EnterTechChatRoomRequest enterTechChatRoomRequest,
-                                    HttpServletRequest request) {
+    @PostMapping("/{chatRoomId}")
+    @TechChatRoomApiDocument.enter
+    public ResponseEntity<?> enter(@PathVariable("chatRoomId") String chatRoomId, HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-        Long decryptedTechChatRoomId = aesCipherUtil.decrypt(enterTechChatRoomRequest.getChatRoomId());
+        Long decryptedTechChatRoomId = aesCipherUtil.decrypt(chatRoomId);
 
-        LocalDateTime currTime = LocalDateTime.now();
+        LocalDateTime currentTime = LocalDateTime.now();
 
-        techChatRoomService.enterChatRoom(enterTechChatRoomRequest.toServiceRequest(currTime, decryptedTechChatRoomId),
-                memberId);
+        techChatRoomService.enterChatRoom(decryptedTechChatRoomId, memberId, currentTime);
 
         return ResponseEntity.ok("채팅방 입장 완료");
     }
 
     /**
-     * 채팅방 퇴장
+     * 회원이 현재 속해있는 채팅방 목록 페이징 조회
+     *
+     * @param page
+     * @param size
+     * @param request
+     * @return
      */
     @AuthenticatedMemberPrincipal
-    @DeleteMapping("/")
-    public ResponseEntity<?> exit(@Valid @RequestBody ExitTechChatRoomRequest exitTechChatRoomRequest,
-                                  HttpServletRequest request) {
+    @GetMapping("")
+    @TechChatRoomApiDocument.findChatRooms
+    public ResponseEntity<?> findChatRooms(@RequestParam("page") int page, @RequestParam("size") int size,
+                                           HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-        Long decryptedChatRoomId = aesCipherUtil.decrypt(exitTechChatRoomRequest.getChatRoomId());
 
-        LocalDateTime currTime = LocalDateTime.now();
-
-        techChatRoomService.exitChatRoom(exitTechChatRoomRequest.toServiceRequest(decryptedChatRoomId, currTime),
-                memberId);
-
-        return ResponseEntity.ok("채팅방 퇴장 완료");
+        return ResponseEntity.ok(techChatRoomService.findChatRoomList(memberId, page, size));
     }
 
+    /**
+     * 채팅방 퇴장 (채팅방에서 완전히 퇴장할 때 호출하는 API)
+     *
+     * @param chatRoomId
+     * @param request
+     * @return
+     */
+    @AuthenticatedMemberPrincipal
+    @PatchMapping("/exit/{chatRoomId}")
+    @TechChatRoomApiDocument.exit
+    public ResponseEntity<?> exit(@PathVariable("chatRoomId") String chatRoomId, HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+        Long decryptedChatRoomId = aesCipherUtil.decrypt(chatRoomId);
+
+        LocalDateTime exitTime = LocalDateTime.now();
+
+        techChatRoomService.exit(decryptedChatRoomId, chatRoomId, memberId, exitTime);
+
+        return ResponseEntity.ok().build();
+    }
 }

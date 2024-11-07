@@ -34,7 +34,7 @@ public class PostNotificationResponse {
                                               Notification notification) {
         return PostNotificationResponse.builder()
                 .receiverId(receiverId)
-                .unreadNotifications(notification.getReceiver().getUnreadNotifications())
+                .unreadNotifications(notification.getReceiver().getUnreadNotificationCount())
                 .senderId(senderId)
                 .senderNickname(notification.getSender().getNickname())
                 .senderProfileImageUrl(notification.getSender().getProfileImageUrl())

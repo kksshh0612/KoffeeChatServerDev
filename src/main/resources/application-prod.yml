@@ -19,7 +19,8 @@ spring:
 
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI}
-      username: ${SPRING_DATA_MONGO_USERNAME}
+      username: ${SPRING_DATA_MONGODB_USERNAME}
+      password: ${SPRING_DATA_MONGODB_PASSWORD}
 
   jpa:
     hibernate:

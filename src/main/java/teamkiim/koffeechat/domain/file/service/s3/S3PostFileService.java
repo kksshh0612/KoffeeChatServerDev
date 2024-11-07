@@ -39,6 +39,7 @@ public class S3PostFileService implements PostFileService {
      * @param postId        연관 게시물 PK
      * @return ImagePathResponse
      */
+    @Transactional
     public ImageUrlResponse uploadImageFile(MultipartFile multipartFile, Long postId) {
 
         Post post = postRepository.findById(postId)
