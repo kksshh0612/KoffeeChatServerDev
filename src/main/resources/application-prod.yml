@@ -38,7 +38,7 @@ logging:
     org.hibernate.orm.jdbc.bind: info    # 쿼리 파라미터 로그 남김
     org.springframework.data.mongodb.core: off
     org.mongodb.driver: off
-    root: debug
+    root: info
 
 server:
   forward-headers-strategy: framework
