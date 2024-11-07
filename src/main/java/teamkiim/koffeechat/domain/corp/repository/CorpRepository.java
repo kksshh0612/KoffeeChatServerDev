@@ -5,8 +5,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import teamkiim.koffeechat.domain.admin.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.VerifyStatus;
 
 public interface CorpRepository extends JpaRepository<Corp, Long> {
 

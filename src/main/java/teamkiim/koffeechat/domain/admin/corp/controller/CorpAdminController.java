@@ -17,15 +17,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import teamkiim.koffeechat.domain.corp.controller.dto.request.CreateApprovedCorpRequest;
-import teamkiim.koffeechat.domain.corp.dto.response.AdminCorpDomainListResponse;
-import teamkiim.koffeechat.domain.corp.service.CorpAdminService;
+import teamkiim.koffeechat.domain.admin.corp.controller.CorpAdminApiDocument;
+import teamkiim.koffeechat.domain.admin.corp.controller.request.CreateApprovedCorpRequest;
+import teamkiim.koffeechat.domain.admin.corp.service.CorpAdminService;
+import teamkiim.koffeechat.domain.admin.corp.service.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/corps/admin")
+@RequestMapping("/admin/corps")
 @Tag(name = "[ADMIN] 현직자 인증 도메인 관리 API")
 public class CorpAdminController {
 

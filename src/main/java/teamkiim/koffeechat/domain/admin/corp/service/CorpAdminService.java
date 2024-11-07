@@ -1,14 +1,14 @@
-package teamkiim.koffeechat.domain.corp.service;
+package teamkiim.koffeechat.domain.admin.corp.service;
 
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import teamkiim.koffeechat.domain.admin.corp.domain.VerifyStatus;
+import teamkiim.koffeechat.domain.admin.corp.service.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
-import teamkiim.koffeechat.domain.corp.domain.VerifyStatus;
 import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;
-import teamkiim.koffeechat.domain.corp.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
 import teamkiim.koffeechat.domain.corp.repository.WaitingCorpRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
