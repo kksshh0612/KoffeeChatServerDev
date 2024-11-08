@@ -33,7 +33,8 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/subscribe")
     @NotificationApiDocument.SubscribeApiDoc
-    public SseEmitter subscribe(HttpServletRequest request) {
+    public SseEmitter subscribe(@RequestParam(value = "lastEventId", required = false) String lastEventId,
+                                HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
