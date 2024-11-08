@@ -19,6 +19,7 @@ public class ChatRoomListResponse {
     private String chatRoomId;
     private ChatRoomType chatRoomType;
     private String chatRoomName;
+    private String lastMessageContent;
     private LocalDateTime lastMessageTime;
     private Long unreadMessageCount;
     private String oppositeMemberId;
@@ -39,7 +40,8 @@ public class ChatRoomListResponse {
                 .chatRoomId(chatRoomId)
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
                 .chatRoomName(roomName)
-                .lastMessageTime(LocalDateTime.of(2024, 9, 20, 13, 0))
+                .lastMessageContent(chatRoomInfo.getLatestMessageContent())
+                .lastMessageTime(chatRoomInfo.getLatestMessageTime())
                 .unreadMessageCount(chatRoomInfo.getUnreadCount())
                 .oppositeMemberId(oppositeMemberId)
                 .profileImageUrl(oppositeMember.getProfileImageUrl())
