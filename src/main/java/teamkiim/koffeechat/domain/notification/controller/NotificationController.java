@@ -2,6 +2,7 @@ package teamkiim.koffeechat.domain.notification.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +34,12 @@ public class NotificationController {
     @AuthenticatedMemberPrincipal
     @GetMapping("/subscribe")
     @NotificationApiDocument.SubscribeApiDoc
-    public SseEmitter subscribe(HttpServletRequest request) {
+    public SseEmitter subscribe(@RequestParam(value = "lastEventId", required = false) String lastEventId,
+                                HttpServletRequest request, HttpServletResponse response) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return notificationService.connectNotification(memberId);
+        return notificationService.connectNotification(memberId, response);
     }
 
     /**
