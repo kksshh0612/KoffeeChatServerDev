@@ -53,6 +53,11 @@ public class ChatRoomService {
         log.info("[ChatRoomService / close] chatRoomId : {}, memberId : {}", chatRoomId, memberId);
     }
 
+    /**
+     * 채팅방 목록 닫기
+     *
+     * @param memberId 채팅방 목록 닫기 요청한 회원 PK
+     */
     public void closeChatRoomList(Long memberId) {
 
         chatNotificationService.stopNotifications(memberId);
