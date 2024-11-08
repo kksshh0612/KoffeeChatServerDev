@@ -2,6 +2,7 @@ package teamkiim.koffeechat.domain.chat.room.common.service;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
@@ -17,6 +18,7 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class ChatRoomService {
 
     private final MemberChatRoomRepository memberChatRoomRepository;
@@ -47,6 +49,12 @@ public class ChatRoomService {
 
         // 채팅방 알림 on
         chatNotificationService.onChatRoomNotification(memberId, chatRoomId);
+
+        log.info("[ChatRoomService / close] chatRoomId : {}, memberId : {}", chatRoomId, memberId);
     }
 
+    public void closeChatRoomList(Long memberId) {
+
+        chatNotificationService.stopNotifications(memberId);
+    }
 }

@@ -71,4 +71,18 @@ public class ChatRoomController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 채팅방 목록 닫기
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/close-all")
+    public ResponseEntity<?> closeChatRoomList(HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        chatRoomService.closeChatRoomList(memberId);
+
+        return ResponseEntity.ok().build();
+    }
+
 }
