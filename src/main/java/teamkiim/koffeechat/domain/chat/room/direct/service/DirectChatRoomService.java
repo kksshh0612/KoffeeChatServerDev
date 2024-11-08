@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class DirectChatRoomService {
 
     private final DirectChatRoomRepository directChatRoomRepository;
@@ -46,9 +48,9 @@ public class DirectChatRoomService {
     /**
      * 일대일 채팅방 생성
      *
-     * @param requestMemberId
-     * @param targetMemberId
-     * @return
+     * @param requestMemberId 일대일 채팅방 생성 요청한 회원 PK
+     * @param targetMemberId  일대일 채팅방 생성 상대방 회원 PK
+     * @return CreateDirectChatRoomResponse
      */
     @Transactional
     public CreateDirectChatRoomResponse createChatRoom(Long requestMemberId, Long targetMemberId) {
@@ -61,20 +63,32 @@ public class DirectChatRoomService {
         Optional<DirectChatRoom> existChatRoom = directChatRoomRepository.findDirectChatRoomByMembers(requestMember,
                 targetMember);
 
+        // 이전에 해당 채팅방을 생성한 적이 있는 경우
         if (existChatRoom.isPresent()) {
-
-            Optional<MemberChatRoom> memberChatRoom = memberChatRoomRepository.findByMemberAndActiveChatRoom(
+            Optional<MemberChatRoom> memberChatRoom = memberChatRoomRepository.findByMemberAndNotActiveChatRoom(
                     requestMember, existChatRoom.get());
 
-            // 이전에 들어갔다가 나간 채팅방은 재진입
+            // 현재 퇴장한 상태인 경우
             if (memberChatRoom.isPresent()) {
                 memberChatRoom.get().enter();
                 chatRoomManager.addMember(existChatRoom.get().getId(), requestMember);
                 chatNotificationService.addChatRoomNotification(requestMember.getId(), existChatRoom.get().getId());
-            } else {
-                // 이미 존재하는 채팅방이면
-                return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(existChatRoom.get().getId()));
+
+                // 입장 메세지 전송 (재입장)
+                ChatMessageServiceRequest chatMessageServiceRequest = ChatMessageServiceRequest.builder()
+                        .messageType(MessageType.ENTER)
+                        .content(requestMember.getNickname() + " 님이 입장하셨습니다")
+                        .createdTime(null)
+                        .build();
+
+                chatMessageService.saveTextMessage(chatMessageServiceRequest, existChatRoom.get().getId(),
+                        aesCipherUtil.encrypt(existChatRoom.get().getId()), requestMemberId);
             }
+
+            log.info("[DirectChatRoomService / craeteChatRoom] 재생성 memberId : {}, chatRoomId : {}",
+                    requestMemberId, existChatRoom.get().getId());
+
+            return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(existChatRoom.get().getId()));
         }
 
         DirectChatRoom directChatRoom = DirectChatRoom.builder()
@@ -85,12 +99,14 @@ public class DirectChatRoomService {
 
         DirectChatRoom saveChatRoom = directChatRoomRepository.save(directChatRoom);
 
-        MemberChatRoom memberChatRoom1 = MemberChatRoom.of(requestMember, directChatRoom, requestMember.getNickname(),
+        MemberChatRoom requestMemberChatRoom = MemberChatRoom.of(requestMember, directChatRoom,
+                requestMember.getNickname(),
                 null, true);
-        MemberChatRoom memberChatRoom2 = MemberChatRoom.of(targetMember, directChatRoom, targetMember.getNickname(),
+        MemberChatRoom targetMemberChatRoom = MemberChatRoom.of(targetMember, directChatRoom,
+                targetMember.getNickname(),
                 null, true);
 
-        memberChatRoomRepository.saveAll(List.of(memberChatRoom1, memberChatRoom2));
+        memberChatRoomRepository.saveAll(List.of(requestMemberChatRoom, targetMemberChatRoom));
 
         // 채팅방 멤버 관리 추가
         chatRoomManager.addMember(saveChatRoom.getId(), requestMember);
@@ -100,6 +116,9 @@ public class DirectChatRoomService {
         chatNotificationService.addChatRoomNotification(requestMember.getId(), saveChatRoom.getId());
         chatNotificationService.addChatRoomNotification(targetMember.getId(), saveChatRoom.getId());
 
+        log.info("[DirectChatRoomService / craeteChatRoom] 첫 생성 memberId : {}, chatRoomId : {}",
+                requestMemberId, saveChatRoom.getId());
+
         return new CreateDirectChatRoomResponse(aesCipherUtil.encrypt(saveChatRoom.getId()));
     }
 
@@ -107,8 +126,8 @@ public class DirectChatRoomService {
      * 참여중인 채팅방 목록 조회 -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수 리턴
      *
      * @param memberId 채팅방 목록 조회 요청한 회원 PK
-     * @param page
-     * @param size
+     * @param page     페이징에 사용될 page
+     * @param size     페이징에 사용될 size
      * @return
      */
     public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
@@ -116,12 +135,14 @@ public class DirectChatRoomService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        // 닫은 시간 기준 내림차순 정렬
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Order.desc("closeTime").nullsLast()));
         List<MemberChatRoom> joinMemberChatRooms =
-                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, ChatRoomType.DIRECT, pageRequest)
-                        .getContent();
+                memberChatRoomRepository.findAllActiveChatRoomByMemberAndChatRoomType(
+                        member, ChatRoomType.DIRECT, pageRequest).getContent();
 
-        List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(joinMemberChatRooms);
+        // 채팅방별 정보 조회
+        List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.getChatRoomInfo(joinMemberChatRooms);
 
         List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
 
@@ -132,10 +153,13 @@ public class DirectChatRoomService {
                             memberChatRoom.getChatRoom(), memberChatRoom.getMember())
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
-            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(aesCipherUtil.encrypt(memberId),
-                    aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()), chatRoomInfoDto,
+            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(
+                    aesCipherUtil.encrypt(memberId),
+                    aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()),
                     aesCipherUtil.encrypt(oppositeMemberChatRoom.getMember().getId()),
-                    oppositeMemberChatRoom.getMember());
+                    oppositeMemberChatRoom.getMember(),
+                    chatRoomInfoDto
+            );
 
             chatRoomListResponseList.add(chatRoomListResponse);
         }
@@ -174,11 +198,11 @@ public class DirectChatRoomService {
 
         chatMessageService.saveTextMessage(chatMessageServiceRequest, decryptChatRoomId, encryptChatRoomId, memberId);
 
+        // 퇴장 처리
         memberChatRoom.exit();
-
         chatRoomManager.removeMember(decryptChatRoomId, member);
-
-        // 채팅 알림 정보 삭제
         chatNotificationService.removeChatRoomNotification(memberId, decryptChatRoomId);
+
+        log.info("[DirectChatRoomService / exit] memberId : {}, chatRoomId : {}", memberId, decryptChatRoomId);
     }
 }
