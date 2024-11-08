@@ -24,10 +24,11 @@ import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
-@Tag(name = "채팅방 공통 API")
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat-room")
+@Tag(name = "채팅방 공통 API")
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
@@ -66,6 +67,20 @@ public class ChatRoomController {
         LocalDateTime closeTime = LocalDateTime.now();
 
         chatRoomService.close(decryptedChatRoomId, memberId, closeTime);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 채팅방 목록 닫기
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/close-all")
+    public ResponseEntity<?> closeChatRoomList(HttpServletRequest request) {
+
+        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
+
+        chatRoomService.closeChatRoomList(memberId);
 
         return ResponseEntity.ok().build();
     }

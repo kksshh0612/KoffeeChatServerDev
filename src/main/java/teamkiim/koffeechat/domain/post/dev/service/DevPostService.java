@@ -112,7 +112,7 @@ public class DevPostService {
                 saveDevPostServiceRequest.getVisualData(), saveDevPostServiceRequest.getSkillCategoryList(),
                 createdTime);
 
-        postFileService.deleteImageFiles(saveDevPostServiceRequest.getFileIdList(), devPost);
+        postFileService.deleteImageFiles(saveDevPostServiceRequest.getFileUrlList(), devPost);
 
         notificationService.createPostNotification(member, devPost);  //팔로워들에게 알림 발송
         notificationService.createSkillPostNotification(saveDevPostServiceRequest.getSkillCategoryList(),

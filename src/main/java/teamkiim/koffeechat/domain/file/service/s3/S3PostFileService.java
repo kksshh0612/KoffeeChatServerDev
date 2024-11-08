@@ -1,11 +1,14 @@
 package teamkiim.koffeechat.domain.file.service.s3;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.repository.FileRepository;
@@ -17,14 +20,11 @@ import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Profile("prod")
+@Slf4j
 public class S3PostFileService implements PostFileService {
 
     private final FileRepository fileRepository;
@@ -64,33 +64,44 @@ public class S3PostFileService implements PostFileService {
     @Transactional
     public void deleteImageFiles(Post post) {
 
-        List<PostFile> fileList = postFileRepository.findAllByPost(post);
+        List<PostFile> deleteFileList = postFileRepository.findAllByPost(post);
 
-        for (PostFile postFile : fileList) {
-            fileStorageService.deleteFile(postFile.getUrl());
-        }
+        List<String> urls = deleteFileList.stream()
+                .map(PostFile::getUrl)
+                .collect(Collectors.toList());
 
-        fileRepository.deleteAll(fileList);
+        fileStorageService.deleteFiles(urls);
+
+        fileRepository.deleteAll(deleteFileList);
     }
 
     /**
      * 이미지 파일 다건 삭제 (post에 연관된 File 중 id값이 fileIdList에 없는 File 삭제)
      *
-     * @param fileIdList 삭제하지 않을 이미지 파일 id 리스트
-     * @param post       연관 게시물
-     * @return
+     * @param fileUrlList 삭제하지 않을 이미지 파일 id 리스트
+     * @param post        연관 게시물
      */
     @Transactional
-    public void deleteImageFiles(List<Long> fileIdList, Post post) {
+    public void deleteImageFiles(List<String> fileUrlList, Post post) {
 
         List<PostFile> existFileList = postFileRepository.findAllByPost(post);
 
-        List<File> deleteFileList = existFileList.stream()
-                .filter(file -> !fileIdList.contains(file.getId()))
+        List<String> urls = existFileList.stream()
+                .filter(file -> !fileUrlList.contains(file.getUrl()))
+                .map(PostFile::getUrl)
                 .collect(Collectors.toList());
 
-        fileStorageService.deleteFiles(deleteFileList);
+        log.info("[S3PostFileService / deleteImageFiles] 삭제할 파일 수 : {}", urls.size());
+        for (String url : urls) {
+            log.info("deleteFileUrl : {}", url);
+        }
 
-        fileRepository.deleteAll(deleteFileList);
+        if (!(urls.isEmpty())) {
+            return;
+        }
+
+        fileStorageService.deleteFiles(urls);
+
+        fileRepository.deleteAll(existFileList);
     }
 }

@@ -30,7 +30,7 @@ import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/direct-chat-room")
-@Tag(name = "채팅방 관리 API")
+@Tag(name = "일대일 채팅방 API")
 public class DirectChatRoomController {
 
     private final DirectChatRoomService directChatRoomService;
@@ -49,7 +49,7 @@ public class DirectChatRoomController {
         Long requestMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
         Long targetMemberId = aesCipherUtil.decrypt(createDirectChatRoomRequest.getMemberId());
 
-        return ResponseEntity.ok(directChatRoomService.createChatRoom(requestMemberId, targetMemberId));
+        return ResponseEntity.ok(directChatRoomService.create(requestMemberId, targetMemberId));
     }
 
     /**

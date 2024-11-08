@@ -1,22 +1,18 @@
 package teamkiim.koffeechat.domain.file.service.local;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.file.domain.File;
-import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
-import teamkiim.koffeechat.domain.file.service.FileStorageService;
-import teamkiim.koffeechat.global.exception.CustomException;
-import teamkiim.koffeechat.global.exception.ErrorCode;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
+import teamkiim.koffeechat.domain.file.service.FileStorageService;
+import teamkiim.koffeechat.global.exception.CustomException;
+import teamkiim.koffeechat.global.exception.ErrorCode;
 
 /**
  * 로컬 환경 물리적 파일 I/O 담당
@@ -72,16 +68,15 @@ public class LocalFileStorageControlService implements FileStorageService {
     /**
      * 파일 다건 삭제
      *
-     * @param fileList 삭제할 파일 엔티티 리스트
+     * @param urls
      */
-    public void deleteFiles(List<File> fileList) {
+    public void deleteFiles(List<String> urls) {
 
-        for (File file : fileList) {
-
-            Path savePath = Paths.get(file.getUrl());
+        for (String url : urls) {
+            Path deletePath = Paths.get(url);
 
             try {
-                Files.deleteIfExists(savePath);
+                Files.deleteIfExists(deletePath);
             } catch (IOException e) {
                 throw new CustomException(ErrorCode.FILE_IO_FAILED);
             }

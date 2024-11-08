@@ -2,6 +2,7 @@ package teamkiim.koffeechat.domain.file.service.local;
 
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,9 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.chat.message.domain.MessageType;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
+import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
 import teamkiim.koffeechat.domain.file.domain.ChatFile;
 import teamkiim.koffeechat.domain.file.repository.ChatFileRepository;
 import teamkiim.koffeechat.domain.file.service.ChatFileService;
+import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,6 +28,8 @@ public class LocalChatFileService implements ChatFileService {
     private final ChatFileRepository chatFileRepository;
     private final ChatMessageService chatMessageService;
     private final LocalFileStorageControlService localFileStorageControlService;
+    private final ChatNotificationService chatNotificationService;
+    private final ChatRoomManager chatRoomManager;
 
     @Value("${file-path}")
     private String baseFilePath;
@@ -59,6 +64,11 @@ public class LocalChatFileService implements ChatFileService {
                 .createdTime(sendTime)
                 .build();
 
+        List<Long> chatRoomMemberIds = chatRoomManager.getMemberIds(decryptChatRoomId);
+
         chatMessageService.saveImageMessage(chatMessageServiceRequest, decryptChatRoomId, encryptChatRoomId, memberId);
+
+        chatNotificationService.createChatNotification(chatMessageServiceRequest,
+                decryptChatRoomId, memberId, chatRoomMemberIds);
     }
 }

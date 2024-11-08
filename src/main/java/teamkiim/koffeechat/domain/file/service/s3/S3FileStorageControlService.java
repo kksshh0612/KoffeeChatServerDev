@@ -4,6 +4,9 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +17,6 @@ import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.service.FileStorageService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * S3 물리적 파일 I/O 담당
@@ -77,12 +76,12 @@ public class S3FileStorageControlService implements FileStorageService {
     /**
      * 파일 다건 삭제
      *
-     * @param fileList
+     * @param urls 삭제할 파일 url 리스트
      */
-    public void deleteFiles(List<teamkiim.koffeechat.domain.file.domain.File> fileList) {
+    public void deleteFiles(List<String> urls) {
 
-        List<DeleteObjectsRequest.KeyVersion> keysToDelete = fileList.stream()
-                .map(file -> new DeleteObjectsRequest.KeyVersion(parseObjectName(file.getUrl())))
+        List<DeleteObjectsRequest.KeyVersion> keysToDelete = urls.stream()
+                .map(url -> new DeleteObjectsRequest.KeyVersion(parseObjectName(url)))
                 .toList();
 
         DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName)
@@ -96,7 +95,7 @@ public class S3FileStorageControlService implements FileStorageService {
 
     }
 
-    private String parseObjectName(String url){
+    private String parseObjectName(String url) {
         return url.substring(url.lastIndexOf("/") + 1);
     }
 }

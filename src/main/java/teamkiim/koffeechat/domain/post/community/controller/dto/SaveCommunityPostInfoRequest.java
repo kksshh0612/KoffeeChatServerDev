@@ -2,11 +2,10 @@ package teamkiim.koffeechat.domain.post.community.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -22,7 +21,7 @@ public class SaveCommunityPostInfoRequest {
     @NotBlank(message = "내용을 입력해주세요.")
     private String bodyContent;
 
-    private List<Long> fileIdList;
+    private List<String> fileUrlList;
 
     @Schema(description = "커뮤니티 게시글 태그 리스트 (띄어쓰기x, 콤마(,) x)", example = "[\"태그_1\", \"태그_2\"]")
     private List<String> tagContentList;

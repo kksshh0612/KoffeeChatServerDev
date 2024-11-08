@@ -15,17 +15,19 @@ public class CommentInfoDto {
 
     private String id;
     private String content;
+    private String memberId;
     private String nickname;
     private String profileImageUrl;
     private LocalDateTime createdTime;
     private LocalDateTime modifiedTime;
     private boolean isMemberWritten;
 
-    public static CommentInfoDto of(String commentId, Comment comment, boolean isMemberWritten) {
+    public static CommentInfoDto of(String commentId, Comment comment, String memberId, boolean isMemberWritten) {
 
         return CommentInfoDto.builder()
                 .id(commentId)
                 .content(comment.getContent())
+                .memberId(memberId)
                 .nickname(comment.getMember().getNickname())
                 .profileImageUrl(comment.getMember().getProfileImageUrl())
                 .createdTime(comment.getCreatedTime())

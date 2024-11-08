@@ -111,7 +111,8 @@ public class CommentService {
         return post.getCommentList().stream()
                 .map(comment -> {
                     boolean isMemberWritten = comment.getMember().getId().equals(memberId);
-                    return CommentInfoDto.of(aesCipherUtil.encrypt(comment.getId()), comment, isMemberWritten);
+                    return CommentInfoDto.of(aesCipherUtil.encrypt(comment.getId()), comment,
+                            aesCipherUtil.encrypt(memberId), isMemberWritten);
                 }).toList();
     }
 }

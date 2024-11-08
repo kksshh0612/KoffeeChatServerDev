@@ -1,10 +1,8 @@
 package teamkiim.koffeechat.domain.file.service;
 
-import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.file.domain.File;
-import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
-
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
+import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 
 public interface FileStorageService {
 
@@ -12,5 +10,5 @@ public interface FileStorageService {
 
     void deleteFile(String url);
 
-    void deleteFiles(List<File> fileList);
+    void deleteFiles(List<String> urls);
 }
