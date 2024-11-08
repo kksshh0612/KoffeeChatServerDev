@@ -26,7 +26,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        log.info("AuthInterceptor / preHandle 진입 요청 URI: " + request.getRequestURI());
+        log.info("[AuthInterceptor / preHandle] 요청 Method : {}, URI: {}", request.getMethod(), request.getRequestURI());
 
         if (!(handler instanceof HandlerMethod)) {
             return true;

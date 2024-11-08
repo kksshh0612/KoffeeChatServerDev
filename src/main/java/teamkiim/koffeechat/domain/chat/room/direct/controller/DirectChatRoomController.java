@@ -49,7 +49,7 @@ public class DirectChatRoomController {
         Long requestMemberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
         Long targetMemberId = aesCipherUtil.decrypt(createDirectChatRoomRequest.getMemberId());
 
-        return ResponseEntity.ok(directChatRoomService.createChatRoom(requestMemberId, targetMemberId));
+        return ResponseEntity.ok(directChatRoomService.create(requestMemberId, targetMemberId));
     }
 
     /**

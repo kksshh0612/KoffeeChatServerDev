@@ -19,14 +19,14 @@ public class ChatRoomListResponse {
     private String chatRoomId;
     private ChatRoomType chatRoomType;
     private String chatRoomName;
+    private String lastMessageContent;
     private LocalDateTime lastMessageTime;
     private Long unreadMessageCount;
     private String oppositeMemberId;
     private String profileImageUrl;
 
-    public static ChatRoomListResponse of(String memberId, String chatRoomId, ChatRoomInfoDto chatRoomInfo,
-                                          String oppositeMemberId,
-                                          Member oppositeMember) {
+    public static ChatRoomListResponse of(String memberId, String chatRoomId, String oppositeMemberId,
+                                          Member oppositeMember, ChatRoomInfoDto chatRoomInfo) {
 
         String roomName = chatRoomInfo.getMemberChatRoom().getChatRoom().getName();
 
@@ -39,7 +39,8 @@ public class ChatRoomListResponse {
                 .chatRoomId(chatRoomId)
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
                 .chatRoomName(roomName)
-                .lastMessageTime(LocalDateTime.of(2024, 9, 20, 13, 0))
+                .lastMessageContent(chatRoomInfo.getLatestMessageContent())
+                .lastMessageTime(chatRoomInfo.getLatestMessageTime())
                 .unreadMessageCount(chatRoomInfo.getUnreadCount())
                 .oppositeMemberId(oppositeMemberId)
                 .profileImageUrl(oppositeMember.getProfileImageUrl())
