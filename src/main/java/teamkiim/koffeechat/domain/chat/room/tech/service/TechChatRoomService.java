@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResp
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.chat.room.tech.domain.TechChatRoom;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.request.CreateTechChatRoomServiceRequest;
+import teamkiim.koffeechat.domain.chat.room.tech.dto.response.CreateTechChatRoomResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.repository.TechChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -31,6 +33,7 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class TechChatRoomService {
 
     private final static int MAX_MEMBER_SIZE = 100;
@@ -47,11 +50,13 @@ public class TechChatRoomService {
     /**
      * 기술 채팅방 생성
      *
-     * @param createTechChatRoomServiceRequest 채팅방 생성할 기술 정보 dto
-     * @param memberId                         채팅방 생성을 요청한 사용자 PK
+     * @param createTechChatRoomServiceRequest 채팅방 생성할 기술 DTO
+     * @param memberId                         채팅방 생성 요청한 사용자 PK
+     * @return CreateTechChatRoomResponse
      */
     @Transactional
-    public void createChatRoom(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest, Long memberId) {
+    public CreateTechChatRoomResponse create(CreateTechChatRoomServiceRequest createTechChatRoomServiceRequest,
+                                             Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -59,15 +64,16 @@ public class TechChatRoomService {
         List<TechChatRoom> existTechChatRoomList = techChatRoomRepository.findByChildSkillCategory(
                 createTechChatRoomServiceRequest.getChildSkillCategory());
 
+        // 해당 기술 채팅방이 이미 존재하는데 인원이 모두 차지 않았으면 예외
         for (TechChatRoom techChatRoom : existTechChatRoomList) {
-            if (techChatRoom.getCurrentMemberSize() >= MAX_MEMBER_SIZE) {
+            if (techChatRoom.getCurrentMemberSize() < MAX_MEMBER_SIZE) {
                 throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_EXIST);
             }
         }
 
         TechChatRoom techChatRoom = createTechChatRoomServiceRequest.toEntity(MAX_MEMBER_SIZE);
 
-        techChatRoomRepository.save(techChatRoom);
+        TechChatRoom saveTechChatRoom = techChatRoomRepository.save(techChatRoom);
 
         MemberChatRoom memberChatRoom = MemberChatRoom.builder()
                 .chatRoom(techChatRoom)
@@ -75,6 +81,10 @@ public class TechChatRoomService {
                 .build();
 
         memberChatRoomRepository.save(memberChatRoom);
+
+        log.info("[TechChatRoomService / create] chatRoomId : {}", saveTechChatRoom.getId());
+
+        return new CreateTechChatRoomResponse(aesCipherUtil.encrypt(saveTechChatRoom.getId()));
     }
 
     /**
@@ -96,7 +106,6 @@ public class TechChatRoomService {
         if (techChatRoom.getCurrentMemberSize() >= MAX_MEMBER_SIZE) {
             throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_FULL);
         }
-
         if (memberChatRoomRepository.findByMemberAndActiveChatRoom(member, techChatRoom).isPresent()) {
             throw new CustomException(ErrorCode.ALREADY_JOINED_CHAT_ROOM);
         }
@@ -106,10 +115,13 @@ public class TechChatRoomService {
                 techChatRoom);
         if (existMemberChatRoom.isPresent()) {
             existMemberChatRoom.get().enter();
+
+            log.info("[TechChatRoomService / create] 재입장 memberId : {}, chatRoomId : {}", memberId, chatRoomId);
         } else {
             MemberChatRoom memberChatRoom = MemberChatRoom.of(member, techChatRoom, techChatRoom.getName(), null, true);
-
             memberChatRoomRepository.save(memberChatRoom);
+
+            log.info("[TechChatRoomService / create] 첫입장 memberId : {}, chatRoomId : {}", memberId, chatRoomId);
         }
 
         techChatRoom.increaseMemberCount();                         // 채팅방 총 인원 수 + 1
@@ -123,27 +135,33 @@ public class TechChatRoomService {
         chatMessageService.saveTextMessage(messageRequest, techChatRoom.getId(),
                 aesCipherUtil.encrypt(techChatRoom.getId()), memberId);
 
+        // 채팅방 멤버 관리 목록에 추가
+        chatRoomManager.addMember(chatRoomId, member);
+        // 채팅 알림 등록
+        chatNotificationService.addChatRoomNotification(memberId, chatRoomId);
     }
 
     /**
      * 참여중인 채팅방 목록 조회 -> 채팅방 별 사용자의 퇴장 시간 기준 안읽은 메세지 수 리턴
      *
      * @param memberId 채팅방 목록 조회 요청한 회원 PK
-     * @param page
-     * @param size
-     * @return
+     * @param page     페이징에 사용될 page
+     * @param size     페이징에 사용될 size
+     * @return List<ChatRoomListResponse>
      */
     public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        // 닫은 시간 기준 내림차순 정렬
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Order.desc("closeTime").nullsLast()));
         List<MemberChatRoom> joinMemberChatRooms =
-                memberChatRoomRepository.findAllByMemberAndChatRoomType(member, ChatRoomType.TECH, pageRequest)
-                        .getContent();
+                memberChatRoomRepository.findAllActiveChatRoomByMemberAndChatRoomType(
+                        member, ChatRoomType.TECH, pageRequest).getContent();
 
-        List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.countUnreadMessageCount(joinMemberChatRooms);
+        // 채팅방별 정보 조회
+        List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.getChatRoomInfo(joinMemberChatRooms);
 
         List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
 
@@ -154,10 +172,13 @@ public class TechChatRoomService {
                             memberChatRoom.getChatRoom(), memberChatRoom.getMember())
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
-            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(aesCipherUtil.encrypt(memberId),
-                    aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()), chatRoomInfoDto,
+            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(
+                    aesCipherUtil.encrypt(memberId),
+                    aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()),
                     aesCipherUtil.encrypt(oppositeMemberChatRoom.getMember().getId()),
-                    oppositeMemberChatRoom.getMember());
+                    oppositeMemberChatRoom.getMember(),
+                    chatRoomInfoDto
+            );
 
             chatRoomListResponseList.add(chatRoomListResponse);
         }
@@ -196,13 +217,12 @@ public class TechChatRoomService {
 
         chatMessageService.saveTextMessage(chatMessageServiceRequest, decryptChatRoomId, encryptChatRoomId, memberId);
 
+        // 퇴장 처리
         memberChatRoom.exit();
-
         techChatRoom.decreaseMemberCount();
-
         chatRoomManager.removeMember(decryptChatRoomId, member);
-
-        // 채팅 알림 정보 삭제
         chatNotificationService.removeChatRoomNotification(memberId, decryptChatRoomId);
+
+        log.info("[TechChatRoomService / exit] memberId : {}, chatRoomId : {}", memberId, decryptChatRoomId);
     }
 }
