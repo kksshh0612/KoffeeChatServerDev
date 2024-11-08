@@ -53,7 +53,7 @@ public class DirectChatRoomService {
      * @return CreateDirectChatRoomResponse
      */
     @Transactional
-    public CreateDirectChatRoomResponse createChatRoom(Long requestMemberId, Long targetMemberId) {
+    public CreateDirectChatRoomResponse create(Long requestMemberId, Long targetMemberId) {
 
         Member requestMember = memberRepository.findById(requestMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -108,10 +108,9 @@ public class DirectChatRoomService {
 
         memberChatRoomRepository.saveAll(List.of(requestMemberChatRoom, targetMemberChatRoom));
 
-        // 채팅방 멤버 관리 추가
+        // 채팅방 멤버 관리 목록에 추가
         chatRoomManager.addMember(saveChatRoom.getId(), requestMember);
         chatRoomManager.addMember(saveChatRoom.getId(), targetMember);
-
         // 채팅 알림 등록
         chatNotificationService.addChatRoomNotification(requestMember.getId(), saveChatRoom.getId());
         chatNotificationService.addChatRoomNotification(targetMember.getId(), saveChatRoom.getId());
@@ -128,7 +127,7 @@ public class DirectChatRoomService {
      * @param memberId 채팅방 목록 조회 요청한 회원 PK
      * @param page     페이징에 사용될 page
      * @param size     페이징에 사용될 size
-     * @return
+     * @return List<ChatRoomListResponse>
      */
     public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
 
