@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.corp.controller;
+package teamkiim.koffeechat.domain.admin.corp.controller;
 
 
 import static teamkiim.koffeechat.domain.member.domain.MemberRole.ADMIN;
