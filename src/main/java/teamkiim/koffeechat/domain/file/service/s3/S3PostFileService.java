@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.repository.FileRepository;
@@ -65,13 +64,15 @@ public class S3PostFileService implements PostFileService {
     @Transactional
     public void deleteImageFiles(Post post) {
 
-        List<PostFile> fileList = postFileRepository.findAllByPost(post);
+        List<PostFile> deleteFileList = postFileRepository.findAllByPost(post);
 
-        for (PostFile postFile : fileList) {
-            fileStorageService.deleteFile(postFile.getUrl());
-        }
+        List<String> urls = deleteFileList.stream()
+                .map(PostFile::getUrl)
+                .collect(Collectors.toList());
 
-        fileRepository.deleteAll(fileList);
+        fileStorageService.deleteFiles(urls);
+
+        fileRepository.deleteAll(deleteFileList);
     }
 
     /**
@@ -85,16 +86,22 @@ public class S3PostFileService implements PostFileService {
 
         List<PostFile> existFileList = postFileRepository.findAllByPost(post);
 
-        List<File> deleteFileList = existFileList.stream()
+        List<String> urls = existFileList.stream()
                 .filter(file -> !fileUrlList.contains(file.getUrl()))
+                .map(PostFile::getUrl)
                 .collect(Collectors.toList());
 
-        if (!deleteFileList.isEmpty()) {
+        log.info("[S3PostFileService / deleteImageFiles] 삭제할 파일 수 : {}", urls.size());
+        for (String url : urls) {
+            log.info("deleteFileUrl : {}", url);
+        }
+
+        if (!(urls.isEmpty())) {
             return;
         }
 
-        fileStorageService.deleteFiles(deleteFileList);
+        fileStorageService.deleteFiles(urls);
 
-        fileRepository.deleteAll(deleteFileList);
+        fileRepository.deleteAll(existFileList);
     }
 }
