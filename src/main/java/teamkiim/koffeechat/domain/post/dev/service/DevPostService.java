@@ -227,6 +227,7 @@ public class DevPostService {
         devPost.modify(modifyDevPostServiceRequest.getTitle(), modifyDevPostServiceRequest.getBodyContent(),
                 modifyDevPostServiceRequest.getVisualData(), modifyDevPostServiceRequest.getSkillCategoryList());
 
+        postFileService.deleteImageFiles(modifyDevPostServiceRequest.getFileUrlList(), devPost);
     }
 
     /**
