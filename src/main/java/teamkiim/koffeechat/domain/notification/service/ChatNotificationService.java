@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
-import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateChatNotificationRequest;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
+import teamkiim.koffeechat.domain.notification.service.emitter.SseEmitterWrapper;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @Slf4j
@@ -74,14 +74,9 @@ public class ChatNotificationService {
     public void onChatRoomNotification(Long receiverId, Long chatRoomId) {  // 채팅방 미접속시 : 알림 on
         Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
                 aesCipherUtil.encrypt(receiverId));
-        log.info(aesCipherUtil.encrypt(receiverId));
+
         emitters.forEach((id, emitter) -> {
             emitter.onChatRoomNotificationStatus(chatRoomId);
-            emitter.getChatRoomNotificationStatusList().stream().map(status -> {
-                log.info(status.getChatRoomId().toString());
-                log.info(String.valueOf(status.isAlert()));
-                return null;
-            }).toList();
         });
     }
 

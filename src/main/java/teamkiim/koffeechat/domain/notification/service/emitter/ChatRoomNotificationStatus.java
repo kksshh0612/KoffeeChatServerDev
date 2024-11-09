@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.notification.domain;
+package teamkiim.koffeechat.domain.notification.service.emitter;
 
 import lombok.Builder;
 import lombok.Getter;

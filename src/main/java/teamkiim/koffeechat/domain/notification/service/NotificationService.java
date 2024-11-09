@@ -3,6 +3,9 @@ package teamkiim.koffeechat.domain.notification.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +22,6 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
-import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.notification.dto.response.CommentNotificationResponse;
 import teamkiim.koffeechat.domain.notification.dto.response.CorpNotificationResponse;
@@ -29,6 +31,7 @@ import teamkiim.koffeechat.domain.notification.dto.response.PostNotificationResp
 import teamkiim.koffeechat.domain.notification.dto.response.SkillPostNotificationResponse;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
+import teamkiim.koffeechat.domain.notification.service.emitter.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
@@ -77,6 +80,7 @@ public class NotificationService {
             emitterWrapper.updateChatRoomNotificationStatus(memberChatRoomIdList);
         }
 
+//        sendPing(sseEmitter);
         sseEmitter.onTimeout(() -> handleTimeout(emitterId));
         sseEmitter.onError(e -> handleError(emitterId, e));
         sseEmitter.onCompletion(() -> handleCompletion(emitterId));
@@ -85,6 +89,17 @@ public class NotificationService {
         sendFirstConnectionMessage(memberId, emitterId, sseEmitter);
 
         return sseEmitter;
+    }
+
+    private void sendPing(SseEmitter sseEmitter) {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(() -> {
+            try {
+                sseEmitter.send(SseEmitter.event().data("ping"));  // "ping" 메시지 전송
+            } catch (IOException e) {
+                log.error("Error sending ping event to keep connection alive", e);
+            }
+        }, 0, 30, TimeUnit.SECONDS);  // 30초 간격으로 전송
     }
 
     private void handleTimeout(String emitterId) {

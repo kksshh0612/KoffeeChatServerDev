@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.notification.domain;
+package teamkiim.koffeechat.domain.notification.service.emitter;
 
 import java.util.ArrayList;
 import java.util.List;
