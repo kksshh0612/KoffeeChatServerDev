@@ -107,7 +107,7 @@ public class DevPostController {
      */
     @GetMapping("/skill")
     @DevPostApiDocument.getDevPostListBySkill
-    public ResponseEntity<?> getDevPostListBySkill(@RequestParam("cursor") String cursor,
+    public ResponseEntity<?> getDevPostListBySkill(@RequestParam(value = "cursor", required = false) String cursor,
                                                    @RequestParam("size") int size,
                                                    @RequestParam("skillCategory") String childSkillCategory) {
 
