@@ -3,6 +3,7 @@ package teamkiim.koffeechat.domain.post.dev.service;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,9 +22,9 @@ import teamkiim.koffeechat.domain.post.common.dto.response.TagInfoDto;
 import teamkiim.koffeechat.domain.post.common.service.PostService;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.DevPost;
-import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
 import teamkiim.koffeechat.domain.post.dev.dto.request.ModifyDevPostServiceRequest;
 import teamkiim.koffeechat.domain.post.dev.dto.request.SaveDevPostServiceRequest;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListRelatedSkill;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.repository.DevPostRepository;
@@ -176,6 +177,34 @@ public class DevPostService {
     }
 
     /**
+     * 기술 채팅방 연관 게시글 커서 기반 페이징 조회
+     *
+     * @param childSkillCategory 하위 기술 카테고리
+     * @param cursorId           마지막 게시글 PK
+     * @param size
+     * @return List<DevPostListRelatedSkill>
+     */
+    public List<DevPostListRelatedSkill> findDevPostListByChildSkillCategory(String childSkillCategory,
+                                                                             String cursorId, int size) {
+
+        Long decryptCursorId = null;
+
+        if (cursorId != null) {
+            decryptCursorId = aesCipherUtil.decrypt(cursorId);
+        }
+
+        // cursor 기반 페이지 조회
+        PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
+        List<DevPost> devPostList = devPostRepository.findAllByChildSkillCategory(
+                ChildSkillCategory.valueOf(childSkillCategory), decryptCursorId, pageRequest).getContent();
+
+        return devPostList.stream()
+                .map(devPost -> DevPostListRelatedSkill.of(
+                        devPost, aesCipherUtil.encrypt(devPost.getId()), devPost.getMember().getProfileImageUrl()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 게시글 상세 조회
      *
      * @param postId 게시글 PK
@@ -228,24 +257,5 @@ public class DevPostService {
                 modifyDevPostServiceRequest.getVisualData(), modifyDevPostServiceRequest.getSkillCategoryList());
 
         postFileService.deleteImageFiles(modifyDevPostServiceRequest.getFileUrlList(), devPost);
-    }
-
-    /**
-     * 기술 채팅방 관련 게시글 조회
-     *
-     * @param page          페이지 번호 ( ex) 0, 1,,,, )
-     * @param size          페이지 당 조회할 데이터 수
-     * @param skillCategory 기술 채팅방의 카테고리
-     * @return List<DevPostListResponse>
-     */
-    public List<DevPostListResponse> findSkillCategoryPosts(SkillCategory skillCategory, int page, int size) {
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));  // 최신순 정렬
-        Page<DevPost> skillPostList = devPostRepository.findAllCompletePostBySkillCategory(skillCategory, pageRequest);
-
-        return skillPostList.stream().map(post -> {
-            List<TagInfoDto> tagList = tagService.toTagInfoDtoList(post);
-            return DevPostListResponse.of(aesCipherUtil.encrypt(post.getId()), post, tagList);
-        }).toList();
     }
 }

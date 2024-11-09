@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListRelatedSkill;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
+import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 
 @Tag(name = "개발 게시글 API")
 @Target(ElementType.METHOD)
@@ -91,6 +91,19 @@ public @interface DevPostApiDocument {
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface GetDevPostList {
+    }
+
+    /**
+     * 기술 채팅방과 연관된 개발 게시글 목록 조회
+     */
+    @Operation(summary = "기술 채팅방과 연관된 개발 게시글 목록 조회", description = "채팅방에 연관된 게시글을 커서기반 페이징 조회한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "개발 게시글 리스트를 반환한다. 만약 사진이 없으면 image 관련 필드는 null이 들어간다.",
+                    content = @Content(schema = @Schema(implementation = DevPostListRelatedSkill.class))),
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface getDevPostListBySkill {
     }
 
     /**
