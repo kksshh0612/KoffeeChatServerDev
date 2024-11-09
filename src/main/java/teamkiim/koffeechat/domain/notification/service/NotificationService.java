@@ -73,28 +73,38 @@ public class NotificationService {
         List<Long> memberChatRoomIdList = memberChatRoomRepository.findAllByMember(member)
                 .stream().map(memberChatRoom -> memberChatRoom.getChatRoom().getId()).toList();
 
-        if (memberChatRoomIdList != null && !memberChatRoomIdList.isEmpty()) {
+        if (!memberChatRoomIdList.isEmpty()) {
             emitterWrapper.updateChatRoomNotificationStatus(memberChatRoomIdList);
         }
 
-        sseEmitter.onTimeout(() -> {
-            log.info("disconnected by timeout server sent event: id={}", emitterId);
-            emitterRepository.deleteById(emitterId);
-        });
-        sseEmitter.onError(e -> {
-            log.info("sse error occurred: id={}, message={}", emitterId, e.getMessage());  //오류 로그 기록
-            emitterRepository.deleteById(emitterId);
-        });
-        sseEmitter.onCompletion(() -> {
-            log.info("SSE completed: id={}", emitterId);
-            emitterRepository.deleteById(emitterId);
-        });
+        sseEmitter.onTimeout(() -> handleTimeout(emitterId));
+        sseEmitter.onError(e -> handleError(emitterId, e));
+        sseEmitter.onCompletion(() -> handleCompletion(emitterId));
 
         //연결 후 첫 메시지 전송 : 503 에러 방지
-        String eventId = aesCipherUtil.encrypt(memberId) + "_" + System.currentTimeMillis();
-        sendNotification(emitterId, sseEmitter, eventId, "connected");
+        sendFirstConnectionMessage(memberId, emitterId, sseEmitter);
 
         return sseEmitter;
+    }
+
+    private void handleTimeout(String emitterId) {
+        log.info("disconnected by timeout server sent event: id={}", emitterId);
+        emitterRepository.deleteById(emitterId);
+    }
+
+    private void handleError(String emitterId, Throwable e) {
+        log.info("sse error occurred: id={}, message={}", emitterId, e.getMessage());   //오류 로그 기록
+        emitterRepository.deleteById(emitterId);
+    }
+
+    private void handleCompletion(String emitterId) {
+        log.info("SSE completed: id={}", emitterId);
+        emitterRepository.deleteById(emitterId);
+    }
+
+    private void sendFirstConnectionMessage(Long memberId, String emitterId, SseEmitter sseEmitter) {
+        String eventId = aesCipherUtil.encrypt(memberId) + "_" + System.currentTimeMillis();
+        sendNotification(emitterId, sseEmitter, eventId, "connected");
     }
 
     /**
