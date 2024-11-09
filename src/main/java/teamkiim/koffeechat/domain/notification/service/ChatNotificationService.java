@@ -74,12 +74,10 @@ public class ChatNotificationService {
     public void onChatRoomNotification(Long receiverId, Long chatRoomId) {  // 채팅방 미접속시 : 알림 on
         Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
                 aesCipherUtil.encrypt(receiverId));
-        log.info(aesCipherUtil.encrypt(receiverId));
+
         emitters.forEach((id, emitter) -> {
             emitter.onChatRoomNotificationStatus(chatRoomId);
             emitter.getChatRoomNotificationStatusList().stream().map(status -> {
-                log.info(status.getChatRoomId().toString());
-                log.info(String.valueOf(status.isAlert()));
                 return null;
             }).toList();
         });
