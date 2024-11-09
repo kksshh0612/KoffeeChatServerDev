@@ -18,7 +18,7 @@ public class ModifyCommunityPostRequest {
         return ModifyCommunityPostServiceRequest.builder()
                 .title(this.modifyCommunityPostInfoRequest.getTitle())
                 .bodyContent(this.modifyCommunityPostInfoRequest.getBodyContent())
-                .fileIdList(this.getModifyCommunityPostInfoRequest().getFileIdList())
+                .fileUrlList(this.getModifyCommunityPostInfoRequest().getFileUrlList())
                 .tagContentList(this.modifyCommunityPostInfoRequest.getTagContentList())
                 .build();
     }

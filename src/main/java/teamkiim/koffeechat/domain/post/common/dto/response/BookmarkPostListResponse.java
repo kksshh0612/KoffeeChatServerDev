@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 
 @Getter
@@ -15,7 +16,7 @@ import teamkiim.koffeechat.domain.post.common.domain.Post;
 @Schema(description = "회원이 북마크한 게시글 리스트 Response")
 public class BookmarkPostListResponse {
 
-    private String id;                                // PK
+    private String id;                              // PK
     private String title;                           // 제목
     private String bodyContent;                     // 본문
     private long viewCount;                         // 조회수
@@ -24,13 +25,11 @@ public class BookmarkPostListResponse {
     private LocalDateTime createdTime;              // 작성 시간
     private LocalDateTime modifiedTime;             // 수정 시간
     private String nickname;                        // 작성자 닉네임
-    private String profileImageUrl;
-
-    private String imagePath;                       // 이미지 경로
-    private String imageName;                       // 이미지 이름
+    private String profileImageUrl;                 // 작성자 프로필 이미지 경로
+    private String contentImageUrl;                 // 게시글에 포함된 이미지 url
 
     public static BookmarkPostListResponse of(String postId, Post post) {
-        return BookmarkPostListResponse.builder()
+        BookmarkPostListResponse response = BookmarkPostListResponse.builder()
                 .id(postId)
                 .title(post.getTitle())
                 .bodyContent(post.getBodyContent())
@@ -40,9 +39,18 @@ public class BookmarkPostListResponse {
                 .createdTime(post.getCreatedTime())
                 .nickname(post.getMember().getNickname())
                 .profileImageUrl(post.getMember().getProfileImageUrl())
-                .imagePath(null)
-                .imageName(null)
+                .contentImageUrl(null)
                 .build();
+
+        if (!post.getFileList().isEmpty()) {
+            response.setImageInfo(post.getFileList().get(0));
+        }
+
+        return response;
     }
 
+    private void setImageInfo(File file) {
+
+        this.contentImageUrl = file.getUrl();
+    }
 }

@@ -2,11 +2,10 @@ package teamkiim.koffeechat.domain.post.community.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -26,6 +25,6 @@ public class ModifyCommunityPostInfoRequest {
     private List<String> tagContentList;
 
     @Schema(description = "파일 id 리스트")
-    private List<Long> fileIdList;
+    private List<String> fileUrlList;
 
 }

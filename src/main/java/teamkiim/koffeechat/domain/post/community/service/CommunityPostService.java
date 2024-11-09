@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class CommunityPostService {
 
     private final CommunityPostRepository communityPostRepository;
@@ -237,6 +239,8 @@ public class CommunityPostService {
 
         communityPost.modifyCommunityPost(modifyCommunityPostServiceRequest.getTitle(),
                 modifyCommunityPostServiceRequest.getBodyContent());
+
+        postFileService.deleteImageFiles(modifyCommunityPostServiceRequest.getFileUrlList(), communityPost);
 
         //투표가 있다면 투표 내용 수정
         Optional<Vote> vote = voteRepository.findByPost(communityPost);

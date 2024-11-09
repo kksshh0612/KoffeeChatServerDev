@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -22,10 +23,12 @@ import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepo
 import teamkiim.koffeechat.domain.chat.room.tech.domain.TechChatRoom;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.request.CreateTechChatRoomServiceRequest;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.CreateTechChatRoomResponse;
+import teamkiim.koffeechat.domain.chat.room.tech.dto.response.TechChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.repository.TechChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
+import teamkiim.koffeechat.domain.post.dev.domain.ParentSkillCategory;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
@@ -85,6 +88,22 @@ public class TechChatRoomService {
         log.info("[TechChatRoomService / create] chatRoomId : {}", saveTechChatRoom.getId());
 
         return new CreateTechChatRoomResponse(aesCipherUtil.encrypt(saveTechChatRoom.getId()));
+    }
+
+    /**
+     * 기술 채팅방 목록 조회 (대분류 필터링)
+     *
+     * @param parentSkillCategory 조회할 채팅방 목록 대분류
+     * @return List<TechChatRoomListResponse>
+     */
+    public List<TechChatRoomListResponse> findChatRooms(String parentSkillCategory) {
+
+        List<TechChatRoom> techChatRooms = techChatRoomRepository.findByParentSkillCategory(
+                ParentSkillCategory.valueOf(parentSkillCategory));
+
+        return techChatRooms.stream()
+                .map(chatRoom -> TechChatRoomListResponse.of(chatRoom, aesCipherUtil.encrypt(chatRoom.getId())))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -149,7 +168,7 @@ public class TechChatRoomService {
      * @param size     페이징에 사용될 size
      * @return List<ChatRoomListResponse>
      */
-    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
+    public List<ChatRoomListResponse> findJoinChatRoomList(Long memberId, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
