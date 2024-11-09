@@ -207,7 +207,7 @@ public class NotificationService {
                 return;
             }
             if (savedNotification.getNotificationType().equals(NotificationType.TECH_POST)) {
-                sendNotification(id, emitter.getSseEmitter(), eventId,
+                sendTechNotification(id, emitter.getSseEmitter(), eventId,
                         SkillPostNotificationResponse.of(encryptedReceiverId, encryptedUrlPK, savedNotification));
                 return;
             }
@@ -239,6 +239,22 @@ public class NotificationService {
     private void sendNotification(String emitterId, SseEmitter emitter, String eventId, Object response) {
         try {
             emitter.send(SseEmitter.event().id(eventId).data(response));
+        } catch (IOException e) {
+            log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId,
+                    e.getMessage());
+            emitter.completeWithError(e);
+            emitterRepository.deleteById(emitterId);
+        }
+    }
+
+    /**
+     * 기술 게시글 알림 발송
+     *
+     * @param response 알림 내용
+     */
+    private void sendTechNotification(String emitterId, SseEmitter emitter, String eventId, Object response) {
+        try {
+            emitter.send(SseEmitter.event().id(eventId).name("tech").data(response));
         } catch (IOException e) {
             log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId,
                     e.getMessage());
