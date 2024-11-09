@@ -44,6 +44,17 @@ public class TechChatRoomController {
     }
 
     /**
+     * 채팅방 리스트 조회
+     */
+    @AuthenticatedMemberPrincipal
+    @GetMapping("/list")
+    public ResponseEntity<?> findChatRooms(
+            @RequestParam(value = "parentSkillCategory", required = false) String parentSkillCategory) {
+
+        return ResponseEntity.ok(techChatRoomService.findChatRooms(parentSkillCategory));
+    }
+
+    /**
      * 채팅방 참여
      */
     @AuthenticatedMemberPrincipal
@@ -63,29 +74,20 @@ public class TechChatRoomController {
 
     /**
      * 회원이 현재 속해있는 채팅방 목록 페이징 조회
-     *
-     * @param page
-     * @param size
-     * @param request
-     * @return
      */
     @AuthenticatedMemberPrincipal
-    @GetMapping("")
+    @GetMapping("/join-list")
     @TechChatRoomApiDocument.findChatRooms
-    public ResponseEntity<?> findChatRooms(@RequestParam("page") int page, @RequestParam("size") int size,
-                                           HttpServletRequest request) {
+    public ResponseEntity<?> findJoinChatRooms(@RequestParam("page") int page, @RequestParam("size") int size,
+                                               HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(techChatRoomService.findChatRoomList(memberId, page, size));
+        return ResponseEntity.ok(techChatRoomService.findJoinChatRoomList(memberId, page, size));
     }
 
     /**
      * 채팅방 퇴장 (채팅방에서 완전히 퇴장할 때 호출하는 API)
-     *
-     * @param chatRoomId
-     * @param request
-     * @return
      */
     @AuthenticatedMemberPrincipal
     @PatchMapping("/exit/{chatRoomId}")
