@@ -127,7 +127,7 @@ public class TechChatRoomService {
             throw new CustomException(ErrorCode.CHAT_ROOM_ALREADY_FULL);
         }
         if (memberChatRoomRepository.findByMemberAndActiveChatRoom(member, techChatRoom).isPresent()) {
-            throw new CustomException(ErrorCode.ALREADY_JOINED_CHAT_ROOM);
+            return EnterTechChatRoomResponse.of(techChatRoom, aesCipherUtil.encrypt(memberId));
         }
 
         // 이전에 들어간 적 있는 회원이면 다시 입장 처리
@@ -160,7 +160,7 @@ public class TechChatRoomService {
         // 채팅 알림 등록
         chatNotificationService.addChatRoomNotification(memberId, chatRoomId);
 
-        return EnterTechChatRoomResponse.of(techChatRoom);
+        return EnterTechChatRoomResponse.of(techChatRoom, aesCipherUtil.encrypt(memberId));
     }
 
     /**

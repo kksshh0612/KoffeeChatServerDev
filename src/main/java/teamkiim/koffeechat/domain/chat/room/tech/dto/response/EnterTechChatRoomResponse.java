@@ -15,11 +15,13 @@ public class EnterTechChatRoomResponse {
 
     private ChildSkillCategory childSkillCategory;
     private int currentMemberSize;
+    private String memberId;
 
-    public static EnterTechChatRoomResponse of(TechChatRoom techChatRoom) {
+    public static EnterTechChatRoomResponse of(TechChatRoom techChatRoom, String memberId) {
         return EnterTechChatRoomResponse.builder()
                 .childSkillCategory(techChatRoom.getSkillCategory().getChildSkillCategory())
                 .currentMemberSize(techChatRoom.getCurrentMemberSize())
+                .memberId(memberId)
                 .build();
     }
 }
