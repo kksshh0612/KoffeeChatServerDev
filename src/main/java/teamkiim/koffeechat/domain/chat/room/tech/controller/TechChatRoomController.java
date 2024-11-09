@@ -48,6 +48,7 @@ public class TechChatRoomController {
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/list")
+    @TechChatRoomApiDocument.findChatRooms
     public ResponseEntity<?> findChatRooms(
             @RequestParam(value = "parentSkillCategory", required = false) String parentSkillCategory) {
 
@@ -77,7 +78,7 @@ public class TechChatRoomController {
      */
     @AuthenticatedMemberPrincipal
     @GetMapping("/join-list")
-    @TechChatRoomApiDocument.findChatRooms
+    @TechChatRoomApiDocument.findJoinChatRooms
     public ResponseEntity<?> findJoinChatRooms(@RequestParam("page") int page, @RequestParam("size") int size,
                                                HttpServletRequest request) {
 
