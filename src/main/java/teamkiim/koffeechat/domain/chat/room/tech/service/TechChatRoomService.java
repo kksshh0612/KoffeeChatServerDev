@@ -23,6 +23,7 @@ import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepo
 import teamkiim.koffeechat.domain.chat.room.tech.domain.TechChatRoom;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.request.CreateTechChatRoomServiceRequest;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.CreateTechChatRoomResponse;
+import teamkiim.koffeechat.domain.chat.room.tech.dto.response.EnterTechChatRoomResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.TechChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.repository.TechChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
@@ -114,7 +115,7 @@ public class TechChatRoomService {
      * @param enterTime  참여를 요청한 시간
      */
     @Transactional
-    public void enterChatRoom(Long chatRoomId, Long memberId, LocalDateTime enterTime) {
+    public EnterTechChatRoomResponse enterChatRoom(Long chatRoomId, Long memberId, LocalDateTime enterTime) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -158,6 +159,8 @@ public class TechChatRoomService {
         chatRoomManager.addMember(chatRoomId, member);
         // 채팅 알림 등록
         chatNotificationService.addChatRoomNotification(memberId, chatRoomId);
+
+        return EnterTechChatRoomResponse.of(techChatRoom);
     }
 
     /**

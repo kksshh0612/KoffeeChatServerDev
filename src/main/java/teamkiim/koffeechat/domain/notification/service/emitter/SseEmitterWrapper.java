@@ -2,13 +2,19 @@ package teamkiim.koffeechat.domain.notification.service.emitter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Getter
+@Slf4j
 public class SseEmitterWrapper {
 
+    private static final Logger log = LoggerFactory.getLogger(SseEmitterWrapper.class);
     private SseEmitter sseEmitter;
     private List<ChatRoomNotificationStatus> chatRoomNotificationStatusList;  // 사용자가 채팅방 별로 접속해있는 상태 저장
     private boolean isReceive;  // 채팅에 대한 알림 수신 여부
@@ -23,7 +29,8 @@ public class SseEmitterWrapper {
     // emitter 최초 생성 후 채팅방 목록 초기화
     public void updateChatRoomNotificationStatus(List<Long> memberChatRoomIdList) {
         this.chatRoomNotificationStatusList = memberChatRoomIdList.stream()
-                .map(id -> new ChatRoomNotificationStatus(id, true)).toList();
+                .map(id -> new ChatRoomNotificationStatus(id, true))
+                .collect(Collectors.toList());
     }
 
     // 채팅 알림 sse 수신 o/x
@@ -47,21 +54,19 @@ public class SseEmitterWrapper {
     }
 
     public void removeChatRoomNotificationStatus(Long chatRoomId) {
-//        ChatRoomNotificationStatus removeStatus = null;
-//        for (ChatRoomNotificationStatus status : this.chatRoomNotificationStatusList) {
-//            System.out.println("status의 chatRoomId : " + status.getChatRoomId());
-//            if (status.getChatRoomId().equals(chatRoomId)) {
-//                System.out.println("여기");
-//                removeStatus = status;
-//            }
-//        }
-//        this.chatRoomNotificationStatusList.remove(removeStatus);
 
-        this.chatRoomNotificationStatusList.removeIf(status -> status.getChatRoomId().equals(chatRoomId));
+        List<ChatRoomNotificationStatus> updatedList = new ArrayList<>();
+        for (ChatRoomNotificationStatus status : this.chatRoomNotificationStatusList) {
+            log.info("[SseEmitterWrapper / removeChatRoomNotificationStatus] 채팅방 id : {}", status.getChatRoomId());
+            if (!status.getChatRoomId().equals(chatRoomId)) {
+                log.info("[SseEmitterWrapper / removeChatRoomNotificationStatus] 연결된 채팅방 id : {}",
+                        status.getChatRoomId());
+                updatedList.add(status);
+            }
+        }
+        this.chatRoomNotificationStatusList = updatedList;
 
-//        List<ChatRoomNotificationStatus> temp = new ArrayList<>(this.chatRoomNotificationStatusList);
-//        temp.removeIf(status -> status.getChatRoomId().equals(chatRoomId));
-//        this.chatRoomNotificationStatusList = temp;
+//        this.chatRoomNotificationStatusList.removeIf(status -> status.getChatRoomId().equals(chatRoomId));
     }
 
     //채팅방 접속/미접속 시 sse 알림 상태 on/off
