@@ -238,6 +238,8 @@ public class CommunityPostService {
         communityPost.modifyCommunityPost(modifyCommunityPostServiceRequest.getTitle(),
                 modifyCommunityPostServiceRequest.getBodyContent());
 
+        postFileService.deleteImageFiles(modifyCommunityPostServiceRequest.getFileUrlList(), communityPost);
+
         //투표가 있다면 투표 내용 수정
         Optional<Vote> vote = voteRepository.findByPost(communityPost);
         vote.ifPresent(value -> voteService.modifyVote(modifyVoteServiceRequest, value));
