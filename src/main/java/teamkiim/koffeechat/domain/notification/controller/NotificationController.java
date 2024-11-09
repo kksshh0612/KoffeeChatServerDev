@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import teamkiim.koffeechat.domain.notification.dto.response.NotificationListItem
 import teamkiim.koffeechat.domain.notification.service.NotificationService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/notifications")
@@ -39,7 +42,11 @@ public class NotificationController {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return notificationService.connectNotification(memberId, response);
+        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Connection", "keep-alive");
+        response.setHeader("Content-Type", MediaType.TEXT_EVENT_STREAM_VALUE);
+
+        return notificationService.connectNotification(memberId);
     }
 
     /**
