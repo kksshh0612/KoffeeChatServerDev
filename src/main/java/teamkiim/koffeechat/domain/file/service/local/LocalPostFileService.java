@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import teamkiim.koffeechat.domain.file.domain.File;
 import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.repository.FileRepository;
@@ -86,19 +87,22 @@ public class LocalPostFileService implements PostFileService {
     @Transactional
     public void deleteImageFiles(List<String> fileUrlList, Post post) {
 
-        List<PostFile> existFileList = postFileRepository.findAllByPost(post);
+        List<PostFile> existFiles = postFileRepository.findAllByPost(post);
 
-        List<String> urls = existFileList.stream()
+        List<File> deleteFiles = existFiles.stream()
                 .filter(file -> !fileUrlList.contains(file.getUrl()))
-                .map(PostFile::getUrl)
                 .collect(Collectors.toList());
 
-        if (!(urls.isEmpty())) {
+        List<String> deleteFileUrls = deleteFiles.stream()
+                .map(File::getUrl)
+                .collect(Collectors.toList());
+
+        if (deleteFileUrls.isEmpty()) {
             return;
         }
 
-        fileStorageService.deleteFiles(urls);
+        fileStorageService.deleteFiles(deleteFileUrls);
 
-        fileRepository.deleteAll(existFileList);
+        fileRepository.deleteAll(deleteFiles);
     }
 }
