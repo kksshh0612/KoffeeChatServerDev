@@ -15,6 +15,9 @@ import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 
 public interface MemberChatRoomRepository extends JpaRepository<MemberChatRoom, Long> {
 
+    @Query("SELECT mcr FROM MemberChatRoom mcr WHERE mcr.active = true")
+    List<MemberChatRoom> findAllActiveMemberChatRooms();
+
     @Query("SELECT mcr FROM MemberChatRoom mcr WHERE mcr.member = :member AND mcr.active = true")
     List<MemberChatRoom> findAllByMember(@Param("member") Member member);
 

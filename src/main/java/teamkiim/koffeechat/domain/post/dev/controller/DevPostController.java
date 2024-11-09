@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.ModifyDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.controller.dto.SaveDevPostRequest;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
-import teamkiim.koffeechat.domain.post.dev.dto.request.SkillCategoryRequest;
-import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostListResponse;
 import teamkiim.koffeechat.domain.post.dev.dto.response.DevPostResponse;
 import teamkiim.koffeechat.domain.post.dev.service.DevPostService;
 import teamkiim.koffeechat.global.AuthenticatedMemberPrincipal;
@@ -99,12 +97,23 @@ public class DevPostController {
                                             @RequestParam(value = "skillCategory", required = false) List<ChildSkillCategory> childSkillCategoryList,
                                             @RequestParam(value = "tag", required = false) List<String> tagContents) {
 
-        log.info("/dev-post/list 진입");
+        return ResponseEntity.ok(
+                devPostService.getDevPostList(sortType, page, size, keyword, childSkillCategoryList, tagContents)
+        );
+    }
 
-        List<DevPostListResponse> responseList = devPostService.getDevPostList(sortType, page, size, keyword,
-                childSkillCategoryList, tagContents);
+    /**
+     * 기술 채팅 연관 게시글 조회
+     */
+    @GetMapping("/skill")
+    @DevPostApiDocument.getDevPostListBySkill
+    public ResponseEntity<?> getDevPostListBySkill(@RequestParam(value = "cursor", required = false) String cursor,
+                                                   @RequestParam("size") int size,
+                                                   @RequestParam("skillCategory") String childSkillCategory) {
 
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(
+                devPostService.findDevPostListByChildSkillCategory(childSkillCategory, cursor, size)
+        );
     }
 
     /**
@@ -141,18 +150,4 @@ public class DevPostController {
         return ResponseEntity.ok("게시물 수정 완료");
     }
 
-    /**
-     * 기술 채팅방 관련 게시글 조회
-     */
-    @AuthenticatedMemberPrincipal
-    @PostMapping("/skillCategory")
-    @DevPostApiDocument.SkillCategoryPostsApiDoc
-    public ResponseEntity<?> skillCategoryPosts(@RequestBody SkillCategoryRequest skillCategoryRequest,
-                                                @RequestParam("page") int page, @RequestParam("size") int size) {
-
-        List<DevPostListResponse> responses = devPostService.findSkillCategoryPosts(
-                skillCategoryRequest.convertToSkillCategory(), page, size);
-
-        return ResponseEntity.ok(responses);
-    }
 }
