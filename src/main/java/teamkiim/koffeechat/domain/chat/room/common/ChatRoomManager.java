@@ -1,16 +1,15 @@
 package teamkiim.koffeechat.domain.chat.room.common;
 
 import jakarta.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +23,8 @@ public class ChatRoomManager {
     @PostConstruct
     public void initChatRoomMemberInfoMap() {
 
-        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAll(); // DB에서 모든 채팅방-회원 관계 가져오기
+        // DB에서 모든 퇴장하지 않은 회원-채팅방 정보 가져옴
+        List<MemberChatRoom> memberChatRoomList = memberChatRoomRepository.findAllActiveMemberChatRooms();
 
         // 채팅방 ID별로 회원을 맵에 추가
         for (MemberChatRoom memberChatRoom : memberChatRoomList) {
