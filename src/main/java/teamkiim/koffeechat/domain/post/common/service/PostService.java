@@ -150,7 +150,7 @@ public class PostService {
      * @param sortType     정렬 순서 (최신순, 좋아요순, 조회순)
      * @param page         페이지 번호 ( ex) 0, 1,,,, )
      * @param size         페이지 당 조회할 데이터 수
-     * @return List<BookmarkPostListResponse>
+     * @return List<MyPostListResponse>
      */
     public List<MyPostListResponse> findMyPostList(Long memberId, PostCategory postCategory, SortType sortType,
                                                    int page, int size) {

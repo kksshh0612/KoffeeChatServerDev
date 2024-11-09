@@ -96,7 +96,7 @@ public class S3PostFileService implements PostFileService {
             log.info("deleteFileUrl : {}", url);
         }
 
-        if (!(urls.isEmpty())) {
+        if (urls.isEmpty()) {
             return;
         }
 
