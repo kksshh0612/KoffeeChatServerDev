@@ -77,9 +77,6 @@ public class ChatNotificationService {
 
         emitters.forEach((id, emitter) -> {
             emitter.onChatRoomNotificationStatus(chatRoomId);
-            emitter.getChatRoomNotificationStatusList().stream().map(status -> {
-                return null;
-            }).toList();
         });
     }
 

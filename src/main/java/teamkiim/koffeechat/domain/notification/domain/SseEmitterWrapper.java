@@ -2,6 +2,7 @@ package teamkiim.koffeechat.domain.notification.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,7 +24,8 @@ public class SseEmitterWrapper {
     // emitter 최초 생성 후 채팅방 목록 초기화
     public void updateChatRoomNotificationStatus(List<Long> memberChatRoomIdList) {
         this.chatRoomNotificationStatusList = memberChatRoomIdList.stream()
-                .map(id -> new ChatRoomNotificationStatus(id, true)).toList();
+                .map(id -> new ChatRoomNotificationStatus(id, true))
+                .collect(Collectors.toList());
     }
 
     // 채팅 알림 sse 수신 o/x
@@ -47,21 +49,8 @@ public class SseEmitterWrapper {
     }
 
     public void removeChatRoomNotificationStatus(Long chatRoomId) {
-//        ChatRoomNotificationStatus removeStatus = null;
-//        for (ChatRoomNotificationStatus status : this.chatRoomNotificationStatusList) {
-//            System.out.println("status의 chatRoomId : " + status.getChatRoomId());
-//            if (status.getChatRoomId().equals(chatRoomId)) {
-//                System.out.println("여기");
-//                removeStatus = status;
-//            }
-//        }
-//        this.chatRoomNotificationStatusList.remove(removeStatus);
 
         this.chatRoomNotificationStatusList.removeIf(status -> status.getChatRoomId().equals(chatRoomId));
-
-//        List<ChatRoomNotificationStatus> temp = new ArrayList<>(this.chatRoomNotificationStatusList);
-//        temp.removeIf(status -> status.getChatRoomId().equals(chatRoomId));
-//        this.chatRoomNotificationStatusList = temp;
     }
 
     //채팅방 접속/미접속 시 sse 알림 상태 on/off

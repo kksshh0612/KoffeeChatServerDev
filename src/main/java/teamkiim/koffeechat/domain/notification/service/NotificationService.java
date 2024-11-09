@@ -3,6 +3,7 @@ package teamkiim.koffeechat.domain.notification.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -70,8 +71,9 @@ public class NotificationService {
         SseEmitterWrapper emitterWrapper = emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
 
         //채팅방 목록 emitter에 추가
-        List<Long> memberChatRoomIdList = memberChatRoomRepository.findAllByMember(member)
-                .stream().map(memberChatRoom -> memberChatRoom.getChatRoom().getId()).toList();
+        List<Long> memberChatRoomIdList = memberChatRoomRepository.findAllByMember(member).stream()
+                .map(memberChatRoom -> memberChatRoom.getChatRoom().getId())
+                .collect(Collectors.toList());
 
         if (!memberChatRoomIdList.isEmpty()) {
             emitterWrapper.updateChatRoomNotificationStatus(memberChatRoomIdList);
@@ -280,7 +282,7 @@ public class NotificationService {
 
             return NotificationListItemResponse.of(encryptedId, encryptedSenderId, encryptedUrlPK, encryptedCommentId,
                     notification);
-        }).toList();
+        }).collect(Collectors.toList());
     }
 
     /**
