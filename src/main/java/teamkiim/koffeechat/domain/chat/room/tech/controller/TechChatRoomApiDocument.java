@@ -12,6 +12,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResponse;
+import teamkiim.koffeechat.domain.chat.room.tech.dto.response.TechChatRoomListResponse;
 
 @Tag(name = "Tech(기술) 채팅방 API")
 @Target(ElementType.METHOD)
@@ -32,6 +33,19 @@ public @interface TechChatRoomApiDocument {
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface create {
+    }
+
+    /**
+     * 기술 채팅방 목록 페이징 조회
+     */
+    @Operation(summary = "채팅방 목록 페이징 조회", description = "채팅방의 목록을 페이징해 조회한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "채팅방 정보 리스트를 반환한다.",
+                    content = @Content(schema = @Schema(implementation = TechChatRoomListResponse.class)))
+    })
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface findChatRooms {
     }
 
     /**
@@ -68,7 +82,7 @@ public @interface TechChatRoomApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface findChatRooms {
+    @interface findJoinChatRooms {
     }
 
     /**
