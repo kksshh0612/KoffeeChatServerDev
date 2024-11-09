@@ -71,12 +71,12 @@ public class NotificationService {
         SseEmitterWrapper emitterWrapper = emitterRepository.save(emitterId, new SseEmitterWrapper(sseEmitter));
 
         //채팅방 목록 emitter에 추가
-        List<Long> memberChatRoomIdList = memberChatRoomRepository.findAllByMember(member).stream()
+        List<Long> chatRoomIdList = memberChatRoomRepository.findAllByMember(member).stream()
                 .map(memberChatRoom -> memberChatRoom.getChatRoom().getId())
                 .collect(Collectors.toList());
 
-        if (!memberChatRoomIdList.isEmpty()) {
-            emitterWrapper.updateChatRoomNotificationStatus(memberChatRoomIdList);
+        if (!chatRoomIdList.isEmpty()) {
+            emitterWrapper.updateChatRoomNotificationStatus(chatRoomIdList);
         }
 
         sseEmitter.onTimeout(() -> handleTimeout(emitterId));
