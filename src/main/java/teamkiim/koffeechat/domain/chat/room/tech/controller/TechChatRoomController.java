@@ -68,9 +68,7 @@ public class TechChatRoomController {
 
         LocalDateTime currentTime = LocalDateTime.now();
 
-        techChatRoomService.enterChatRoom(decryptedTechChatRoomId, memberId, currentTime);
-
-        return ResponseEntity.ok("채팅방 입장 완료");
+        return ResponseEntity.ok(techChatRoomService.enterChatRoom(decryptedTechChatRoomId, memberId, currentTime));
     }
 
     /**
