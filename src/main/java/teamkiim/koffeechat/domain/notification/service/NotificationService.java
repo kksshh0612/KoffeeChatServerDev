@@ -1,6 +1,5 @@
 package teamkiim.koffeechat.domain.notification.service;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -60,7 +58,7 @@ public class NotificationService {
      * @param memberId 연결할 회원 Id
      * @return SseEmitter
      */
-    public SseEmitter connectNotification(Long memberId, HttpServletResponse response) {
+    public SseEmitter connectNotification(Long memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -84,7 +82,7 @@ public class NotificationService {
         sseEmitter.onCompletion(() -> handleCompletion(emitterId));
 
         //연결 후 첫 메시지 전송 : 503 에러 방지
-        sendFirstConnectionMessage(memberId, emitterId, sseEmitter, response);
+        sendFirstConnectionMessage(memberId, emitterId, sseEmitter);
 
         return sseEmitter;
     }
@@ -104,17 +102,10 @@ public class NotificationService {
         emitterRepository.deleteById(emitterId);
     }
 
-    private void sendFirstConnectionMessage(Long memberId, String emitterId, SseEmitter sseEmitter,
-                                            HttpServletResponse response) {
-
-        response.setHeader("Cache-Control", "no-cache");
-        response.setHeader("Connection", "keep-alive");
-        response.setHeader("Content-Type", MediaType.TEXT_EVENT_STREAM_VALUE);
-
+    private void sendFirstConnectionMessage(Long memberId, String emitterId, SseEmitter sseEmitter) {
         String eventId = aesCipherUtil.encrypt(memberId) + "_" + System.currentTimeMillis();
         sendNotification(emitterId, sseEmitter, eventId, "connected");
     }
-
 
     /**
      * 글 알림 생성
