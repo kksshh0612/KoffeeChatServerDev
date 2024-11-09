@@ -3,10 +3,10 @@ package teamkiim.koffeechat.domain.notification.repository;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 
-@Repository
+@Component
 public class EmitterRepository {
 
     //서버와 클라이언트 간의 연결성을 저장한다.
