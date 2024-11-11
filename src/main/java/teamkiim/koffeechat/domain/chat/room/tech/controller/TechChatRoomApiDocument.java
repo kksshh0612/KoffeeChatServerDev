@@ -11,8 +11,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.EnterTechChatRoomResponse;
+import teamkiim.koffeechat.domain.chat.room.tech.dto.response.JoinTechChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.TechChatRoomListResponse;
 
 @Tag(name = "Tech(기술) 채팅방 API")
@@ -76,7 +76,7 @@ public @interface TechChatRoomApiDocument {
     @Operation(summary = "현재 참여중인 채팅방 목록 페이징 조회", description = "사용자가 현재 참여중인 채팅방의 목록을 페이징해 조회한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원이 현재 속한 채팅방 정보 리스트를 반환한다.",
-                    content = @Content(schema = @Schema(implementation = ChatRoomListResponse.class))),
+                    content = @Content(schema = @Schema(implementation = JoinTechChatRoomListResponse.class))),
             @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "회원을 찾을 수 없는 경우")})),
             @ApiResponse(responseCode = "404", content = @Content(mediaType = "application/json",

@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.chat.room.common.dto.response;
+package teamkiim.koffeechat.domain.chat.room.direct.dto.response;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatRoomListResponse {
+public class DirectChatRoomListResponse {
 
     private String memberId;
     private String chatRoomId;
@@ -25,8 +25,8 @@ public class ChatRoomListResponse {
     private String oppositeMemberId;
     private String profileImageUrl;
 
-    public static ChatRoomListResponse of(String memberId, String chatRoomId, String oppositeMemberId,
-                                          Member oppositeMember, ChatRoomInfoDto chatRoomInfo) {
+    public static DirectChatRoomListResponse of(String memberId, String chatRoomId, String oppositeMemberId,
+                                                Member oppositeMember, ChatRoomInfoDto chatRoomInfo) {
 
         String roomName = chatRoomInfo.getMemberChatRoom().getChatRoom().getName();
 
@@ -34,7 +34,7 @@ public class ChatRoomListResponse {
             roomName = oppositeMember.getNickname();
         }
 
-        return ChatRoomListResponse.builder()
+        return DirectChatRoomListResponse.builder()
                 .memberId(memberId)
                 .chatRoomId(chatRoomId)
                 .chatRoomType(chatRoomInfo.getMemberChatRoom().getChatRoom().getChatRoomType())
