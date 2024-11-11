@@ -2,9 +2,11 @@ package teamkiim.koffeechat.domain.chat.room.common;
 
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
@@ -37,8 +39,17 @@ public class ChatRoomManager {
     public synchronized void removeMember(Long chatRoomId, Member member) {
 
         List<Member> members = chatRoomMemberInfoMap.get(chatRoomId);
-        if (members != null && !members.isEmpty()) {
-            members.remove(member);
+
+        synchronized (members) {
+            if (!members.isEmpty()) {
+                Iterator<Member> iterator = members.iterator();
+                while (iterator.hasNext()) {
+                    Member findMember = iterator.next();
+                    if (findMember.getId().equals(member.getId())) {
+                        iterator.remove();  // 안전하게 요소 제거
+                    }
+                }
+            }
         }
     }
 
@@ -48,7 +59,8 @@ public class ChatRoomManager {
 
     public List<Long> getMemberIds(Long chatRoomId) {
         return chatRoomMemberInfoMap.getOrDefault(chatRoomId, new ArrayList<>()).stream()
-                .map(Member::getId).toList();
+                .map(Member::getId)
+                .collect(Collectors.toList());
     }
 
     public synchronized void addMember(Long chatRoomId, Member member) {
