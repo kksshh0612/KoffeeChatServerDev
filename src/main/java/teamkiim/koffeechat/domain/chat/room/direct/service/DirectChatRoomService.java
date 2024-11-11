@@ -18,10 +18,10 @@ import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
-import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.chat.room.direct.domain.DirectChatRoom;
 import teamkiim.koffeechat.domain.chat.room.direct.dto.response.CreateDirectChatRoomResponse;
+import teamkiim.koffeechat.domain.chat.room.direct.dto.response.DirectChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.direct.repository.DirectChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.repository.MemberRepository;
@@ -129,7 +129,7 @@ public class DirectChatRoomService {
      * @param size     페이징에 사용될 size
      * @return List<ChatRoomListResponse>
      */
-    public List<ChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
+    public List<DirectChatRoomListResponse> findChatRoomList(Long memberId, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -143,7 +143,7 @@ public class DirectChatRoomService {
         // 채팅방별 정보 조회
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.getChatRoomInfo(joinMemberChatRooms);
 
-        List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
+        List<DirectChatRoomListResponse> directChatRoomListResponseList = new ArrayList<>();
 
         for (ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList) {
             MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
@@ -152,7 +152,7 @@ public class DirectChatRoomService {
                             memberChatRoom.getChatRoom(), memberChatRoom.getMember())
                     .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
 
-            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(
+            DirectChatRoomListResponse directChatRoomListResponse = DirectChatRoomListResponse.of(
                     aesCipherUtil.encrypt(memberId),
                     aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()),
                     aesCipherUtil.encrypt(oppositeMemberChatRoom.getMember().getId()),
@@ -160,12 +160,12 @@ public class DirectChatRoomService {
                     chatRoomInfoDto
             );
 
-            chatRoomListResponseList.add(chatRoomListResponse);
+            directChatRoomListResponseList.add(directChatRoomListResponse);
         }
 
         chatNotificationService.startNotifications(memberId);
 
-        return chatRoomListResponseList;
+        return directChatRoomListResponseList;
     }
 
     /**
