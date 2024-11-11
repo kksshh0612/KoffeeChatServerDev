@@ -18,12 +18,12 @@ import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
 import teamkiim.koffeechat.domain.chat.room.common.domain.ChatRoomType;
 import teamkiim.koffeechat.domain.chat.room.common.domain.MemberChatRoom;
 import teamkiim.koffeechat.domain.chat.room.common.dto.ChatRoomInfoDto;
-import teamkiim.koffeechat.domain.chat.room.common.dto.response.ChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.common.repository.MemberChatRoomRepository;
 import teamkiim.koffeechat.domain.chat.room.tech.domain.TechChatRoom;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.request.CreateTechChatRoomServiceRequest;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.CreateTechChatRoomResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.EnterTechChatRoomResponse;
+import teamkiim.koffeechat.domain.chat.room.tech.dto.response.JoinTechChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.dto.response.TechChatRoomListResponse;
 import teamkiim.koffeechat.domain.chat.room.tech.repository.TechChatRoomRepository;
 import teamkiim.koffeechat.domain.member.domain.Member;
@@ -169,9 +169,9 @@ public class TechChatRoomService {
      * @param memberId 채팅방 목록 조회 요청한 회원 PK
      * @param page     페이징에 사용될 page
      * @param size     페이징에 사용될 size
-     * @return List<ChatRoomListResponse>
+     * @return List<JoinTechChatRoomListResponse>
      */
-    public List<ChatRoomListResponse> findJoinChatRoomList(Long memberId, int page, int size) {
+    public List<JoinTechChatRoomListResponse> findJoinChatRoomList(Long memberId, int page, int size) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -185,29 +185,21 @@ public class TechChatRoomService {
         // 채팅방별 정보 조회
         List<ChatRoomInfoDto> chatRoomInfoDtoList = chatMessageService.getChatRoomInfo(joinMemberChatRooms);
 
-        List<ChatRoomListResponse> chatRoomListResponseList = new ArrayList<>();
+        List<JoinTechChatRoomListResponse> joinTechChatRoomListResponseList = new ArrayList<>();
 
         for (ChatRoomInfoDto chatRoomInfoDto : chatRoomInfoDtoList) {
-            MemberChatRoom memberChatRoom = chatRoomInfoDto.getMemberChatRoom();
-
-            MemberChatRoom oppositeMemberChatRoom = memberChatRoomRepository.findByChatRoomExceptMember(
-                            memberChatRoom.getChatRoom(), memberChatRoom.getMember())
-                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_CHAT_ROOM_NOT_FOUND));
-
-            ChatRoomListResponse chatRoomListResponse = ChatRoomListResponse.of(
+            JoinTechChatRoomListResponse joinTechChatRoomListResponse = JoinTechChatRoomListResponse.of(
                     aesCipherUtil.encrypt(memberId),
                     aesCipherUtil.encrypt(chatRoomInfoDto.getMemberChatRoom().getChatRoom().getId()),
-                    aesCipherUtil.encrypt(oppositeMemberChatRoom.getMember().getId()),
-                    oppositeMemberChatRoom.getMember(),
                     chatRoomInfoDto
             );
 
-            chatRoomListResponseList.add(chatRoomListResponse);
+            joinTechChatRoomListResponseList.add(joinTechChatRoomListResponse);
         }
 
         chatNotificationService.startNotifications(memberId);
 
-        return chatRoomListResponseList;
+        return joinTechChatRoomListResponseList;
     }
 
     /**
