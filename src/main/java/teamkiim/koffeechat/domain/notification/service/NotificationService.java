@@ -3,6 +3,9 @@ package teamkiim.koffeechat.domain.notification.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +23,6 @@ import teamkiim.koffeechat.domain.member.repository.MemberRepository;
 import teamkiim.koffeechat.domain.memberfollow.repository.MemberFollowRepository;
 import teamkiim.koffeechat.domain.notification.domain.Notification;
 import teamkiim.koffeechat.domain.notification.domain.NotificationType;
-import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateNotificationRequest;
 import teamkiim.koffeechat.domain.notification.dto.response.CommentNotificationResponse;
 import teamkiim.koffeechat.domain.notification.dto.response.CorpNotificationResponse;
@@ -30,6 +32,7 @@ import teamkiim.koffeechat.domain.notification.dto.response.PostNotificationResp
 import teamkiim.koffeechat.domain.notification.dto.response.SkillPostNotificationResponse;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
 import teamkiim.koffeechat.domain.notification.repository.NotificationRepository;
+import teamkiim.koffeechat.domain.notification.service.emitter.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.dev.domain.ChildSkillCategory;
 import teamkiim.koffeechat.domain.post.dev.domain.SkillCategory;
@@ -79,6 +82,7 @@ public class NotificationService {
             emitterWrapper.updateChatRoomNotificationStatus(chatRoomIdList);
         }
 
+//        sendPing(sseEmitter);
         sseEmitter.onTimeout(() -> handleTimeout(emitterId));
         sseEmitter.onError(e -> handleError(emitterId, e));
         sseEmitter.onCompletion(() -> handleCompletion(emitterId));
@@ -87,6 +91,17 @@ public class NotificationService {
         sendFirstConnectionMessage(memberId, emitterId, sseEmitter);
 
         return sseEmitter;
+    }
+
+    private void sendPing(SseEmitter sseEmitter) {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(() -> {
+            try {
+                sseEmitter.send(SseEmitter.event().data("ping"));  // "ping" 메시지 전송
+            } catch (IOException e) {
+                log.error("Error sending ping event to keep connection alive", e);
+            }
+        }, 0, 30, TimeUnit.SECONDS);  // 30초 간격으로 전송
     }
 
     private void handleTimeout(String emitterId) {
@@ -192,7 +207,7 @@ public class NotificationService {
                 return;
             }
             if (savedNotification.getNotificationType().equals(NotificationType.TECH_POST)) {
-                sendNotification(id, emitter.getSseEmitter(), eventId,
+                sendTechNotification(id, emitter.getSseEmitter(), eventId,
                         SkillPostNotificationResponse.of(encryptedReceiverId, encryptedUrlPK, savedNotification));
                 return;
             }
@@ -224,6 +239,22 @@ public class NotificationService {
     private void sendNotification(String emitterId, SseEmitter emitter, String eventId, Object response) {
         try {
             emitter.send(SseEmitter.event().id(eventId).data(response));
+        } catch (IOException e) {
+            log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId,
+                    e.getMessage());
+            emitter.completeWithError(e);
+            emitterRepository.deleteById(emitterId);
+        }
+    }
+
+    /**
+     * 기술 게시글 알림 발송
+     *
+     * @param response 알림 내용
+     */
+    private void sendTechNotification(String emitterId, SseEmitter emitter, String eventId, Object response) {
+        try {
+            emitter.send(SseEmitter.event().id(eventId).name("tech").data(response));
         } catch (IOException e) {
             log.error("Failed to send notification, eventId={}, emitterId={}, error={}", eventId, emitterId,
                     e.getMessage());

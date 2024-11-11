@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceRequest;
-import teamkiim.koffeechat.domain.notification.domain.SseEmitterWrapper;
 import teamkiim.koffeechat.domain.notification.dto.request.CreateChatNotificationRequest;
 import teamkiim.koffeechat.domain.notification.repository.EmitterRepository;
+import teamkiim.koffeechat.domain.notification.service.emitter.SseEmitterWrapper;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
 @Slf4j
