@@ -19,4 +19,4 @@ WORKDIR /app
 COPY --from=builder /build/build/libs/koffeeChat-0.0.1-SNAPSHOT.jar ./koffeeChat-server.jar
 
 # Entry point 설정
-ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILE}", "-jar", "koffeeChat-server.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILE}", "-Duser.timezone=Asia/Seoul", "-jar", "koffeeChat-server.jar"]
