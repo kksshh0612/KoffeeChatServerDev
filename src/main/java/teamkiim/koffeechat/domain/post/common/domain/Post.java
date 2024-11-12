@@ -1,6 +1,24 @@
 package teamkiim.koffeechat.domain.post.common.domain;
 
-import jakarta.persistence.*;
+import static jakarta.persistence.FetchType.LAZY;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
@@ -10,12 +28,6 @@ import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.tag.domain.PostTag;
 import teamkiim.koffeechat.domain.tag.domain.Tag;
 import teamkiim.koffeechat.global.auditing.BaseEntity;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -39,7 +51,7 @@ public abstract class Post extends BaseEntity {
 
     private String title;                                       // 제목
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String bodyContent;                                 // 본문
 
     private long viewCount;                                     // 조회수
@@ -129,8 +141,7 @@ public abstract class Post extends BaseEntity {
     }
 
     /**
-     * 좋아요 토글 기능 : likeCount update
-     * removeLike(), addLike()
+     * 좋아요 토글 기능 : likeCount update removeLike(), addLike()
      */
     public void addLike() {
         this.likeCount++;
@@ -141,8 +152,7 @@ public abstract class Post extends BaseEntity {
     }
 
     /**
-     * 북마크 토글 기능 : bookmarkCount update
-     * removeBookmark(), addBookmark()
+     * 북마크 토글 기능 : bookmarkCount update removeBookmark(), addBookmark()
      */
     public void addBookmark() {
         this.bookmarkCount++;
