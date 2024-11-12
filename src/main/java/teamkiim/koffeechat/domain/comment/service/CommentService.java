@@ -112,7 +112,7 @@ public class CommentService {
                 .map(comment -> {
                     boolean isMemberWritten = comment.getMember().getId().equals(memberId);
                     return CommentInfoDto.of(aesCipherUtil.encrypt(comment.getId()), comment,
-                            aesCipherUtil.encrypt(memberId), isMemberWritten);
+                            aesCipherUtil.encrypt(comment.getMember().getId()), isMemberWritten);
                 }).toList();
     }
 }
