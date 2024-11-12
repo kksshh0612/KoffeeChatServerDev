@@ -301,19 +301,23 @@ public class NotificationService {
                 : notificationRepository.findAllByReceiverAndNotificationType(receiver, notificationType, pageRequest)
                         .getContent();
 
-        return notificationList.stream().map(notification -> {
-            String encryptedId = aesCipherUtil.encrypt(notification.getId());
-            String encryptedSenderId =
-                    notification.getSender() != null ? aesCipherUtil.encrypt(notification.getSender().getId())
-                            : "KOFFEECHAT";
-            String encryptedUrlPK =
-                    notification.getUrlPK() != null ? aesCipherUtil.encrypt(notification.getUrlPK()) : null;
-            String encryptedCommentId =
-                    notification.getCommentId() != null ? aesCipherUtil.encrypt(notification.getCommentId()) : null;
+        return notificationList.stream()
+                .filter(notification -> !notification.getNotificationType().equals(NotificationType.TECH_POST))
+                .map(notification -> {
+                    String encryptedId = aesCipherUtil.encrypt(notification.getId());
+                    String encryptedSenderId =
+                            notification.getSender() != null ? aesCipherUtil.encrypt(notification.getSender().getId())
+                                    : "KOFFEECHAT";
+                    String encryptedUrlPK =
+                            notification.getUrlPK() != null ? aesCipherUtil.encrypt(notification.getUrlPK()) : null;
+                    String encryptedCommentId =
+                            notification.getCommentId() != null ? aesCipherUtil.encrypt(notification.getCommentId())
+                                    : null;
 
-            return NotificationListItemResponse.of(encryptedId, encryptedSenderId, encryptedUrlPK, encryptedCommentId,
-                    notification);
-        }).collect(Collectors.toList());
+                    return NotificationListItemResponse.of(encryptedId, encryptedSenderId, encryptedUrlPK,
+                            encryptedCommentId,
+                            notification);
+                }).collect(Collectors.toList());
     }
 
     /**
