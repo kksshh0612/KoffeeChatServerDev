@@ -147,9 +147,19 @@ public class NotificationService {
 
     private void createChildSkillPostNotification(ChildSkillCategory childSkill, Post post) {
         List<Member> skillChatRoomMembers = memberChatRoomRepository.findMembersByChildSkillCategory(childSkill);
-        skillChatRoomMembers.forEach(member -> createNotification(
-                CreateNotificationRequest.ofForTechPost(NotificationType.TECH_POST, childSkill.toString(), post),
-                member));
+
+        String encryptedPostPk = aesCipherUtil.encrypt(post.getId());
+        for (Member member : skillChatRoomMembers) {
+            String eventId = aesCipherUtil.encrypt(member.getId()) + "_" + System.currentTimeMillis();
+            Map<String, SseEmitterWrapper> emitters = emitterRepository.findAllEmitterByReceiverId(
+                    aesCipherUtil.encrypt(member.getId()));
+            String encryptedMemberId = aesCipherUtil.encrypt(member.getId());
+
+            emitters.forEach((id, emitter) -> {
+                sendTechNotification(id, emitter.getSseEmitter(), eventId,
+                        SkillPostNotificationResponse.of(childSkill, encryptedMemberId, encryptedPostPk, post));
+            });
+        }
     }
 
     /**
@@ -183,6 +193,7 @@ public class NotificationService {
     private void createNotification(CreateNotificationRequest createNotificationRequest, Member receiver) {
 
         String eventId = aesCipherUtil.encrypt(receiver.getId()) + "_" + System.currentTimeMillis();   //eventId 생성
+
         Notification savedNotification = notificationRepository.save(
                 createNotificationRequest.toEntity(eventId, receiver));
 
@@ -204,11 +215,6 @@ public class NotificationService {
                 sendNotification(id, emitter.getSseEmitter(), eventId,
                         PostNotificationResponse.of(encryptedReceiverId, encryptedSenderId, encryptedUrlPK,
                                 savedNotification));
-                return;
-            }
-            if (savedNotification.getNotificationType().equals(NotificationType.TECH_POST)) {
-                sendTechNotification(id, emitter.getSseEmitter(), eventId,
-                        SkillPostNotificationResponse.of(encryptedReceiverId, encryptedUrlPK, savedNotification));
                 return;
             }
             if (savedNotification.getNotificationType().equals(NotificationType.COMMENT)) {
@@ -302,7 +308,6 @@ public class NotificationService {
                         .getContent();
 
         return notificationList.stream()
-                .filter(notification -> !notification.getNotificationType().equals(NotificationType.TECH_POST))
                 .map(notification -> {
                     String encryptedId = aesCipherUtil.encrypt(notification.getId());
                     String encryptedSenderId =
