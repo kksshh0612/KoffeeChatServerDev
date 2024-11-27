@@ -6,15 +6,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import teamkiim.koffeechat.domain.auth.dto.TokenDto;
 import teamkiim.koffeechat.domain.auth.dto.request.LoginServiceRequest;
@@ -30,26 +26,12 @@ class AuthServiceTest {
 
     @InjectMocks
     private AuthService authService;
-
     @Mock
     private MemberRepository memberRepository;
-
     @Mock
     private Authenticator authenticator;
-
     @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private HttpServletRequest request;
-
-    @Mock
-    private HttpServletResponse response;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @DisplayName("회원가입에 성공한다.")
     @Test
