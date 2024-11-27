@@ -108,7 +108,8 @@ public class CorpAdminService {
     public List<AdminCorpDomainListResponse> listCorp() {
         List<Corp> corpList = corpRepository.findAll();
 
-        return corpList.stream().map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
+        return corpList.stream()
+                .map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
                 .toList();
     }
 
@@ -120,7 +121,8 @@ public class CorpAdminService {
     public List<AdminCorpDomainListResponse> findCorpByKeyword(String keyword) {
         List<Corp> corpList = corpRepository.findByKeyword(keyword);
 
-        return corpList.stream().map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
+        return corpList.stream()
+                .map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
                 .toList();
     }
 }
