@@ -2,7 +2,6 @@ package teamkiim.koffeechat.domain.chat.room.common;
 
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +18,7 @@ public class ChatRoomManager {
 
     private Map<Long, List<Member>> chatRoomMemberInfoMap = new ConcurrentHashMap<>();
 
-    private final MemberChatRoomRepository memberChatRoomRepository;  // 채팅방-회원 관계를 관리하는 Repository
+    private final MemberChatRoomRepository memberChatRoomRepository;    // 채팅방-회원 관계를 관리하는 Repository
 
     // 서비스 시작 시 DB에서 채팅방과 회원 정보 로드
     @PostConstruct
@@ -36,21 +35,32 @@ public class ChatRoomManager {
         }
     }
 
+    /**
+     * 채팅방에서 회원 삭제
+     *
+     * @param chatRoomId
+     * @param member
+     */
     public synchronized void removeMember(Long chatRoomId, Member member) {
-
         List<Member> members = chatRoomMemberInfoMap.get(chatRoomId);
 
-        synchronized (members) {
-            if (!members.isEmpty()) {
-                Iterator<Member> iterator = members.iterator();
-                while (iterator.hasNext()) {
-                    Member findMember = iterator.next();
-                    if (findMember.getId().equals(member.getId())) {
-                        iterator.remove();  // 안전하게 요소 제거
-                    }
-                }
-            }
+        if (members == null || members.isEmpty()) {
+            return;  // 해당 채팅방이 없거나 멤버가 없을 경우 빠르게 반환
         }
+
+        synchronized (members) {
+            members.removeIf(existingMember -> existingMember.getId().equals(member.getId()));
+        }
+    }
+
+    /**
+     * 채팅방에 회원 추가
+     *
+     * @param chatRoomId
+     * @param member
+     */
+    public synchronized void addMember(Long chatRoomId, Member member) {
+        chatRoomMemberInfoMap.computeIfAbsent(chatRoomId, k -> new ArrayList<>()).add(member);
     }
 
     public List<Member> getMembers(Long chatRoomId) {
@@ -63,8 +73,5 @@ public class ChatRoomManager {
                 .collect(Collectors.toList());
     }
 
-    public synchronized void addMember(Long chatRoomId, Member member) {
-        chatRoomMemberInfoMap.computeIfAbsent(chatRoomId, k -> new ArrayList<>()).add(member);
-    }
 
 }
