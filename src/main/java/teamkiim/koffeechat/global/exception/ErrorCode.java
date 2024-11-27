@@ -61,7 +61,10 @@ public enum ErrorCode {
     FILE_IO_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다."),
     NOTIFICATION_TYPE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 알림 종류"),
     ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "암호화 오류"),
-    DECRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "복호화 오류");
+    DECRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "복호화 오류"),
+
+    // 503 SERVICE_UNAVAILABLE
+    EXTERNAL_SERVER_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "외부 인증 서버로부터 응답이 없습니다. 잠시 후에 재시도해주세요.");
 
     private final HttpStatus httpStatus;
     private final String msg;
