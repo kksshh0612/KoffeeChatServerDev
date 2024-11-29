@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.global.resttemplate.config;
+package teamkiim.koffeechat.global.http.config;
 
 import java.time.Duration;
 import org.springframework.boot.web.client.RestTemplateBuilder;

@@ -71,7 +71,7 @@ public class DirectChatRoomService {
             // 현재 퇴장한 상태인 경우
             if (memberChatRoom.isPresent()) {
                 memberChatRoom.get().enter();
-                chatRoomManager.addMember(existChatRoom.get().getId(), requestMember);
+                chatRoomManager.addMember(existChatRoom.get().getId(), requestMember.getId());
                 chatNotificationService.addChatRoomNotification(requestMember.getId(), existChatRoom.get().getId());
 
                 // 입장 메세지 전송 (재입장)
@@ -109,8 +109,8 @@ public class DirectChatRoomService {
         memberChatRoomRepository.saveAll(List.of(requestMemberChatRoom, targetMemberChatRoom));
 
         // 채팅방 멤버 관리 목록에 추가
-        chatRoomManager.addMember(saveChatRoom.getId(), requestMember);
-        chatRoomManager.addMember(saveChatRoom.getId(), targetMember);
+        chatRoomManager.addMember(saveChatRoom.getId(), requestMember.getId());
+        chatRoomManager.addMember(saveChatRoom.getId(), targetMember.getId());
         // 채팅 알림 등록
         chatNotificationService.addChatRoomNotification(requestMember.getId(), saveChatRoom.getId());
         chatNotificationService.addChatRoomNotification(targetMember.getId(), saveChatRoom.getId());
@@ -199,7 +199,7 @@ public class DirectChatRoomService {
 
         // 퇴장 처리
         memberChatRoom.exit();
-        chatRoomManager.removeMember(decryptChatRoomId, member);
+        chatRoomManager.removeMember(decryptChatRoomId, member.getId());
         chatNotificationService.removeChatRoomNotification(memberId, decryptChatRoomId);
 
         log.info("[DirectChatRoomService / exit] memberId : {}, chatRoomId : {}", memberId, decryptChatRoomId);

@@ -156,7 +156,7 @@ public class TechChatRoomService {
                 aesCipherUtil.encrypt(techChatRoom.getId()), memberId);
 
         // 채팅방 멤버 관리 목록에 추가
-        chatRoomManager.addMember(chatRoomId, member);
+        chatRoomManager.addMember(chatRoomId, member.getId());
         // 채팅 알림 등록
         chatNotificationService.addChatRoomNotification(memberId, chatRoomId);
 
@@ -234,7 +234,7 @@ public class TechChatRoomService {
         // 퇴장 처리
         memberChatRoom.exit();
         techChatRoom.decreaseMemberCount();
-        chatRoomManager.removeMember(decryptChatRoomId, member);
+        chatRoomManager.removeMember(decryptChatRoomId, member.getId());
         chatNotificationService.removeChatRoomNotification(memberId, decryptChatRoomId);
 
         log.info("[TechChatRoomService / exit] memberId : {}, chatRoomId : {}", memberId, decryptChatRoomId);
