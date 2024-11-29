@@ -23,7 +23,7 @@ import teamkiim.koffeechat.domain.oauth.dto.request.KakaoAuthServiceRequest;
 import teamkiim.koffeechat.domain.oauth.dto.request.SaveSocialLoginMemberInfoServiceRequest;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
-import teamkiim.koffeechat.global.redis.util.RedisUtil;
+import teamkiim.koffeechat.global.redis.util.RedissonUtil;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,11 +33,12 @@ public class OAuthService {
     private final MemberRepository memberRepository;
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisUtil redisUtil;
+    private final RedissonUtil redissonUtil;
     private final RestTemplate restTemplate;
 
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
+    private static final String AUTH_TOKEN_PREFIX = "AUTH:";
 
     @Value("${jwt.refresh.exp}")
     private long refreshTokenExpTime;
@@ -199,7 +200,7 @@ public class OAuthService {
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
 
         // 레디스 세팅
-        redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
+        redissonUtil.setData(AUTH_TOKEN_PREFIX, refreshToken, "refresh-token", refreshTokenExpTime);
 
         // 쿠키 세팅
         cookieProvider.setCookie(accessTokenName, accessToken, false, response);

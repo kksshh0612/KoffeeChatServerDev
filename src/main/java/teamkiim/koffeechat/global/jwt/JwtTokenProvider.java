@@ -16,7 +16,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import teamkiim.koffeechat.global.cookie.CookieProvider;
-import teamkiim.koffeechat.global.redis.util.RedisUtil;
+import teamkiim.koffeechat.global.redis.util.RedissonUtil;
 
 /**
  * JWT 토큰을 생성/파싱/설정 하는 클래스
@@ -26,7 +26,7 @@ import teamkiim.koffeechat.global.redis.util.RedisUtil;
 @RequiredArgsConstructor
 public class JwtTokenProvider implements InitializingBean {
 
-    private final RedisUtil redisUtil;
+    private final RedissonUtil redissonUtil;
     private final CookieProvider cookieProvider;
 
     @Value("${jwt.secret-key}")
@@ -37,6 +37,7 @@ public class JwtTokenProvider implements InitializingBean {
     private long refreshTokenExpTime;
 
     private static final String AUTHORITIES_KEY = "AUTH_ROLE";
+    private static final String AUTH_TOKEN_PREFIX = "AUTH:";
     private Key key;
 
     /**
@@ -173,7 +174,8 @@ public class JwtTokenProvider implements InitializingBean {
         }
 
         // 레디스에 리프레시 토큰이 있으면
-        if (redisUtil.hasKey(requestRefreshToken) && redisUtil.getData(requestRefreshToken).equals("refresh-token")) {
+        if (redissonUtil.hashKey(requestRefreshToken) && redissonUtil.getData(requestRefreshToken)
+                .equals("refresh-token")) {
             log.debug("JwtTokenProvider.class / validateRefreshToken : refresh 토큰이 유효함");
             return true;
         }
@@ -214,7 +216,7 @@ public class JwtTokenProvider implements InitializingBean {
         long remainTime = expTime - now;        // 테스트 사이트 : https://currentmillis.com/
 
         //레디스에 블랙리스트 등록
-        redisUtil.setData(accessToken, "logout", remainTime);
+        redissonUtil.setData(AUTH_TOKEN_PREFIX, accessToken, "logout", remainTime);
     }
 
     /**
@@ -225,7 +227,7 @@ public class JwtTokenProvider implements InitializingBean {
     public void invalidateRefreshToken(String refreshToken) {
 
         if (refreshToken != null) {
-            redisUtil.deleteData(refreshToken);
+            redissonUtil.deleteData(refreshToken);
         }
     }
 

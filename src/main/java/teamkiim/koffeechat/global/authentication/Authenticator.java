@@ -15,7 +15,7 @@ import teamkiim.koffeechat.global.cookie.CookieProvider;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 import teamkiim.koffeechat.global.jwt.JwtTokenProvider;
-import teamkiim.koffeechat.global.redis.util.RedisUtil;
+import teamkiim.koffeechat.global.redis.util.RedissonUtil;
 
 @Component
 @RequiredArgsConstructor
@@ -24,10 +24,11 @@ public class Authenticator {
 
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisUtil redisUtil;
+    private final RedissonUtil redissonUtil;
 
     private static final String accessTokenName = "Authorization";
     private static final String refreshTokenName = "refresh-token";
+    private static final String AUTH_TOKEN_PREFIX = "AUTH:";
 
     @Value("${jwt.refresh.exp}")
     private long refreshTokenExpTime;
@@ -115,7 +116,7 @@ public class Authenticator {
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberRole().toString(), member.getId());
 
         // 레디스 세팅
-        redisUtil.setData(refreshToken, "refresh-token", refreshTokenExpTime);
+        redissonUtil.setData(AUTH_TOKEN_PREFIX, refreshToken, "refresh-token", refreshTokenExpTime);
 
         return TokenDto.builder()
                 .accessToken(accessToken)
