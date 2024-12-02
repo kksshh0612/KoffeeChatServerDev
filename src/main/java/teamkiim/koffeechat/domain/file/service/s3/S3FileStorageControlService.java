@@ -1,20 +1,18 @@
 package teamkiim.koffeechat.domain.file.service.s3;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import java.io.File;
-import java.io.IOException;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
-import teamkiim.koffeechat.domain.file.service.FileStorageService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
@@ -25,36 +23,30 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 @RequiredArgsConstructor
 @Profile("prod")
 @Slf4j
-public class S3FileStorageControlService implements FileStorageService {
+public class S3FileStorageControlService {
 
     private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    @Value("${domain-name}")
-    private String domainName;
-
     /**
-     * 파일 S3에 단건 저장
+     * Presigned Url 생성
      *
-     * @param multipartFile 실제 파일
+     * @param fileName 파일 이름
+     * @return presignedUrl
      */
-    public ImageUrlResponse uploadFile(String fileName, MultipartFile multipartFile) {
+    public String createPresignedUrl(String fileName) {
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(multipartFile.getContentType());
-        metadata.setContentLength(multipartFile.getSize());
+        Date expiration = getExpiration();          // 만료 시각
 
-        try {
-            amazonS3Client.putObject(bucketName, fileName, multipartFile.getInputStream(), metadata);
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.FILE_IO_FAILED);
-        } catch (IllegalStateException e) {
-            throw new CustomException(ErrorCode.FILE_REQUEST_ERROR);
-        }
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, fileName)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(expiration);
 
-        return ImageUrlResponse.of("https://" + domainName + File.separator + fileName);
+        URL url = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
+
+        return url.toExternalForm();
     }
 
     /**
@@ -97,5 +89,15 @@ public class S3FileStorageControlService implements FileStorageService {
 
     private String parseObjectName(String url) {
         return url.substring(url.lastIndexOf("/") + 1);
+    }
+
+    private static Date getExpiration() {
+
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60;     // 1분
+        expiration.setTime(expTimeMillis);
+
+        return expiration;
     }
 }

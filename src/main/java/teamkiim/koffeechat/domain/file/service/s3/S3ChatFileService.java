@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,11 @@ public class S3ChatFileService implements ChatFileService {
     private final ChatNotificationService chatNotificationService;
     private final ChatRoomManager chatRoomManager;
 
+    @Value("${domain-name}")
+    private String domainName;
+
+    private static String URL_PREFIX = "https://";
+
     /**
      * 채팅에서 S3에 이미지 전송
      *
@@ -38,20 +44,20 @@ public class S3ChatFileService implements ChatFileService {
      * @param encryptChatRoomId 이미지 전송한 채팅방 암호화된 PK
      * @param memberId          이미지 전송한 회원 PK
      * @param sendTime          이미지를 전송한 시간
+     * @return ImageUrlResponse
      */
+    @Override
     @Transactional
-    public void uploadImageFile(MultipartFile multipartFile, Long decryptChatRoomId, String encryptChatRoomId,
-                                Long memberId, LocalDateTime sendTime) {
+    public ImageUrlResponse uploadImageFile(MultipartFile multipartFile, Long decryptChatRoomId,
+                                            String encryptChatRoomId, Long memberId, LocalDateTime sendTime) {
 
-        String fileName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
+        String fileName = UUID.randomUUID().toString();
 
-        ImageUrlResponse imageUrlResponse = s3FileStorageControlService.uploadFile(fileName, multipartFile);
+        String presignedUrl = s3FileStorageControlService.createPresignedUrl(fileName);
 
-        ChatFile chatFile = ChatFile.builder()
-                .url(imageUrlResponse.getUrl())
-                .build();
+        String saveUrl = URL_PREFIX + domainName + java.io.File.separator + fileName;
 
-        ChatFile saveFile = chatFileRepository.save(chatFile);
+        ChatFile saveFile = chatFileRepository.save(new ChatFile(saveUrl));
 
         ChatMessageServiceRequest chatMessageServiceRequest = ChatMessageServiceRequest.builder()
                 .messageId(null)
@@ -66,5 +72,8 @@ public class S3ChatFileService implements ChatFileService {
 
         chatNotificationService.createChatNotification(chatMessageServiceRequest,
                 decryptChatRoomId, memberId, chatRoomMemberIds);
+
+        return ImageUrlResponse.of(presignedUrl, fileName, saveUrl);
     }
+
 }

@@ -7,9 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ImageUrlResponse {
 
+    private String presignedUrl;
+    private String key;
     private String url;
 
-    public static ImageUrlResponse of(String url) {
-        return new ImageUrlResponse(url);
+    public static ImageUrlResponse of(String presgnedUrl, String key, String url) {
+        return new ImageUrlResponse(presgnedUrl, key, url);
     }
 }

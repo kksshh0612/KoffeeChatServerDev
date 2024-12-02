@@ -13,3 +13,5 @@ public interface PostFileService {
 
     void deleteImageFiles(List<String> fileUrlList, Post post);
 }
+
+

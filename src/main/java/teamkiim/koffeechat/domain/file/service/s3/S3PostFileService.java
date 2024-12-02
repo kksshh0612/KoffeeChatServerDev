@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,6 @@ import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.repository.FileRepository;
 import teamkiim.koffeechat.domain.file.repository.PostFileRepository;
-import teamkiim.koffeechat.domain.file.service.FileStorageService;
 import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
@@ -31,30 +31,37 @@ public class S3PostFileService implements PostFileService {
     private final FileRepository fileRepository;
     private final PostFileRepository postFileRepository;
     private final PostRepository postRepository;
-    private final FileStorageService fileStorageService;
+    private final S3FileStorageControlService s3FileStorageControlService;
+
+    @Value("${domain-name}")
+    private String domainName;
+
+    private static String URL_PREFIX = "https://";
 
     /**
      * 이미지 파일 S3에 단건 저장
      *
-     * @param multipartFile 실제 파일
+     * @param multipartFile null
      * @param postId        연관 게시물 PK
      * @return ImagePathResponse
      */
+    @Override
     @Transactional
     public ImageUrlResponse uploadImageFile(MultipartFile multipartFile, Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        String fileName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
+        String fileName = UUID.randomUUID().toString();
 
-        ImageUrlResponse imageUrlResponse = fileStorageService.uploadFile(fileName, multipartFile);
+        String presignedUrl = s3FileStorageControlService.createPresignedUrl(fileName);
 
-        PostFile saveFile = postFileRepository.save(new PostFile(imageUrlResponse.getUrl(), post));
+        String saveUrl = URL_PREFIX + domainName + java.io.File.separator + fileName;
 
+        PostFile saveFile = postFileRepository.save(new PostFile(saveUrl, post));
         post.addPostFile(saveFile);                         // 양방향 연관관계 주입
 
-        return imageUrlResponse;
+        return ImageUrlResponse.of(presignedUrl, fileName, saveUrl);
     }
 
     /**
@@ -62,6 +69,7 @@ public class S3PostFileService implements PostFileService {
      *
      * @param post 연관 게시물
      */
+    @Override
     @Transactional
     public void deleteImageFiles(Post post) {
 
@@ -71,7 +79,7 @@ public class S3PostFileService implements PostFileService {
                 .map(PostFile::getUrl)
                 .collect(Collectors.toList());
 
-        fileStorageService.deleteFiles(urls);
+        s3FileStorageControlService.deleteFiles(urls);
 
         fileRepository.deleteAll(deleteFileList);
     }
@@ -82,6 +90,7 @@ public class S3PostFileService implements PostFileService {
      * @param fileUrlList 삭제하지 않을 이미지 파일 id 리스트
      * @param post        연관 게시물
      */
+    @Override
     @Transactional
     public void deleteImageFiles(List<String> fileUrlList, Post post) {
 
@@ -104,7 +113,7 @@ public class S3PostFileService implements PostFileService {
             return;
         }
 
-        fileStorageService.deleteFiles(deleteFileUrls);
+        s3FileStorageControlService.deleteFiles(deleteFileUrls);
 
         fileRepository.deleteAll(deleteFiles);
     }

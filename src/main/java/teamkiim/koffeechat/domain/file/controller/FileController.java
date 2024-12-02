@@ -34,8 +34,9 @@ public class FileController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/post")
     @FileApiDocument.saveImageFileInPost
-    public ResponseEntity<?> saveImageFileInPost(@RequestPart(value = "file") MultipartFile multipartFile,
-                                                 @RequestPart(value = "postId") String postId) {
+    public ResponseEntity<?> saveImageFileInPost(
+            @RequestPart(value = "file", required = false) MultipartFile multipartFile,
+            @RequestPart(value = "postId") String postId) {
 
         Long decryptedPostId = aesCipherUtil.decrypt(postId);
 
@@ -48,17 +49,20 @@ public class FileController {
     @AuthenticatedMemberPrincipal
     @PostMapping("/chat")
     @FileApiDocument.saveImageFileInChat
-    public ResponseEntity<?> saveImageFileInChat(@RequestPart(value = "file") MultipartFile multipartFile,
-                                                 @RequestPart(value = "chatRoomId") String chatRoomId,
-                                                 HttpServletRequest request) {
+    public ResponseEntity<?> saveImageFileInChat(
+            @RequestPart(value = "file", required = false) MultipartFile multipartFile,
+            @RequestPart(value = "chatRoomId") String chatRoomId,
+            HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
         Long decryptedChatRoomId = aesCipherUtil.decrypt(chatRoomId);
 
         LocalDateTime sendTime = LocalDateTime.now();
 
-        chatFileService.uploadImageFile(multipartFile, decryptedChatRoomId, chatRoomId, memberId, sendTime);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                chatFileService.uploadImageFile(
+                        multipartFile, decryptedChatRoomId, chatRoomId, memberId, sendTime
+                )
+        );
     }
 }
