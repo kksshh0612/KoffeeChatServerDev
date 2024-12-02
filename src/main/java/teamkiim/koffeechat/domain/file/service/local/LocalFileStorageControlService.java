@@ -9,8 +9,6 @@ import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
-import teamkiim.koffeechat.domain.file.service.FileStorageService;
 import teamkiim.koffeechat.global.exception.CustomException;
 import teamkiim.koffeechat.global.exception.ErrorCode;
 
@@ -19,7 +17,7 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
  */
 @Component
 @Profile("local")
-public class LocalFileStorageControlService implements FileStorageService {
+public class LocalFileStorageControlService {
 
     /**
      * 파일 단건 업로드
@@ -27,7 +25,7 @@ public class LocalFileStorageControlService implements FileStorageService {
      * @param saveFileUrl   파일 업로드 경로
      * @param multipartFile 업로드 파일
      */
-    public ImageUrlResponse uploadFile(String saveFileUrl, MultipartFile multipartFile) {
+    public void uploadFile(String saveFileUrl, MultipartFile multipartFile) {
 
         Path savePath = Paths.get(saveFileUrl);
 
@@ -38,8 +36,6 @@ public class LocalFileStorageControlService implements FileStorageService {
         } catch (IllegalStateException e) {
             throw new CustomException(ErrorCode.FILE_REQUEST_ERROR);
         }
-
-        return ImageUrlResponse.of(saveFileUrl);
     }
 
     /**

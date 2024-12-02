@@ -15,7 +15,6 @@ import teamkiim.koffeechat.domain.file.domain.PostFile;
 import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.repository.FileRepository;
 import teamkiim.koffeechat.domain.file.repository.PostFileRepository;
-import teamkiim.koffeechat.domain.file.service.FileStorageService;
 import teamkiim.koffeechat.domain.file.service.PostFileService;
 import teamkiim.koffeechat.domain.post.common.domain.Post;
 import teamkiim.koffeechat.domain.post.common.repository.PostRepository;
@@ -31,7 +30,7 @@ public class LocalPostFileService implements PostFileService {
     private final FileRepository fileRepository;
     private final PostFileRepository postFileRepository;
     private final PostRepository postRepository;
-    private final FileStorageService fileStorageService;
+    private final LocalFileStorageControlService localFileStorageControlService;
 
     @Value("${file-path}")
     private String baseFilePath;
@@ -43,6 +42,7 @@ public class LocalPostFileService implements PostFileService {
      * @param postId        연관 게시물 PK
      * @return ImagePathResponse
      */
+    @Override
     @Transactional
     public ImageUrlResponse uploadImageFile(MultipartFile multipartFile, Long postId) {
 
@@ -56,9 +56,9 @@ public class LocalPostFileService implements PostFileService {
         post.addPostFile(saveFile);                         // 양방향 연관관계 주입
 
         // 로컬 파일 시스템에 업로드
-        fileStorageService.uploadFile(saveFileUrl, multipartFile);
+        localFileStorageControlService.uploadFile(saveFileUrl, multipartFile);
 
-        return ImageUrlResponse.of(saveFileUrl);
+        return ImageUrlResponse.of(null, null, saveFileUrl);
     }
 
     /**
@@ -66,13 +66,14 @@ public class LocalPostFileService implements PostFileService {
      *
      * @param post 연관 게시물
      */
+    @Override
     @Transactional
     public void deleteImageFiles(Post post) {
 
         List<PostFile> fileList = postFileRepository.findAllByPost(post);
 
         for (PostFile postFile : fileList) {
-            fileStorageService.deleteFile(postFile.getUrl());
+            localFileStorageControlService.deleteFile(postFile.getUrl());
         }
 
         fileRepository.deleteAll(fileList);
@@ -84,6 +85,7 @@ public class LocalPostFileService implements PostFileService {
      * @param fileUrlList 삭제하지 않을 이미지 파일 id 리스트
      * @param post        연관 게시물
      */
+    @Override
     @Transactional
     public void deleteImageFiles(List<String> fileUrlList, Post post) {
 
@@ -101,7 +103,7 @@ public class LocalPostFileService implements PostFileService {
             return;
         }
 
-        fileStorageService.deleteFiles(deleteFileUrls);
+        localFileStorageControlService.deleteFiles(deleteFileUrls);
 
         fileRepository.deleteAll(deleteFiles);
     }

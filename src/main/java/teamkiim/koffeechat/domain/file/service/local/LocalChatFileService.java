@@ -15,6 +15,7 @@ import teamkiim.koffeechat.domain.chat.message.dto.request.ChatMessageServiceReq
 import teamkiim.koffeechat.domain.chat.message.service.ChatMessageService;
 import teamkiim.koffeechat.domain.chat.room.common.ChatRoomManager;
 import teamkiim.koffeechat.domain.file.domain.ChatFile;
+import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
 import teamkiim.koffeechat.domain.file.repository.ChatFileRepository;
 import teamkiim.koffeechat.domain.file.service.ChatFileService;
 import teamkiim.koffeechat.domain.notification.service.ChatNotificationService;
@@ -42,10 +43,13 @@ public class LocalChatFileService implements ChatFileService {
      * @param encryptChatRoomId 이미지 전송한 채팅방 암호화된 PK
      * @param memberId          이미지를 전송한 회원 PK
      * @param sendTime          이미지를 전송한 시간
+     * @return ImageUrlResponse
      */
+    @Override
     @Transactional
-    public void uploadImageFile(MultipartFile multipartFile, Long decryptChatRoomId, String encryptChatRoomId,
-                                Long memberId, LocalDateTime sendTime) {
+    public ImageUrlResponse uploadImageFile(MultipartFile multipartFile, Long decryptChatRoomId,
+                                            String encryptChatRoomId,
+                                            Long memberId, LocalDateTime sendTime) {
 
         String saveFileUrl = Paths.get(baseFilePath, "CHAT",
                 UUID.randomUUID() + "_" + multipartFile.getOriginalFilename()).toString();
@@ -70,5 +74,7 @@ public class LocalChatFileService implements ChatFileService {
 
         chatNotificationService.createChatNotification(chatMessageServiceRequest,
                 decryptChatRoomId, memberId, chatRoomMemberIds);
+
+        return ImageUrlResponse.of(null, null, saveFileUrl);
     }
 }
