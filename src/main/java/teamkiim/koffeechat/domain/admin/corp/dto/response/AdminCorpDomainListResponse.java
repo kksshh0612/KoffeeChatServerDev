@@ -1,4 +1,4 @@
-package teamkiim.koffeechat.domain.admin.corp.service.dto.response;
+package teamkiim.koffeechat.domain.admin.corp.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

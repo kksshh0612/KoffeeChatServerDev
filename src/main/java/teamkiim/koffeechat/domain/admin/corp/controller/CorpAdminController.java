@@ -5,7 +5,6 @@ import static teamkiim.koffeechat.domain.member.domain.MemberRole.ADMIN;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,10 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import teamkiim.koffeechat.domain.admin.corp.controller.CorpAdminApiDocument;
 import teamkiim.koffeechat.domain.admin.corp.controller.request.CreateApprovedCorpRequest;
+import teamkiim.koffeechat.domain.admin.corp.controller.request.UpdateCorpDomainStatusRequest;
 import teamkiim.koffeechat.domain.admin.corp.service.CorpAdminService;
-import teamkiim.koffeechat.domain.admin.corp.service.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.global.Auth;
 import teamkiim.koffeechat.global.aescipher.AESCipherUtil;
 
@@ -53,27 +51,27 @@ public class CorpAdminController {
      * 도메인 상태 관리 : 승인, 거절
      */
     @Auth(role = ADMIN)
-    @PatchMapping("/approve/{corpId}")
+    @PatchMapping("/{corpId}")
     @CorpAdminApiDocument.UpdateCorpVerified
-    public ResponseEntity<?> approveCorpDomain(@PathVariable("corpId") String corpId) {
+    public ResponseEntity<?> approveCorpDomain(@PathVariable("corpId") String corpId,
+                                               @Valid @RequestBody UpdateCorpDomainStatusRequest updateCorpDomainStatusRequest) {
 
         Long decryptedCorpId = aesCipherUtil.decrypt(corpId);
 
-        corpAdminService.approveCorpDomain(decryptedCorpId);
+        corpAdminService.updateCorpDoaminStatus(decryptedCorpId, updateCorpDomainStatusRequest.toServiceRequest());
 
-        return ResponseEntity.ok("승인 완료");
+        return ResponseEntity.ok("승인/거절 완료");
     }
 
+    /**
+     * 도메인 검색 : 회사 이름, 이메일 (keyword 없을 시, 전체 검색)
+     */
     @Auth(role = ADMIN)
-    @PatchMapping("/reject/{corpId}")
-    @CorpAdminApiDocument.UpdateCorpVerified
-    public ResponseEntity<?> rejectCorpDomain(@PathVariable("corpId") String corpId) {
+    @GetMapping("")
+    @CorpAdminApiDocument.getCorpList
+    public ResponseEntity<?> getCorpList(@RequestParam(value = "keyword", required = false) String keyword) {
 
-        Long decryptedCorpId = aesCipherUtil.decrypt(corpId);
-
-        corpAdminService.rejectCorpDomain(decryptedCorpId);
-
-        return ResponseEntity.ok("거절 완료");
+        return ResponseEntity.ok(corpAdminService.findCorpListByKeyword(keyword));
     }
 
     /**
@@ -87,29 +85,5 @@ public class CorpAdminController {
         corpAdminService.deleteCorp(decryptedCorpId);
 
         return ResponseEntity.ok("도메인 삭제 완료.");
-    }
-
-    /**
-     * 전체 도메인 목록 출력
-     */
-    @Auth(role = ADMIN)
-    @GetMapping("")
-    @CorpAdminApiDocument.ListCorp
-    public ResponseEntity<?> listCorp() {
-        List<AdminCorpDomainListResponse> responseList = corpAdminService.listCorp();
-
-        return ResponseEntity.ok(responseList);
-    }
-
-    /**
-     * 도메인 검색 : 회사 이름, 이메일
-     */
-    @Auth(role = ADMIN)
-    @GetMapping("/keyword")
-    @CorpAdminApiDocument.GetCorp
-    public ResponseEntity<?> getCorp(@RequestParam("keyword") String keyword) {
-        List<AdminCorpDomainListResponse> responseList = corpAdminService.findCorpByKeyword(keyword);
-
-        return ResponseEntity.ok(responseList);
     }
 }

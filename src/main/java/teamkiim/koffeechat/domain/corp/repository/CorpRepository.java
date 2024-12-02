@@ -22,6 +22,9 @@ public interface CorpRepository extends JpaRepository<Corp, Long> {
 
     Optional<Corp> findByEmailDomain(String domain);
 
-    @Query("SELECT c FROM Corp c WHERE c.name LIKE %:keyword% OR c.emailDomain LIKE %:keyword%")
-    List<Corp> findByKeyword(@Param("keyword") String keyword);
+    @Query("SELECT c FROM Corp c WHERE "
+            + ":keyword IS NULL OR "
+            + "c.name LIKE %:keyword% OR "
+            + "c.emailDomain LIKE %:keyword%")
+    List<Corp> findAllByKeyword(@Param("keyword") String keyword);
 }

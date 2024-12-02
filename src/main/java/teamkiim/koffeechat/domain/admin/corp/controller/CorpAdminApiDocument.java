@@ -83,7 +83,7 @@ public @interface CorpAdminApiDocument {
     /**
      * 도메인 목록 출력
      */
-    @Operation(summary = "현직자 인증 도메인 리스트 확인", description = "등록되어있는 회사 도메인 리스트를 확인한다.")
+    @Operation(summary = "현직자 인증 도메인 리스트 확인", description = "등록되어있는 회사 도메인 리스트를 확인한다. 회사 이름, 도메인 기준 검색이 가능하다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "리스트 출력 완료"),
             @ApiResponse(responseCode = "403", content = @Content(mediaType = "application/json",
@@ -93,22 +93,6 @@ public @interface CorpAdminApiDocument {
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ListCorp {
-    }
-
-    /**
-     * 도메인 키워드 기반 검색
-     */
-    @Operation(summary = "현직자 인증 도메인을 키워드 기반 검색한다.", description = "회사 이름, 도메인 기준 검색")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "검색 완료"),
-            @ApiResponse(responseCode = "403", content = @Content(mediaType = "application/json",
-                    examples = {@ExampleObject(name = "관리자 이외의 접근인 경우",
-                            value = "{\"code\": 403, \"message\": \"관리자만 접근이 가능합니다.\"}")}
-            ))
-    })
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface GetCorp {
+    @interface getCorpList {
     }
 }

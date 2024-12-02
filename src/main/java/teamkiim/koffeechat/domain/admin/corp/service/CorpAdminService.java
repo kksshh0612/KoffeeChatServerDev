@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamkiim.koffeechat.domain.admin.corp.domain.VerifyStatus;
-import teamkiim.koffeechat.domain.admin.corp.service.dto.response.AdminCorpDomainListResponse;
+import teamkiim.koffeechat.domain.admin.corp.dto.request.UpdateCorpDomainStatusServiceRequest;
+import teamkiim.koffeechat.domain.admin.corp.dto.response.AdminCorpDomainListResponse;
 import teamkiim.koffeechat.domain.corp.domain.Corp;
 import teamkiim.koffeechat.domain.corp.domain.WaitingCorp;
 import teamkiim.koffeechat.domain.corp.repository.CorpRepository;
@@ -46,46 +47,41 @@ public class CorpAdminService {
     }
 
     /**
-     * 관리자가 회원이 요청한 회사 도메인 승인
+     * 관리자가 회원이 요청한 회사 도메인 승인/거절
      *
      * @param corpId 회사 도메인 PK
      */
     @Transactional
-    public void approveCorpDomain(Long corpId) {
+    public void updateCorpDoaminStatus(Long corpId,
+                                       UpdateCorpDomainStatusServiceRequest updateCorpDomainStatusServiceRequest) {
 
-        VerifyStatus verifyStatus = VerifyStatus.APPROVED;
+        VerifyStatus verifyStatus = updateCorpDomainStatusServiceRequest.getVerifyStatus();
         Corp corp = corpRepository.findById(corpId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
 
         corp.changeVerifyStatus(verifyStatus);
 
         List<WaitingCorp> waitingCorpList = waitingCorpRepository.findByCorp(corp);
-        List<Member> memberList = waitingCorpList.stream().map(WaitingCorp::getMember).toList();
+        List<Member> memberList = waitingCorpList.stream()
+                .map(WaitingCorp::getMember).toList();
         notificationService.createCorpNotification(memberList, corp, verifyStatus);  //알림 전송
         waitingCorpRepository.deleteAll(waitingCorpList);
     }
 
     /**
-     * 관리자가 회원이 요청한 회사 도메인 거절
+     * 도메인 키워드로 검색
      *
-     * @param corpId 회사 도메인 PK
+     * @param keyword 검색 키워드
+     * @return List<AdminCorpDomainListResponse>
      */
-    @Transactional
-    public void rejectCorpDomain(Long corpId) {
+    public List<AdminCorpDomainListResponse> findCorpListByKeyword(String keyword) {
 
-        VerifyStatus verifyStatus = VerifyStatus.REJECTED;
+        List<Corp> corpList = corpRepository.findAllByKeyword(keyword);
 
-        Corp corp = corpRepository.findById(corpId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
-
-        corp.changeVerifyStatus(verifyStatus);
-
-        List<WaitingCorp> waitingCorpList = waitingCorpRepository.findByCorp(corp);
-        List<Member> memberList = waitingCorpList.stream().map(WaitingCorp::getMember).toList();
-        notificationService.createCorpNotification(memberList, corp, verifyStatus);  //알림 전송
-        waitingCorpRepository.deleteAll(waitingCorpList);
+        return corpList.stream()
+                .map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
+                .toList();
     }
-
 
     /**
      * 회사 도메인 삭제
@@ -98,31 +94,5 @@ public class CorpAdminService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CORP_NOT_FOUND));
 
         corpRepository.delete(corp);
-    }
-
-    /**
-     * 전체 도메인 리스트 확인
-     *
-     * @return List<AdminCorpDomainListResponse> 도메인 리스트 response
-     */
-    public List<AdminCorpDomainListResponse> listCorp() {
-        List<Corp> corpList = corpRepository.findAll();
-
-        return corpList.stream()
-                .map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
-                .toList();
-    }
-
-    /**
-     * 도메인 키워드로 검색
-     *
-     * @return List<AdminCorpDomainListResponse> 도메인 리스트 response
-     */
-    public List<AdminCorpDomainListResponse> findCorpByKeyword(String keyword) {
-        List<Corp> corpList = corpRepository.findByKeyword(keyword);
-
-        return corpList.stream()
-                .map(corp -> AdminCorpDomainListResponse.of(aesCipherUtil.encrypt(corp.getId()), corp))
-                .toList();
     }
 }
