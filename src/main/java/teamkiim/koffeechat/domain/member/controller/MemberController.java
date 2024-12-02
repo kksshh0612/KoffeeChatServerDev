@@ -70,7 +70,7 @@ public class MemberController {
     @PostMapping("/enroll-profile-image/s3")
     @MemberApiDocument.SaveProfileImage
     public ResponseEntity<?> saveProfileImageToS3(@RequestPart(value = "file") MultipartFile multipartFile,
-                                              HttpServletRequest request) {
+                                                  HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
@@ -174,11 +174,7 @@ public class MemberController {
     }
 
     /**
-     * 비밀번호 변경
-     */
-
-    /**
-     * 현재 비밀번호 인증
+     * 비밀번호 인증
      */
     @AuthenticatedMemberPrincipal
     @PostMapping("/password")
