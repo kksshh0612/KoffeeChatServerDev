@@ -28,8 +28,8 @@ public class AuthController {
     private final AuthService authService;
     private final CookieProvider cookieProvider;
 
-    private static final String accessTokenName = "Authorization";
-    private static final String refreshTokenName = "refresh-token";
+    private static final String ACCESS_TOKEN_NAME = "Authorization";
+    private static final String REFRESH_TOKEN_NAME = "refresh-token";
 
     /**
      * 회원가입
@@ -53,8 +53,8 @@ public class AuthController {
         TokenDto jwtTokenDto = authService.login(loginRequest.toServiceRequest());
 
         // 쿠키 세팅
-        cookieProvider.setCookie(accessTokenName, jwtTokenDto.getAccessToken(), false, response);
-        cookieProvider.setCookie(refreshTokenName, jwtTokenDto.getRefreshToken(), false, response);
+        cookieProvider.setCookie(ACCESS_TOKEN_NAME, jwtTokenDto.getAccessToken(), false, response);
+        cookieProvider.setCookie(REFRESH_TOKEN_NAME, jwtTokenDto.getRefreshToken(), false, response);
 
         return ResponseEntity.ok("로그인 성공");
     }
