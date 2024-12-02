@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.auth.service.AuthService;
 import teamkiim.koffeechat.domain.email.dto.request.EmailAuthRequest;
+import teamkiim.koffeechat.domain.file.service.ProfileFileService;
 import teamkiim.koffeechat.domain.member.controller.dto.request.CheckPasswordRequest;
 import teamkiim.koffeechat.domain.member.controller.dto.request.EnrollSkillCategoryRequest;
 import teamkiim.koffeechat.domain.member.controller.dto.request.ModifyProfileRequest;
@@ -35,6 +36,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final AuthService authService;
+    private final ProfileFileService profileFileService;
 
     private final AESCipherUtil aesCipherUtil;
 
@@ -50,31 +52,18 @@ public class MemberController {
     }
 
     /**
-     * 프로필 사진 등록 (Local 환경)
+     * 프로필 사진 등록
      */
     @AuthenticatedMemberPrincipal
-    @PostMapping("/enroll-profile-image/local")
+    @PostMapping("/enroll-profile-image")
     @MemberApiDocument.SaveProfileImage
-    public ResponseEntity<?> saveProfileImageToLocal(@RequestPart(value = "file") MultipartFile multipartFile,
-                                                     HttpServletRequest request) {
+    public ResponseEntity<?> saveProfileImageToLocal(
+            @RequestPart(value = "file", required = false) MultipartFile multipartFile,
+            HttpServletRequest request) {
 
         Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
 
-        return ResponseEntity.ok(memberService.enrollProfileImageToLocal(memberId, multipartFile));
-    }
-
-    /**
-     * 프로필 사진 등록 (S3 환경)
-     */
-    @AuthenticatedMemberPrincipal
-    @PostMapping("/enroll-profile-image/s3")
-    @MemberApiDocument.SaveProfileImage
-    public ResponseEntity<?> saveProfileImageToS3(@RequestPart(value = "file") MultipartFile multipartFile,
-                                              HttpServletRequest request) {
-
-        Long memberId = Long.valueOf(String.valueOf(request.getAttribute("authenticatedMemberPK")));
-
-        return ResponseEntity.ok(memberService.enrollProfileImageToS3(memberId, multipartFile));
+        return ResponseEntity.ok(profileFileService.uploadProfileImage(multipartFile, memberId));
     }
 
     /**

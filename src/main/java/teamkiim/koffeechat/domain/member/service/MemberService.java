@@ -1,17 +1,11 @@
 package teamkiim.koffeechat.domain.member.service;
 
-import java.io.File;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import teamkiim.koffeechat.domain.email.service.EmailService;
-import teamkiim.koffeechat.domain.file.dto.response.ImageUrlResponse;
-import teamkiim.koffeechat.domain.file.service.FileStorageService;
 import teamkiim.koffeechat.domain.member.domain.Member;
 import teamkiim.koffeechat.domain.member.dto.request.EnrollSkillCategoryServiceRequest;
 import teamkiim.koffeechat.domain.member.dto.request.ModifyProfileServiceRequest;
@@ -30,18 +24,11 @@ import teamkiim.koffeechat.global.exception.ErrorCode;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final FileStorageService fileStorageService;
     private final MemberFollowService memberFollowService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     private final AESCipherUtil aesCipherUtil;
-
-    @Value("${file-path}")
-    private String baseFilePath;
-
-    private static final String profileImagePath = "PROFILE";
-    private static final String basicProfileImageName = "basic_profile_image.png";
 
     /**
      * 사용자 닉네임으로 암호화된 pk 요청
@@ -94,32 +81,32 @@ public class MemberService {
      * @param multipartFile 실제 파일
      * @return ImageUrlResponse
      */
-    @Transactional
-    public ImageUrlResponse enrollProfileImageToLocal(Long memberId, MultipartFile multipartFile) {
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        String saveFileUrl = new StringBuilder(baseFilePath)
-                .append(File.separator)
-                .append(profileImagePath)
-                .append(File.separator)
-                .append(UUID.randomUUID())
-                .append("_")
-                .append(multipartFile.getOriginalFilename())
-                .toString();
-
-        // 이미 등록된 프로필 이미지 있으면 삭제
-        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl().equals(basicProfileImageName)) {
-            fileStorageService.deleteFile(saveFileUrl);
-        }
-
-        fileStorageService.uploadFile(saveFileUrl, multipartFile);
-
-        member.enrollProfileImage(saveFileUrl);
-
-        return ImageUrlResponse.of(saveFileUrl);
-    }
+//    @Transactional
+//    public ImageUrlResponse enrollProfileImageToLocal(Long memberId, MultipartFile multipartFile) {
+//
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+//
+//        String saveFileUrl = new StringBuilder(baseFilePath)
+//                .append(File.separator)
+//                .append(profileImagePath)
+//                .append(File.separator)
+//                .append(UUID.randomUUID())
+//                .append("_")
+//                .append(multipartFile.getOriginalFilename())
+//                .toString();
+//
+//        // 이미 등록된 프로필 이미지 있으면 삭제
+//        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl().equals(basicProfileImageName)) {
+//            localFileStorageControlService.deleteFile(saveFileUrl);
+//        }
+//
+//        localFileStorageControlService.uploadFile(saveFileUrl, multipartFile);
+//
+//        member.enrollProfileImage(saveFileUrl);
+//
+//        return ImageUrlResponse.of(null, null, saveFileUrl);
+//    }
 
     /**
      * 프로필 이미지 S3에 등록
@@ -128,26 +115,26 @@ public class MemberService {
      * @param multipartFile 실제 파일
      * @return ImageUrlResponse
      */
-    @Transactional
-    public ImageUrlResponse enrollProfileImageToS3(Long memberId, MultipartFile multipartFile) {
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        String fileName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
-
-        // 이미 등록된 프로필 이미지 있으면 삭제
-        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl()
-                .equals("https://koffeechat.site/basic_profile_image.png")) {
-            fileStorageService.deleteFile(member.getProfileImageUrl());
-        }
-
-        ImageUrlResponse imageUrlResponse = fileStorageService.uploadFile(fileName, multipartFile);
-
-        member.enrollProfileImage(imageUrlResponse.getUrl());
-
-        return imageUrlResponse;
-    }
+//    @Transactional
+//    public ImageUrlResponse enrollProfileImageToS3(Long memberId, MultipartFile multipartFile) {
+//
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+//
+//        String fileName = UUID.randomUUID().toString();
+//
+//        // 이미 등록된 프로필 이미지 있으면 삭제
+//        if (member.getProfileImageUrl() != null && !member.getProfileImageUrl()
+//                .equals("https://koffeechat.site/basic_profile_image.png")) {
+//            s3FileStorageControlService.deleteFile(member.getProfileImageUrl());
+//        }
+//
+//        String = s3FileStorageControlService.createPresignedUrl(fileName);
+//
+//        member.enrollProfileImage(imageUrlResponse.getUrl());
+//
+//        return imageUrlResponse;
+//    }
 
     /**
      * 회원 프로필 조회
