@@ -34,7 +34,7 @@ public class PostController {
      * 게시글 삭제 (soft delete)
      */
     @AuthenticatedMemberPrincipal
-    @DeleteMapping("delete/{postId}")
+    @DeleteMapping("/{postId}")
     @PostApiDocument.DeletePostApiDoc
     public ResponseEntity<?> delete(@PathVariable("postId") String postId) {
 
